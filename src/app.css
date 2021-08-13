@@ -1,28 +1,16 @@
 /* vim: fdm=marker:et:sw=2:
 * */
 
-html {
-  height: 100%;
-}
-
-body {
-  font: 100 2.5rem Trebuchet,sans-serif;
+html, body {
+  padding: 0;
   margin: 0;
-  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
+  background: #333;
 }
 
-#app {
-  position: absolute;
-}
-
-
-@media(max-width: 540px) {
-  body { font: 100 2rem Trebuchet, sans-serif; }
-}
-
-.centered {
-  position: absolute;
-  left: 0;
-  right: 0;
-  margin: auto;
+#a {
+  width: 100%;
+  height: 100%;
+  text-align: center;
 }
