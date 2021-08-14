@@ -13,8 +13,8 @@ const aspectRatioFit = (srcWidth, srcHeight, maxWidth, maxHeight) => {
 
 onresize = () => {
   const sizes = aspectRatioFit(GAME_WIDTH, GAME_HEIGHT, innerWidth, innerHeight)
-  CANVAS[STYLE][WIDTH] = sizes[0] + "px";
-  CANVAS[STYLE][HEIGHT] = sizes[1] + "px";
+  CANVAS[STYLE][WIDTH] = sizes[0] + 'px';
+  CANVAS[STYLE][HEIGHT] = sizes[1] + 'px';
 };
 
 export const init = (ele) => {
