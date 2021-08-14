@@ -1,4 +1,4 @@
-import {RAF} from './util.js';
+import { RAF, MIN } from '../util.js';
 
 /**
  * Start the game loop
@@ -11,7 +11,7 @@ export const startLoop = (step) => {
   const loop = (now) => {
     // Sanity check - absorb random lag spike / frame jumps
     // (expected delta for 60FPS is 1000/60 = ~16.67ms)
-    let dt = Math.min(now - last, 500) / 1000;
+    let dt = MIN(now - last, 500) / 1000;
 
     last = now;
 

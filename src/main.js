@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 import { init } from './init.js';
 import { getById } from './util.js';
