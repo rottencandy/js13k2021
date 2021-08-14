@@ -7,9 +7,9 @@
   "scripts": {
     "prebuild": "mkdir -p app && cp assets/* app",
     "build": "esbuild --bundle --minify --charset=utf8 --outdir=app --target=es6 --format=iife src/main.js src/app.css",
-    "uglify": "uglifyjs --compress --mangle -o app/main.js -- app/main.js",
     "predev": "mkdir -p app && cp assets/* app",
     "dev": "esbuild --bundle --watch --charset=utf8 --outdir=app --target=es6 --format=iife src/main.js src/app.css",
+    "uglify": "uglifyjs --compress --mangle --mangle-props -o app/main.js -- app/main.js",
     "bundle": "./bundle.sh"
   },
   "dependencies": {
