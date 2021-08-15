@@ -1,20 +1,11 @@
 import { GAME_WIDTH, GAME_HEIGHT, CANVAS, WIDTH, HEIGHT, STYLE, setCanvas } from './globals.js';
 import { MIN } from './util.js';
-
-const aspectRatioFit = (srcWidth, srcHeight, maxWidth, maxHeight) => {
-  var ratio = MIN(maxWidth / srcWidth, maxHeight / srcHeight);
-
-  return [
-    srcWidth * ratio,
-    srcHeight * ratio
-  ];
-};
-
+import { setupKeyListener } from './engine/input.js';
 
 onresize = () => {
-  const sizes = aspectRatioFit(GAME_WIDTH, GAME_HEIGHT, innerWidth, innerHeight)
-  CANVAS[STYLE][WIDTH] = sizes[0] + 'px';
-  CANVAS[STYLE][HEIGHT] = sizes[1] + 'px';
+  const ratio = MIN(innerWidth / GAME_WIDTH, innerHeight / GAME_HEIGHT);
+  CANVAS[STYLE][WIDTH] = GAME_WIDTH * ratio + 'px';
+  CANVAS[STYLE][HEIGHT] = GAME_HEIGHT * ratio + 'px';
 };
 
 export const init = (ele) => {
@@ -22,6 +13,8 @@ export const init = (ele) => {
   CANVAS[WIDTH] = GAME_WIDTH;
   CANVAS[HEIGHT] = GAME_HEIGHT;
   onresize();
+
+  setupKeyListener();
 };
 
 // vim: fdm=marker:et:sw=2:
