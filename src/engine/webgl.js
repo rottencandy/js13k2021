@@ -7,18 +7,22 @@
  * @returns {ClearFn} Function that clears the canvas
  */
 const clear = (gl) => () => {
-  gl.clearColor(0.0, 0.0, 0.0, 0.0);
+  gl.clearColor(0.5, 0.5, 0.5, 1.0);
   gl.clearDepth(1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 };
 
 /**
- * @typedef {() => void} DrawFn Draw arrays from loaded buffers
+ * Draw arrays from loaded buffers
+ * @callback DrawFn
+ * @param {number} count
+ * @param {number} offset
+ * @returns {void}
  */
 /**
  * Draw arrays from loaded buffers
  * @param {WebGLRenderingContext} gl - WebGL Rendering Context
- * @returns {DrawFn} Draw arrays from loaded buffers
+ * @returns {(mode: GLenum) => DrawFn} Draw arrays from loaded buffers
  */
 const drawArrays = (gl) => (mode = gl.TRIANGLES) => (count, offset = 0) =>
   gl.drawArrays(mode, offset, count);
@@ -72,16 +76,21 @@ const attribLoc = (gl) => (prg) => (variable) => gl.getAttribLocation(prg, varia
 
 /**
  * @typedef {Object} ShaderFns
- * @param {WebGLProgram} prg shader program
- * @param {() => void} use set program as active
- * @param {(variable: string) => any} getUniform get uniform setter
- * @param {(variable: string) => void} attribLoc set given variable's attrib loc
+ * @property {WebGLProgram} prg shader program
+ * @property {() => void} use set program as active
+ * @property {(variable: string) => any} getUniform get uniform setter
+ * @property {(variable: string) => void} attribLoc set given variable's attrib loc
  */
-
+/**
+ * @callback ShaderFromSrcFn
+ * @param {string} vSource
+ * @param {string} fSource
+ * @returns {ShaderFns}
+ */
 /**
  * Create Shader Program
  * @param {WebGLRenderingContext} gl - WebGL Rendering Context
- * @returns {ShaderFns} Shader functions
+ * @returns {() => ShaderFns} Shader functions
  */
 const createShaderProgram = (gl) => (vShader, fShader) => {
   const prg = gl.createProgram();
@@ -98,16 +107,12 @@ const createShaderProgram = (gl) => (vShader, fShader) => {
   }
 
   return {
-    program: prg,
+    prg,
     use: useProgram(gl)(prg),
     getUniform: uniformSetter(gl)(prg),
     attribLoc: attribLoc(gl)(prg),
   };
 };
-
-/**
- * @typedef {(vSource: string, fSource: string) => ShaderFns} ShaderFromSrcFn
- */
 
 /**
  * Create shader program from strings
@@ -146,7 +151,7 @@ const setBufferData = (gl, buf, type = gl.ARRAY_BUFFER, mode = gl.STATIC_DRAW) =
 
 // TODO: Take an array of pinters to enable at once?
 /**
- * @typedef {Function} AttribSetFn
+ * @callback AttribSetFn
  * @param {number} loc attrib location
  * @param {number} size
  * @param {number} dataType
@@ -176,14 +181,16 @@ const attribSetter = (gl, type, buf) => (loc, size, dataType = gl.FLOAT, stride 
  * @property {AttribSetFn} attribSetter - Bind & set attrib data
  */
 /**
- * @typedef {Function} GetBufferData
+ * Buffer state
+ * @callback GetBufferData
  * @param {GLenum} type - Buffer type
  * @param {GLenum} mode - Buffer mode
+ * @returns {BufferData}
  */
 /**
  * Create buffer
  * @param {WebGLRenderingContext} gl - WebGL Rendering Context
- * @returns {GetBufferData} buffer state
+ * @returns {GetBufferData}
  */
 const createBuffer = (gl) => (type = gl.ARRAY_BUFFER, mode = gl.STATIC_DRAW) => {
   const buf = gl.createBuffer();
@@ -247,8 +254,8 @@ const createBuffer = (gl) => (type = gl.ARRAY_BUFFER, mode = gl.STATIC_DRAW) => 
  * @property {WebGLRenderingContext} gl - WebGL rendering context
  * @property {ClearFn} clear - Clear the canvas
  * @property {ShaderFromSrcFn} CreateShaderProg - Create shader program from src
- * @property {GetBufferData} createBuffer
- * @property {DrawFn} drawArrays - Draw arrays from loaded buffers
+ * @property {GetBufferData} createBuffer - create buffer
+ * @property {(mode: GLenum) => DrawFn} drawArrays - Draw arrays from loaded buffers
  */
 
 /**
@@ -276,7 +283,6 @@ export const createGLContext = (canvas) => {
     createShaderProg: createShaderProgramFromSrc(gl),
     createBuffer: createBuffer(gl),
     //createTexture: createTexture(gl),
-    // Draw arrays using active program and buffer
     drawArrays: drawArrays(gl),
   };
 };

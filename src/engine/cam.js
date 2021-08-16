@@ -1,6 +1,9 @@
 import { m4 } from '../math.js';
 
 /**
+ * Use webgl camera
+ * NOTE: Use `moveTo` at least once before consuming view projection matrix.
+ * This is required to initialize the view matrix properly
  * @typedef {Object} CamFns
  * @property {(x: number, y: number, z: number) => void} move - Move camera along XYZ
  * @property {(pos: Array, target: Array, up: Array) => void} moveTo - Move cam using absolute pos(lookAt)
@@ -30,7 +33,7 @@ export const Camera = (fov, aspect, zNear, zFar) => {
       viewMat = m4.xlate(viewMat, -x, -y, -z);
       calculateMat();
     },
-    moveTo: (pos, target, up) => {
+    moveTo: (pos, target, up = [0, 1, 0]) => {
       viewMat = m4.inverse(m4.lookAt(pos, target, up));
       calculateMat();
     },
