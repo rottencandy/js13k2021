@@ -1,0 +1,11 @@
+attribute vec4 aVertexPos;
+uniform mat4 uMatrix;
+precision mediump float;
+
+export void vertex() {
+  gl_Position = uMatrix * aVertexPos;
+}
+
+export void colorFragment() {
+  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+}

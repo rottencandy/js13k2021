@@ -1,11 +1,21 @@
 'use strict';
 
-import { init } from './init.js';
-import { getById } from './util.js';
+import './init.js';
+import { startLoop } from './engine/loop.js';
+import { createSM } from './engine/state.js';
+import { update as stepGame } from './game.js';
 
-const canvas = getById('b');
-init(canvas)
-const ctx = canvas.getContext('2d');
-ctx.fillRect(50, 50, 500, 500);
+const [IN_GAME, IN_GUI] = [0, 1];
+const step = createSM({
+  [IN_GAME]: (delta) => {
+    stepGame(delta);
+  },
+  [IN_GUI]: () => {
+  },
+});
+
+startLoop((delta) => {
+  step(delta);
+});
 
 // vim: fdm=marker:et:sw=2:

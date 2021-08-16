@@ -1,4 +1,4 @@
-import { F32, SIN, COS, TAN, PI } from './util.js';
+import { F32, SQRT, SIN, COS, TAN, PI } from './util.js';
 
 const m4xm4 = (inplace = true) => (m1, m2) => {
   const m1_00 = m1[0 * 4 + 0];
