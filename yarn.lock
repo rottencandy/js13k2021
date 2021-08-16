@@ -2,10 +2,22 @@
 # yarn lockfile v1
 
 
+esbuild-plugin-glslx@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/esbuild-plugin-glslx/-/esbuild-plugin-glslx-0.0.2.tgz#c1d7f865af0d76470fbe2978edf528253a676c1e"
+  integrity sha512-D3V7kjT5W7KKrkC1CwJnjCgBkFa7eF6g82t0vASNEDOabb/KLd8t7wui2I9ULbNt/9PcczLvVWwaTiYUegeFOQ==
+  dependencies:
+    glslx "0.2.11"
+
 esbuild@^0.12.19:
   version "0.12.19"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.19.tgz#ab849766705a5093df5acd8ec2f6ba2159a38a6c"
   integrity sha512-5NuT1G6THW7l3fsSCDkcPepn24R0XtyPjKoqKHD8LfhqMXzCdz0mrS9HgO6hIhzVT7zt0T+JGbzCqF5AH8hS9w==
+
+glslx@0.2.11:
+  version "0.2.11"
+  resolved "https://registry.yarnpkg.com/glslx/-/glslx-0.2.11.tgz#50af688f23ec2b29ea1cc260eed826f375eca8e9"
+  integrity sha512-vbiMgstxfUv8arX8AMnfoDFlOzA07iX7XayMiAqq3cjB6A4msY4+2B+Rbl7HWBUfZ5yVmgePA6xyEeh8OwhCuA==
 
 uglify-js@^3.14.1:
   version "3.14.1"

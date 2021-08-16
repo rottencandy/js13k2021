@@ -6,14 +6,15 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "mkdir -p app && cp assets/* app",
-    "build": "esbuild --bundle --minify --charset=utf8 --outdir=app --target=es6 --format=iife src/main.js src/app.css",
+    "build": "node scripts/build.js",
     "predev": "mkdir -p app && cp assets/* app",
-    "dev": "esbuild --bundle --watch --charset=utf8 --outdir=app --target=es6 --format=iife src/main.js src/app.css",
+    "dev": "node scripts/dev.js",
     "uglify": "uglifyjs --compress --mangle --mangle-props -o app/main.js -- app/main.js",
     "bundle": "./bundle.sh"
   },
   "dependencies": {
     "esbuild": "^0.12.19",
+    "esbuild-plugin-glslx": "^0.0.2",
     "uglify-js": "^3.14.1"
   }
 }
