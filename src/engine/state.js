@@ -26,4 +26,7 @@ export const createSM = (states) => {
   };
 }
 
+/** Initialize an array with consecutive numbers for use as state enum */
+export const stateArray = (n) => Array.from({length: n}).map((_, i) => i);
+
 // vim: fdm=marker:et:sw=2:

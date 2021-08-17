@@ -16,6 +16,8 @@ export const Keys = {
   space: 0,
 };
 
+export const dirKeysPressed = () => Keys.left || Keys.right || Keys.up || Keys.down;
+
 /**
  * Set up onkey listeners
 */
