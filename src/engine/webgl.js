@@ -1,3 +1,18 @@
+import {
+  GL_COLOR_BUFFER_BIT,
+  GL_DEPTH_BUFFER_BIT,
+  GL_TRIANGLES,
+  GL_LINK_STATUS,
+  GL_VERTEX_SHADER,
+  GL_FRAGMENT_SHADER,
+  GL_ARRAY_BUFFER,
+  GL_STATIC_DRAW,
+  GL_FLOAT,
+  GL_CULL_FACE,
+  GL_DEPTH_TEST,
+  GL_LEQUAL
+} from './gl-constants';
+
 /**
  * @typedef {() => void} ClearFn Function that clears the canvas
  */
@@ -9,7 +24,7 @@
 const clear = (gl) => () => {
   gl.clearColor(0.5, 0.5, 0.5, 1.0);
   gl.clearDepth(1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 };
 
 /**
@@ -24,13 +39,13 @@ const clear = (gl) => () => {
  * @param {WebGLRenderingContext} gl - WebGL Rendering Context
  * @returns {(mode: GLenum) => DrawFn} Draw arrays from loaded buffers
  */
-const drawArrays = (gl) => (mode = gl.TRIANGLES) => (count, offset = 0) =>
+const drawArrays = (gl) => (mode = GL_TRIANGLES) => (count, offset = 0) =>
   gl.drawArrays(mode, offset, count);
 
 /**
  * Create shader
  * @param {WebGLRenderingContext} gl - WebGL Rendering Context
- * @param {GLenum} type - gl.VERTEX_SHADER || gl.FRAGMENT_SHADER
+ * @param {GLenum} type - GL_VERTEX_SHADER || GL_FRAGMENT_SHADER
  * @param {string} source - WebGL Shader source
  * @returns {WebGLShader} shader
  */
@@ -99,7 +114,7 @@ const createShaderProgram = (gl) => (vShader, fShader) => {
   gl.linkProgram(prg);
 
   // TODO: remove before final release
-  if (!gl.getProgramParameter(prg, gl.LINK_STATUS)) {
+  if (!gl.getProgramParameter(prg, GL_LINK_STATUS)) {
     console.error('Link failed: ', gl.getProgramInfoLog(prg));
     console.error('vs info-log: ', gl.getShaderInfoLog(vShader));
     console.error('fs info-log: ', gl.getShaderInfoLog(fShader));
@@ -120,8 +135,8 @@ const createShaderProgram = (gl) => (vShader, fShader) => {
  * @returns {ShaderFromSrcFn} get shader funcs
  */
 const createShaderProgramFromSrc = (gl) => (vsSource, fsSource) => {
-  const vShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
-  const fShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+  const vShader = createShader(gl, GL_VERTEX_SHADER, vsSource);
+  const fShader = createShader(gl, GL_FRAGMENT_SHADER, fsSource);
 
   return createShaderProgram(gl)(vShader, fShader);
 };
@@ -144,7 +159,7 @@ const bindBuffer = (gl, type, buf) => gl.bindBuffer(type, buf);
  * @param {GLenum} type - Buffer type (ARRAY_BUFFER)
  * @param {GLenum} mode - Buffer mode (STATIC_DRAW)
  */
-const setBufferData = (gl, buf, type = gl.ARRAY_BUFFER, mode = gl.STATIC_DRAW) => (data) => {
+const setBufferData = (gl, buf, type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) => (data) => {
   bindBuffer(gl, type, buf);
   gl.bufferData(type, data, mode);
 };
@@ -167,7 +182,7 @@ const setBufferData = (gl, buf, type = gl.ARRAY_BUFFER, mode = gl.STATIC_DRAW) =
  * @param {WebGLBuffer} buf - Buffer
  * @returns {AttribSetFn}
  */
-const attribSetter = (gl, type, buf) => (loc, size, dataType = gl.FLOAT, stride = 0, offset = 0, normalize = false) => () => {
+const attribSetter = (gl, type, buf) => (loc, size, dataType = GL_FLOAT, stride = 0, offset = 0, normalize = false) => () => {
   bindBuffer(gl, type, buf);
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, size, dataType, normalize, stride, offset);
@@ -192,7 +207,7 @@ const attribSetter = (gl, type, buf) => (loc, size, dataType = gl.FLOAT, stride 
  * @param {WebGLRenderingContext} gl - WebGL Rendering Context
  * @returns {GetBufferData}
  */
-const createBuffer = (gl) => (type = gl.ARRAY_BUFFER, mode = gl.STATIC_DRAW) => {
+const createBuffer = (gl) => (type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) => {
   const buf = gl.createBuffer();
   return {
     buffer: buf,
@@ -273,9 +288,9 @@ export const createGLContext = (canvas) => {
   };
 
   gl.viewport(0, 0, canvas.width, canvas.height);
-  gl.enable(gl.CULL_FACE);
-  gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
+  gl.enable(GL_CULL_FACE);
+  gl.enable(GL_DEPTH_TEST);
+  gl.depthFunc(GL_LEQUAL);
 
   return {
     gl,
