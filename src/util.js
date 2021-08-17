@@ -1,6 +1,7 @@
 const M = Math;
 
 export const
+  /** Alias for `document.getElementById()` */
   getById = (id) => document.getElementById(id),
   RAF = requestAnimationFrame,
   MIN = M.min,

@@ -1,6 +1,8 @@
 import { F32, SQRT, SIN, COS, TAN, PI } from './util.js';
 
-const m4xm4 = (inplace = true) => (m1, m2) => {
+// {{{ Matrix multiplication, inverse 
+
+const m4xm4 = (inplace = 1) => (m1, m2) => {
   const m1_00 = m1[0 * 4 + 0];
   const m1_01 = m1[0 * 4 + 1];
   const m1_02 = m1[0 * 4 + 2];
@@ -56,7 +58,7 @@ const m4xm4 = (inplace = true) => (m1, m2) => {
   return result;
 };
 
-const inverse = (m) => {
+export const Inverse = (m) => {
   const m00 = m[0 * 4 + 0];
   const m01 = m[0 * 4 + 1];
   const m02 = m[0 * 4 + 2];
@@ -141,22 +143,32 @@ const inverse = (m) => {
   ]);
 };
 
-// Identity
-const I = () => F32([
+const multiplier = (inplace) => (...matrices) =>
+  matrices.reduceRight((acc, m) => m4xm4(inplace)(m, acc));
+
+export const Multiply = multiplier(0);
+export const MultiplyI = multiplier(1);
+
+// }}}
+
+// {{{ Matrix transformations
+
+/** Identity matrix */
+export const Identity = () => F32([
   1, 0, 0, 0,
   0, 1, 0, 0,
   0, 0, 1, 0,
   0, 0, 0, 1,
 ])
 
-const translation = (tx, ty, tz) => F32([
+export const Translate = (tx, ty, tz) => F32([
   1,  0,  0,  0,
   0,  1,  0,  0,
   0,  0,  1,  0,
   tx, ty, tz, 1,
 ]);
 
-const xRotation = (angleInRadians) => {
+export const RotateX = (angleInRadians) => {
   var c = COS(angleInRadians);
   var s = SIN(angleInRadians);
 
@@ -168,7 +180,7 @@ const xRotation = (angleInRadians) => {
   ]);
 };
 
-const yRotation = (angleInRadians) => {
+export const RotateY = (angleInRadians) => {
   var c = COS(angleInRadians);
   var s = SIN(angleInRadians);
 
@@ -180,7 +192,7 @@ const yRotation = (angleInRadians) => {
   ]);
 };
 
-const zRotation = (angleInRadians) => {
+export const RotateZ = (angleInRadians) => {
   var c = COS(angleInRadians);
   var s = SIN(angleInRadians);
 
@@ -192,104 +204,83 @@ const zRotation = (angleInRadians) => {
   ]);
 };
 
-const scaling = (sx, sy, sz) => F32([
+export const Scale = (sx, sy, sz) => F32([
   sx, 0,  0,  0,
   0,  sy, 0,  0,
   0,  0,  sz, 0,
   0,  0,  0,  1,
 ]);
 
-export const v4 = {
-  // subtract
-  sub: (v1, v2) => [
-    v1[0] - v2[0],
-    v1[1] - v2[1],
-    v1[2] - v2[2],
-  ],
+// }}}
 
-  // cross product
-  cross: (v1, v2) => [
-    v1[1] * v2[2] - v1[2] * v2[1],
-    v1[2] * v2[0] - v1[0] * v2[2],
-    v1[0] * v2[1] - v1[1] * v2[0],
-  ],
+// {{{ Vector transformations
 
-  // normalize
-  norm: (v) => {
-    const length = SQRT(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-    // make sure we don't divide by 0.
-    if (length > 0.00001) {
-      return [v[0] / length, v[1] / length, v[2] / length];
-    } else {
-      return [0, 0, 0];
-    }
-  },
+export const Vec3 = (x, y, z) => [x, y, z];
+export const V3Add = (v1, v2) => [
+  v1[0] + v2[0],
+  v1[1] + v2[1],
+  v1[2] + v2[2]
+];
+export const V3Subtract = (v1, v2) => [
+  v1[0] - v2[0], 
+  v1[1] - v2[1], 
+  v1[2] - v2[2]
+];
+export const V3Cross = (v1, v2) => [
+  v1[1] * v2[2] - v1[2] * v2[1],
+  v1[2] * v2[0] - v1[0] * v2[2],
+  v1[0] * v2[1] - v1[1] * v2[0],
+];
+export const V3Normalize = (v) => {
+  const length = SQRT(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  // make sure we don't divide by 0.
+  if (length > 0.00001) {
+    return [v[0] / length, v[1] / length, v[2] / length];
+  } else {
+    return [0, 0, 0];
+  }
+}
+
+// }}}
+
+// {{{ GL transformations
+
+export const PerspectiveMat = (fov, aspect, near, far) => {
+  const f = TAN(PI * 0.5 - 0.5 * fov);
+  const rangeInv = 1.0 / (near - far);
+  return F32([
+    f / aspect, 0,               0,               0,
+    0,          f,               0,               0,
+    0,          0,   (near + far) * rangeInv,    -1,
+    0,          0,   near * far * rangeInv * 2,   0,
+  ]);
 };
 
-export const m4 = {
-  I,
-  multiplyI: m4xm4(),
-  multiply: m4xm4(false),
-  inverse,
+export const LookAtMat = (cameraPos, target, up) => {
+  const zAxis = V3Normalize(V3Subtract(cameraPos, target));
+  const xAxis = V3Normalize(V3Cross(up, zAxis));
+  const yAxis = V3Normalize(V3Cross(zAxis, xAxis));
 
-  // Rotate
-  xRot: (m, angleInRadians) => m4.multiplyI(m, xRotation(angleInRadians)),
-  yRot: (m, angleInRadians) => m4.multiplyI(m, yRotation(angleInRadians)),
-  zRot: (m, angleInRadians) => m4.multiplyI(m, zRotation(angleInRadians)),
-
-  scale: (m, sx, sy, sz) => m4.multiplyI(m, scaling(sx, sy, sz)),
-
-  // Translate
-  xlateI: (m, tx, ty, tz) => m4.multiplyI(m, translation(tx, ty, tz)),
-  xlate: (m, tx, ty, tz) => m4.multiply(m, translation(tx, ty, tz)),
-
-  // Get position vertex from a matrix
-  matPos: (m) => [m[12], m[13], m[14]],
-
-  // Projections
-
-  ortho: (left, right, bottom, top, near, far) => F32([
-    2 / (right - left), 0,           0,         0,
-    0,        2 / (top - bottom),    0,         0,
-    0,                  0,    2 / (near - far), 0,
-
-    (left + right) / (left - right),
-    (bottom + top) / (bottom - top),
-    (near + far) / (near - far),
+  return F32([
+    xAxis[0], xAxis[1], xAxis[2], 0,
+    yAxis[0], yAxis[1], yAxis[2], 0,
+    zAxis[0], zAxis[1], zAxis[2], 0,
+    cameraPos[0],
+    cameraPos[1],
+    cameraPos[2],
     1,
-  ]),
-
-  persp: (fov, aspect, near, far) => {
-    const f = TAN(PI * 0.5 - 0.5 * fov);
-    const rangeInv = 1.0 / (near - far);
-    return F32([
-      f / aspect, 0,               0,               0,
-      0,          f,               0,               0,
-      0,          0,   (near + far) * rangeInv,    -1,
-      0,          0,   near * far * rangeInv * 2,   0,
-    ]);
-  },
-
-  lookAt: (cameraPos, target, up) => {
-    const zAxis = v4.norm(v4.sub(cameraPos, target));
-    const xAxis = v4.norm(v4.cross(up, zAxis));
-    const yAxis = v4.norm(v4.cross(zAxis, xAxis));
-
-    return F32([
-      xAxis[0], xAxis[1], xAxis[2], 0,
-      yAxis[0], yAxis[1], yAxis[2], 0,
-      zAxis[0], zAxis[1], zAxis[2], 0,
-      cameraPos[0],
-      cameraPos[1],
-      cameraPos[2],
-      1,
-    ]);
-  },
+  ]);
 };
+
+// }}}
+
+// {{{ Misc
 
 /*
 * Returns circle coordinates in cartesian form
 */
 export const cartesianCircle = (angle, radius = 1) => [COS(angle) * radius, SIN(angle) * radius]
+
+// }}}
 
 // vim: fdm=marker:et:sw=2:

@@ -1,4 +1,4 @@
-import { m4 } from '../math.js';
+import { PerspectiveMat, LookAtMat, Multiply, Translate, Inverse } from '../math.js';
 
 /**
  * Use webgl camera
@@ -20,21 +20,21 @@ import { m4 } from '../math.js';
  * @returns {CamFns}
  */
 export const Camera = (fov, aspect, zNear, zFar) => {
-  let projectionMat = m4.persp(fov, aspect, zNear, zFar);
+  let projectionMat = PerspectiveMat(fov, aspect, zNear, zFar);
   let viewMat;
   let viewProjectionMat;
 
   const calculateMat = () => {
-    viewProjectionMat = m4.multiply(projectionMat, viewMat);
+    viewProjectionMat = Multiply(projectionMat, viewMat);
   };
 
   return {
     move: (x, y, z) => {
-      viewMat = m4.xlate(viewMat, -x, -y, -z);
+      viewMat = Multiply(Translate(-x, -y, -z), viewMat)
       calculateMat();
     },
     moveTo: (pos, target, up = [0, 1, 0]) => {
-      viewMat = m4.inverse(m4.lookAt(pos, target, up));
+      viewMat = Inverse(LookAtMat(pos, target, up));
       calculateMat();
     },
     getMat: () => viewProjectionMat,
