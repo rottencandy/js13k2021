@@ -1,16 +1,19 @@
 import {
-  GL_COLOR_BUFFER_BIT,
-  GL_DEPTH_BUFFER_BIT,
-  GL_TRIANGLES,
-  GL_LINK_STATUS,
-  GL_VERTEX_SHADER,
-  GL_FRAGMENT_SHADER,
   GL_ARRAY_BUFFER,
-  GL_STATIC_DRAW,
-  GL_FLOAT,
+  GL_BLEND,
+  GL_COLOR_BUFFER_BIT,
   GL_CULL_FACE,
+  GL_DEPTH_BUFFER_BIT,
   GL_DEPTH_TEST,
-  GL_LEQUAL
+  GL_FLOAT,
+  GL_FRAGMENT_SHADER,
+  GL_LEQUAL,
+  GL_LINK_STATUS,
+  GL_ONE_MINUS_SRC_ALPHA,
+  GL_SRC_ALPHA,
+  GL_STATIC_DRAW,
+  GL_TRIANGLES,
+  GL_VERTEX_SHADER,
 } from './gl-constants';
 
 /**
@@ -290,7 +293,9 @@ export const createGLContext = (canvas) => {
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.enable(GL_CULL_FACE);
   gl.enable(GL_DEPTH_TEST);
+  gl.enable(GL_BLEND);
   gl.depthFunc(GL_LEQUAL);
+  gl.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   return {
     gl,
