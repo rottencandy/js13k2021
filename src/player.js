@@ -2,20 +2,12 @@ import { createSM, stateArray } from './engine/state';
 import { Keys, dirKeysPressed } from './engine/input';
 import { Multiply, Translate, Vec3, V3Add } from './math';
 import { cube } from './shape';
+import { compose } from './util';
 import { Cam, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, colorFragment } from './player.glslx';
 
 let Pos = Vec3(0, 0, 0);
 const SIZE = 50;
-
-const { use, getUniform, attribLoc } = createShaderProg(vertex, colorFragment);
-const { setData, attribSetter } = createBuffer();
-
-const uMatrix = getUniform('uMatrix');
-const setPosAttr = attribSetter(attribLoc('aVertexPos'), 3);
-setData(cube(SIZE));
-
-const draw = drawArrays();
 
 const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
 let moveDir;
@@ -48,13 +40,21 @@ const step = createSM({
   },
 });
 
-export const render = (delta) => {
-  use();
-  setPosAttr();
+const { use, getUniform, attribLoc } = createShaderProg(vertex, colorFragment);
+const { setData, attribSetter } = createBuffer();
+
+const uMatrix = getUniform('uMatrix');
+const useAndSet = compose(attribSetter(attribLoc('aVertexPos'), 3), use);
+setData(cube(SIZE));
+
+const draw = drawArrays();
+
+export const render = (delta, worldMat) => {
+  useAndSet();
 
   step(delta);
 
-  uMatrix.m4fv(false, Multiply(Cam.getMat(), Translate(Pos[0] * SIZE, 0, Pos[2] * SIZE)));
+  uMatrix.m4fv(false, Multiply(Cam.getMat(), worldMat, Translate(Pos[0] * SIZE, 0, Pos[2] * SIZE)));
   draw(6 * 6);
 }
 

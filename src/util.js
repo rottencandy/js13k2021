@@ -11,6 +11,7 @@ export const
   PI = M.PI,
   SIN = M.sin,
   COS = M.cos,
-  TAN = M.tan;
+  TAN = M.tan,
+  compose = (...fns) => (...args) => fns.reduceRight((res, fn) => [fn.call(0, ...res)], args)[0];
 
 // vim: fdm=marker:et:sw=2:
