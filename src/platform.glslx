@@ -1,0 +1,16 @@
+precision mediump float;
+attribute vec4 aVertexPos;
+uniform mat4 uMatrix;
+varying vec4 vPos;
+
+export void vertex() {
+  gl_Position = uMatrix * aVertexPos;
+  vPos = aVertexPos;
+}
+
+export void colorFragment() {
+  vec4 frac = step(0.01, fract(vPos));
+  vec3 col = vec3(1.0 - min(frac.x, frac.z));
+  col *= vec3(0.9, 0.4, 0.2);
+  gl_FragColor = vec4(col, 0.6);
+}
