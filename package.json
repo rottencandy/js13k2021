@@ -13,8 +13,8 @@
     "bundle": "./bundle.sh"
   },
   "dependencies": {
+    "@rottencandy/esbuild-plugin-glslx": "^0.0.2",
     "esbuild": "^0.12.19",
-    "esbuild-plugin-glslx": "^0.0.2",
     "uglify-js": "^3.14.1"
   }
 }

@@ -2,22 +2,22 @@
 # yarn lockfile v1
 
 
-esbuild-plugin-glslx@^0.0.2:
+"@rottencandy/esbuild-plugin-glslx@^0.0.2":
   version "0.0.2"
-  resolved "https://registry.yarnpkg.com/esbuild-plugin-glslx/-/esbuild-plugin-glslx-0.0.2.tgz#c1d7f865af0d76470fbe2978edf528253a676c1e"
-  integrity sha512-D3V7kjT5W7KKrkC1CwJnjCgBkFa7eF6g82t0vASNEDOabb/KLd8t7wui2I9ULbNt/9PcczLvVWwaTiYUegeFOQ==
+  resolved "https://registry.yarnpkg.com/@rottencandy/esbuild-plugin-glslx/-/esbuild-plugin-glslx-0.0.2.tgz#d09749174d90da3720014720118a6e612cadf722"
+  integrity sha512-gutz1Hn5KyXCxYqEPixogKBeINQtdykWCLP0pGfCkEbd2KoUkGzEqyx8rhRUbkQJDkk5z5PQmpVAIBGdcwoxhA==
   dependencies:
-    glslx "0.2.11"
+    glslx "0.2.13"
 
 esbuild@^0.12.19:
   version "0.12.19"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.19.tgz#ab849766705a5093df5acd8ec2f6ba2159a38a6c"
   integrity sha512-5NuT1G6THW7l3fsSCDkcPepn24R0XtyPjKoqKHD8LfhqMXzCdz0mrS9HgO6hIhzVT7zt0T+JGbzCqF5AH8hS9w==
 
-glslx@0.2.11:
-  version "0.2.11"
-  resolved "https://registry.yarnpkg.com/glslx/-/glslx-0.2.11.tgz#50af688f23ec2b29ea1cc260eed826f375eca8e9"
-  integrity sha512-vbiMgstxfUv8arX8AMnfoDFlOzA07iX7XayMiAqq3cjB6A4msY4+2B+Rbl7HWBUfZ5yVmgePA6xyEeh8OwhCuA==
+glslx@0.2.13:
+  version "0.2.13"
+  resolved "https://registry.yarnpkg.com/glslx/-/glslx-0.2.13.tgz#9ecd348b1b072a6f990217409d001742ac3f0200"
+  integrity sha512-AjvDqcG3JGHFphnDpPraIiIVuNigblOGofr8EZFGlHUbpCuPzS43H3oqgd3m8h0+8a4Wf59fG5AMC1XirJjXfg==
 
 uglify-js@^3.14.1:
   version "3.14.1"

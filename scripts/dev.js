@@ -1,4 +1,4 @@
-const glslxPlugin = require('esbuild-plugin-glslx');
+const glslxPlugin = require('@rottencandy/esbuild-plugin-glslx');
 require('esbuild').build({
   entryPoints: ['src/main.js', 'src/app.css'],
   bundle: true,
