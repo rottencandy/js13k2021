@@ -2,13 +2,15 @@ import { Multiply, Scale, Translate, Identity } from './math';
 import { cube } from './shape';
 import { compose } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
-import { vertex, colorFragment } from './platform.glslx';
+import { vertex, colorFragment, renaming } from './platform.glslx';
 
-const [ _prg, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
-const [_buf, _bind, setData, attribSetter ] = createBuffer();
+const V_VERTEX_POS = 'aVertexPos', V_MATRIX = 'uMatrix';
 
-const uMatrix = getUniform('uMatrix');
-const useAndSet = compose(attribSetter(attribLoc('aVertexPos'), 3), use);
+const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
+const [, , setData, attribSetter ] = createBuffer();
+
+const uMatrix = getUniform(renaming[V_MATRIX]);
+const useAndSet = compose(attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3), use);
 setData(cube(10));
 
 const draw = drawArrays();

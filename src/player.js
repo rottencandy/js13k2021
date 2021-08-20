@@ -4,10 +4,11 @@ import { Multiply, Translate, Vec3, V3Add } from './math';
 import { cube } from './shape';
 import { compose } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
-import { vertex, colorFragment } from './player.glslx';
+import { vertex, colorFragment, renaming } from './player.glslx';
 
 let Pos = Vec3(0, 0, 0);
 const SIZE = 50;
+const V_VERTEX_POS = 'aVertexPos', V_MATRIX = 'uMatrix';
 
 const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
 let moveDir;
@@ -40,11 +41,11 @@ const step = createSM({
   },
 });
 
-const [ _prg, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
-const [_buf, _bind, setData, attribSetter ] = createBuffer();
+const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
+const [, , setData, attribSetter ] = createBuffer();
 
-const uMatrix = getUniform('uMatrix');
-const useAndSet = compose(attribSetter(attribLoc('aVertexPos'), 3), use);
+const uMatrix = getUniform(renaming[V_MATRIX]);
+const useAndSet = compose(attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3), use);
 setData(cube(SIZE));
 
 const draw = drawArrays();

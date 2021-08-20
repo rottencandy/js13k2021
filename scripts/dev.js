@@ -12,5 +12,5 @@ require('esbuild').build({
       else console.log('watch build succeeded:', result)
     },
   },
-  plugins: [glslxPlugin()],
+  plugins: [glslxPlugin({ prettyPrint: true, renaming: 'none' })],
 }).catch(() => process.exit(1))

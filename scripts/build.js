@@ -7,5 +7,5 @@ require('esbuild').build({
   target: 'es6',
   format: 'iife',
   outdir: 'app',
-  plugins: [glslxPlugin()],
+  plugins: [glslxPlugin({ prettyPrint: false, renaming: 'all' })],
 }).catch(() => process.exit(1))

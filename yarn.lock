@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@rottencandy/esbuild-plugin-glslx@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@rottencandy/esbuild-plugin-glslx/-/esbuild-plugin-glslx-0.0.2.tgz#d09749174d90da3720014720118a6e612cadf722"
-  integrity sha512-gutz1Hn5KyXCxYqEPixogKBeINQtdykWCLP0pGfCkEbd2KoUkGzEqyx8rhRUbkQJDkk5z5PQmpVAIBGdcwoxhA==
+"@rottencandy/esbuild-plugin-glslx@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@rottencandy/esbuild-plugin-glslx/-/esbuild-plugin-glslx-0.0.3.tgz#5195ec610d1db5e6c3e2ec7932b885c62376edb9"
+  integrity sha512-7Em89QooYmkO2Wuc0rpZ9fA9OnnFKd8RhxwfPn/5BXXSjXGiH4KWUJXYKc72bHVzOz+T7THJQSP7kSVWvvaOBA==
   dependencies:
     glslx "0.2.13"
 
