@@ -92,23 +92,26 @@ const uniformSetter = (gl) => (prg) => (variable) => {
  */
 const attribLoc = (gl) => (prg) => (variable) => gl.getAttribLocation(prg, variable);
 
-/**
- * @typedef {Object} ShaderFns
- * @property {WebGLProgram} prg shader program
- * @property {() => void} use set program as active
- * @property {(variable: string) => any} getUniform get uniform setter
- * @property {(variable: string) => void} attribLoc set given variable's attrib loc
+/** @callback UsePrg use shader program
+ * @returns {void}
+ */
+/** @callback GetUniform get uniform setter
+ * @param {string} variable
+ */
+/** @callback AttribLoc set given variable's attrib loc
+ * @param {string} variable
+ * @returns {void}
  */
 /**
  * @callback ShaderFromSrcFn
  * @param {string} vSource
  * @param {string} fSource
- * @returns {ShaderFns}
+ * @returns {[WebGLProgram, UsePrg, GetUniform, AttribLoc]}
  */
 /**
  * Create Shader Program
  * @param {WebGLRenderingContext} gl - WebGL Rendering Context
- * @returns {() => ShaderFns} Shader functions
+ * @returns {ShaderFns} Shader functions
  */
 const createShaderProgram = (gl) => (vShader, fShader) => {
   const prg = gl.createProgram();
@@ -124,12 +127,12 @@ const createShaderProgram = (gl) => (vShader, fShader) => {
     return null;
   }
 
-  return {
+  return [
     prg,
-    use: useProgram(gl)(prg),
-    getUniform: uniformSetter(gl)(prg),
-    attribLoc: attribLoc(gl)(prg),
-  };
+    useProgram(gl)(prg),
+    uniformSetter(gl)(prg),
+    attribLoc(gl)(prg),
+  ];
 };
 
 /**
@@ -192,18 +195,15 @@ const attribSetter = (gl, type, buf) => (loc, size, dataType = GL_FLOAT, stride 
 };
 
 /**
- * @typedef {Object} BufferData
- * @property {WebGLBuffer} buf - Buffer
- * @property {() => void} bind - Bind buffer
- * @property {SetBufDataFn} setData - Bind and set buffer data
- * @property {AttribSetFn} attribSetter - Bind & set attrib data
+ * @callback BindBuf bind buffer
+ * @returns {void}
  */
 /**
  * Buffer state
  * @callback GetBufferData
  * @param {GLenum} type - Buffer type
  * @param {GLenum} mode - Buffer mode
- * @returns {BufferData}
+ * @returns {[WebGLBuffer, BindBuf, SetBufDataFn, AttribSetFn]}
  */
 /**
  * Create buffer
@@ -212,13 +212,13 @@ const attribSetter = (gl, type, buf) => (loc, size, dataType = GL_FLOAT, stride 
  */
 const createBuffer = (gl) => (type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) => {
   const buf = gl.createBuffer();
-  return {
-    buffer: buf,
-    bind: () => bindBuffer(gl, type, buf),
-    setData: setBufferData(gl, buf, type, mode),
+  return [
+    buf,
+    () => bindBuffer(gl, type, buf),
+    setBufferData(gl, buf, type, mode),
     // TODO: Return attribSetter from inside setData?
-    attribSetter: attribSetter(gl, type, buf),
-  };
+    attribSetter(gl, type, buf),
+  ];
 };
 
 // TODO: texture functions
@@ -280,7 +280,7 @@ const createBuffer = (gl) => (type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) => 
  * Create GL context
  * @arg {HTMLCanvasElement} canvas - Canvas element
  *
- * @returns {WebGLFuncs} Rendering functions
+ * @returns {[WebGLRenderingContext, ClearFn, ShaderFromSrcFn, GetBufferData, (mode: GLenum) => DrawFn]} Rendering functions
  */
 export const createGLContext = (canvas) => {
   const gl = canvas.getContext('webgl');
@@ -297,14 +297,14 @@ export const createGLContext = (canvas) => {
   gl.depthFunc(GL_LEQUAL);
   gl.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  return {
+  return [
     gl,
-    clear: clear(gl),
-    createShaderProg: createShaderProgramFromSrc(gl),
-    createBuffer: createBuffer(gl),
+    clear(gl),
+    createShaderProgramFromSrc(gl),
+    createBuffer(gl),
     //createTexture: createTexture(gl),
-    drawArrays: drawArrays(gl),
-  };
+    drawArrays(gl),
+  ];
 };
 
 // vim: fdm=marker:et:sw=2:
