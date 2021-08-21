@@ -1,11 +1,29 @@
-attribute vec4 aVertexPos;
-uniform mat4 uMatrix;
+attribute vec4 aVert;
+attribute vec4 aNorm;
+
 precision mediump float;
 
+uniform mat4 uMat;
+uniform mat4 uModel;
+uniform vec3 uLightPos;
+
+varying vec3 vNormal;
+
 export void vertex() {
-  gl_Position = uMatrix * aVertexPos;
+  gl_Position = uMat * aVert;
+  vNormal = mat3(uModel) * aNorm.xyz;
 }
 
 export void colorFragment() {
-  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+  float ambientStrength = 0.4;
+  vec3 lightColor = vec3(1.0, 1.0, 1.0);
+  vec3 objColor = vec3(1.0, 0.0, 0.0);
+  vec3 ambient = ambientStrength * lightColor;
+
+  vec3 normal = vec3(normalize(vNormal));
+  vec3 lightPos = normalize(uLightPos);
+  float light = max(dot(normal, lightPos), 0.0);
+
+  vec3 result = (light + ambient) * objColor;
+  gl_FragColor = vec4(result, 1.0);
 }

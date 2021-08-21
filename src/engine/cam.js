@@ -33,18 +33,18 @@ export const Camera = (fov, aspect, zNear, zFar) => {
   let viewMat;
   let viewProjectionMat;
 
-  const calculateMat = () => {
+  const calculateMVPMat = () => {
     viewProjectionMat = Multiply(projectionMat, viewMat);
   };
 
   return [
     (x, y, z) => {
       viewMat = Multiply(Translate(-x, -y, -z), viewMat)
-      calculateMat();
+      calculateMVPMat();
     },
     (pos, target, up = [0, 1, 0]) => {
       viewMat = Inverse(LookAtMat(pos, target, up));
-      calculateMat();
+      calculateMVPMat();
     },
     () => viewProjectionMat,
   ];

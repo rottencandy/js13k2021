@@ -7,7 +7,7 @@ let angle = 0;
 let worldMat = Translate(10, 0, 10);
 export const update = (delta) => {
   clear();
-  angle += 0.1 * delta;
+  angle += 0.3 * delta;
   const [camX, camZ] = cartesianCircle(angle, 500);
   CamLookAt([camX, 100, camZ], [0, 0, 0]);
 

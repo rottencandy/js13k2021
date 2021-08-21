@@ -178,7 +178,7 @@ const setBufferData = (gl, buf, type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) =
  * @param {number} dataType
  * @param {number} stride
  * @param {number} offset
- * @param {boolean=false} normalize
+ * @param {boolean} normalize
  * @returns {() => void} Fn to set the attrib
  */
 /**

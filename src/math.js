@@ -159,7 +159,14 @@ export const Identity = () => F32([
   0, 1, 0, 0,
   0, 0, 1, 0,
   0, 0, 0, 1,
-])
+]);
+
+export const Transpose = (m) => F32([
+  m[0], m[4], m[8], m[12],
+  m[1], m[5], m[9], m[13],
+  m[2], m[6], m[10], m[14],
+  m[3], m[7], m[11], m[15],
+]);
 
 export const Translate = (tx, ty, tz) => F32([
   1,  0,  0,  0,
@@ -240,6 +247,8 @@ export const V3Normalize = (v) => {
     return [0, 0, 0];
   }
 }
+// TODO: Use all operators as fns
+export const V3Multiply = (v, n) => v.map(x => x * n)
 
 // }}}
 

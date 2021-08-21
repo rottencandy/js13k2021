@@ -1,3 +1,4 @@
+import { GL_FLOAT } from './engine/gl-constants';
 import { Multiply, Scale, Translate, Identity } from './math';
 import { cube } from './shape';
 import { compose } from './util';
@@ -10,7 +11,7 @@ const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
 const [, , setData, attribSetter ] = createBuffer();
 
 const uMatrix = getUniform(renaming[V_MATRIX]);
-const useAndSet = compose(attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3), use);
+const useAndSet = compose(attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3, GL_FLOAT, 24), use);
 setData(cube(10));
 
 const draw = drawArrays();
