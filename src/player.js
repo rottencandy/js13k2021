@@ -1,7 +1,8 @@
 import { createSM, stateArray } from './engine/state';
 import { Keys, dirKeysPressed } from './engine/input';
+import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
-import { Multiply, Translate, Vec3, V3Add } from './math';
+import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
 import { cube } from './shape';
 import { compose } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
@@ -15,8 +16,10 @@ V_MATRIX = 'uMat',
 V_MODEL = 'uModel',
 V_LIGHT = 'uLightPos';
 
+// [x, y] direction vectors for move state
 const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
 let moveDir;
+let rotateAngle = 0;
 
 const [IDLE, MOVING, MOVED] = stateArray(3);
 const step = createSM({
@@ -37,9 +40,14 @@ const step = createSM({
       return MOVING;
     }
   },
-  [MOVING]: () => {
-    Pos = V3Add(Pos, moveDir);
-    return MOVED;
+  [MOVING]: (delta) => {
+    [rotateAngle, moved] = lerp(rotateAngle, Math.PI / 2, delta, 2);
+    if (moved) {
+      rotateAngle = 0;
+      Pos = V3Add(Pos, moveDir);
+      moveDir = 0;
+      return MOVED;
+    }
   },
   [MOVED]: () => {
     if(!dirKeysPressed()) return IDLE;
@@ -59,6 +67,41 @@ const useAndSet = compose(
 );
 setData(cube(SIZE));
 
+const getRotationMat = () => {
+  if (!moveDir) {
+    return Identity();
+  }
+
+  // rot = rotation matrix
+  // pre & post are only used if pivot point needs to be shifted
+  let rot, pre, post;
+  const [x,,z] = moveDir;
+
+  // rotate left/right
+  if (x) {
+    rot = RotateZ(rotateAngle * -x);
+
+    pre = Translate(-SIZE, 0, 0);
+    post = Translate(SIZE, 0, 0);
+
+    // rotate up/down
+  } else {
+    rot = RotateX(rotateAngle * z);
+
+    pre = Translate(0, 0, -SIZE);
+    post = Translate(0, 0, SIZE);
+  }
+
+  // shifting pivot required if any of the angles is positive
+  const changePivot = (x || z) > 0;
+  if (changePivot) {
+    return Multiply(post, rot, pre);
+    // if not simply rotate
+  } else {
+    return rot;
+  }
+};
+
 const draw = drawArrays();
 
 export const render = (delta, worldMat) => {
@@ -66,7 +109,7 @@ export const render = (delta, worldMat) => {
 
   step(delta);
 
-  const localMat = Translate(Pos[0] * SIZE, 0, Pos[2] * SIZE);
+  const localMat = Multiply(Translate(Pos[0] * SIZE, 0, Pos[2] * SIZE), getRotationMat());
   const modelMat = Multiply(worldMat, localMat);
   //inverse transpose is required for uWorldMat when transformations are done
   //const inverseMVMat = Transpose(Inverse(modelViewMat));

@@ -1,15 +1,12 @@
 import { CamLookAt, clear } from './global-state';
-import { Translate, cartesianCircle } from './math';
+import { Translate } from './math';
 import { render as  renderPlayer } from './player';
 import { render as  renderPlatform } from './platform';
 
-let angle = 0;
 let worldMat = Translate(10, 0, 10);
 export const update = (delta) => {
   clear();
-  angle += 0.3 * delta;
-  const [camX, camZ] = cartesianCircle(angle, 500);
-  CamLookAt([camX, 100, camZ], [0, 0, 0]);
+  CamLookAt([100, 200, 300], [0, 0, 0]);
 
   renderPlayer(delta, worldMat);
   renderPlatform(delta, worldMat);
