@@ -1,17 +1,14 @@
 precision mediump float;
-attribute vec4 aVertexPos;
+attribute vec4 aPos;
 uniform mat4 uMatrix;
-
-varying vec4 vPos;
+uniform vec3 uGridPos;
+uniform vec3 uColor;
 
 export void vertex() {
-  gl_Position = uMatrix * aVertexPos;
-  vPos = aVertexPos;
+  // TODO: Is passing the grid x,y the best method?
+  gl_Position = uMatrix * vec4(aPos.xyz + uGridPos * 50.0, 1.0);
 }
 
 export void colorFragment() {
-  vec4 decimal = step(0.01, fract(vPos));
-  vec3 color = vec3(1.0 - min(decimal.x, decimal.z));
-  color *= vec3(0.9, 0.4, 0.2);
-  gl_FragColor = vec4(color, 0.6);
+  gl_FragColor = vec4(uColor, 1.0);
 }

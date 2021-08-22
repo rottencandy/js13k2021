@@ -12,11 +12,11 @@ import { vertex, colorFragment, renaming } from './player.glslx';
 
 let Pos = Vec3(0, 0, 0);
 const SIZE = 50;
-const V_VERTEX_POS = 'aVert',
-V_NORMAL_POS = 'aNorm',
-V_MATRIX = 'uMat',
-V_MODEL = 'uModel',
-V_LIGHT = 'uLightPos';
+const A_VERTEX_POS = 'aVert',
+A_NORMAL_POS = 'aNorm',
+U_MATRIX = 'uMat',
+U_MODEL = 'uModel',
+U_LIGHT = 'uLightPos';
 
 // [x, y] direction vectors for move state
 const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
@@ -104,12 +104,12 @@ const addRotation = (dir) => {
 // Set up GL state
 const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
 const [, , setData, attribSetter ] = createBuffer();
-const uMatrix = getUniform(renaming[V_MATRIX]);
-const uModel = getUniform(renaming[V_MODEL]);
-const uLightPos = getUniform(renaming[V_LIGHT]);
+const uMatrix = getUniform(renaming[U_MATRIX]);
+const uModel = getUniform(renaming[U_MODEL]);
+const uLightPos = getUniform(renaming[U_LIGHT]);
 const useAndSet = compose(
-  attribSetter(attribLoc(renaming[V_NORMAL_POS]), 3, GL_FLOAT, 24, 12),
-  attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3, GL_FLOAT, 24),
+  attribSetter(attribLoc(renaming[A_NORMAL_POS]), 3, GL_FLOAT, 24, 12),
+  attribSetter(attribLoc(renaming[A_VERTEX_POS]), 3, GL_FLOAT, 24),
   use
 );
 setData(cube(SIZE));

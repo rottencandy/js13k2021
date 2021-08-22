@@ -5,24 +5,54 @@ import { compose } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './platform.glslx';
 
-const V_VERTEX_POS = 'aVertexPos', V_MATRIX = 'uMatrix';
+// {{{ Init
 
+const V_VERTEX_POS = 'aPos',
+U_MATRIX = 'uMatrix',
+U_COLOR = 'uColor',
+U_GRID_POS = 'uGridPos',
+SIZE = 50;
+
+const level = [
+  [0, 0],
+  [0, 0],
+];
+
+// }}}
+
+// {{{ Update
+
+const localMat = Multiply(Scale(1, 0.5, 1), Translate(0, -SIZE, 0));
+
+// }}}
+
+// {{{ Render
+
+// Setup GL state
 const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
 const [, , setData, attribSetter ] = createBuffer();
 
-const uMatrix = getUniform(renaming[V_MATRIX]);
+const uMatrix = getUniform(renaming[U_MATRIX]);
+const uGridPos = getUniform(renaming[U_GRID_POS]);
+const uColor = getUniform(renaming[U_COLOR]);
 const useAndSet = compose(attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3, GL_FLOAT, 24), use);
-setData(cube(10));
+setData(cube(SIZE));
 
 const draw = drawArrays();
 
-const localMat = Multiply(Translate(-250, 0, -250), Scale(50, 0, 50), Identity());
 
 export const render = (_delta, worldMat) => {
   useAndSet();
-
   uMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
-  draw(6 * 6);
+  uColor.u3f(0.0, 0.3, 0.7);
+
+  level.map((rows, y) => rows.map((_tile, x) => {
+    uGridPos.u3f(x, 0, y, 1);
+    draw(6 * 6);
+  }));
+
 }
+
+// }}}
 
 // vim: fdm=marker:et:sw=2:
