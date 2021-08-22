@@ -8,17 +8,23 @@ uniform mat4 uModel;
 uniform vec3 uLightPos;
 
 varying vec3 vNormal;
+varying float vNormalY;
 
 const vec3 objColor = vec3(1.0, 0.0, 0.0);
 
 export void vertex() {
   gl_Position = uMat * aVert;
   vNormal = mat3(uModel) * aNorm.xyz;
+  vNormalY = aNorm.y;
 }
 
 export void colorFragment() {
+  // skip rendering top face
+  if(vNormalY == 1.0) {
+    discard;
+  }
   // ambient light intensity
-  vec3 ambient = vec3(0.4);
+  vec3 ambient = vec3(0.3);
 
   // calculate directional lighting using normals
   vec3 normal = vec3(normalize(vNormal));
