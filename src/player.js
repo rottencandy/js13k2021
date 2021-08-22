@@ -4,9 +4,11 @@ import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
 import { cube } from './shape';
-import { compose } from './util';
+import { compose, PI } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './player.glslx';
+
+// {{{ Init
 
 let Pos = Vec3(0, 0, 0);
 const SIZE = 50;
@@ -20,6 +22,10 @@ V_LIGHT = 'uLightPos';
 const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
 let moveDir;
 let rotateAngle = 0;
+
+// }}}
+
+// {{{ Update
 
 const [IDLE, MOVING, MOVED] = stateArray(3);
 const step = createSM({
@@ -41,11 +47,12 @@ const step = createSM({
     }
   },
   [MOVING]: (delta) => {
-    [rotateAngle, moved] = lerp(rotateAngle, Math.PI / 2, delta, 2);
+    [rotateAngle, moved] = lerp(rotateAngle, Math.PI / 2, delta, 5);
     if (moved) {
-      rotateAngle = 0;
       Pos = V3Add(Pos, moveDir);
-      moveDir = 0;
+      // rotation is counter-clockwise, so invert z-axis amount
+      addRotation(Vec3(moveDir[2], 0, -moveDir[0]));
+      rotateAngle = moveDir = 0;
       return MOVED;
     }
   },
@@ -54,9 +61,13 @@ const step = createSM({
   },
 });
 
+// }}}
+
+// Render {{{
+
+// Set up GL state
 const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
 const [, , setData, attribSetter ] = createBuffer();
-
 const uMatrix = getUniform(renaming[V_MATRIX]);
 const uModel = getUniform(renaming[V_MODEL]);
 const uLightPos = getUniform(renaming[V_LIGHT]);
@@ -67,9 +78,23 @@ const useAndSet = compose(
 );
 setData(cube(SIZE));
 
+// matrix that keeps track of all past rotations
+let rotationStack = Identity();
+const addRotation = (dir) => {
+  const center = SIZE / 2, deg = PI / 2;
+  // move obj to center, perform rotations by 90deg, move back
+  rotationStack = Multiply(
+    Translate(center, center, center),
+    Multiply(RotateX(dir[0] * deg), Identity()),
+    Multiply(RotateZ(dir[2] * deg), Identity()),
+    Translate(-center, -center, -center),
+    rotationStack,
+  );
+};
+
 const getRotationMat = () => {
   if (!moveDir) {
-    return Identity();
+    return rotationStack;
   }
 
   // rot = rotation matrix
@@ -95,10 +120,10 @@ const getRotationMat = () => {
   // shifting pivot required if any of the angles is positive
   const changePivot = (x || z) > 0;
   if (changePivot) {
-    return Multiply(post, rot, pre);
+    return Multiply(post, rot, pre, rotationStack);
     // if not simply rotate
   } else {
-    return rot;
+    return Multiply(rot, rotationStack);
   }
 };
 
@@ -118,5 +143,7 @@ export const render = (delta, worldMat) => {
   uLightPos.u3f(0.5, 0.7, 1.0);
   draw(6 * 6);
 }
+
+// }}}
 
 // vim: fdm=marker:et:sw=2:
