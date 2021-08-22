@@ -4,7 +4,7 @@ import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
 import { cube } from './shape';
-import { compose, PI } from './util';
+import { compose, PI, isOdd } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './player.glslx';
 
@@ -47,10 +47,10 @@ const step = createSM({
     }
   },
   [MOVING]: (delta) => {
-    [rotateAngle, moved] = lerp(rotateAngle, Math.PI / 2, delta, 5);
+    [rotateAngle, moved] = lerp(rotateAngle, PI / 2, delta, 5);
     if (moved) {
       Pos = V3Add(Pos, moveDir);
-      // rotation is counter-clockwise, so invert z-axis amount
+      // +ve rotation is counter-clockwise, so invert z-axis amount
       addRotation(Vec3(moveDir[2], 0, -moveDir[0]));
       rotateAngle = moveDir = 0;
       return MOVED;
@@ -60,6 +60,42 @@ const step = createSM({
     if(!dirKeysPressed()) return IDLE;
   },
 });
+
+let inXStrip = true;
+// 0 -> 3 (4 vals)
+let stripPos = 0;
+// matrix that keeps track of all past rotations
+let rotationStack = Identity();
+const addRotation = (dir) => {
+  const center = SIZE / 2, deg = PI / 2;
+  // move obj to center, perform rotations by 90deg, and move back
+  rotationStack = Multiply(
+    Translate(center, center, center),
+    Multiply(RotateX(dir[0] * deg), Identity()),
+    Multiply(RotateZ(dir[2] * deg), Identity()),
+    Translate(-center, -center, -center),
+    rotationStack,
+  );
+  
+  // value of whichever direction was moved ( -1 or 1 )
+  const amt = (dir[0] || dir[2]);
+  // Use remainder because we only need values from 0 -> 4 (PI)
+  const nextPos = (stripPos + amt) % 4;
+
+  // moved along currently occupied strip
+  if (dir[2] && inXStrip || dir[0] && !inXStrip) {
+    stripPos = nextPos;
+
+    // moved along the other strip
+  } else {
+    // we only need to do something if the face was either at the top or bottom
+    if(!isOdd(stripPos)) {
+      stripPos = nextPos;
+      inXStrip = !inXStrip;
+    }
+  }
+};
+// const isFaceDown = () => ABS(stripPos) === 2
 
 // }}}
 
@@ -77,20 +113,6 @@ const useAndSet = compose(
   use
 );
 setData(cube(SIZE));
-
-// matrix that keeps track of all past rotations
-let rotationStack = Identity();
-const addRotation = (dir) => {
-  const center = SIZE / 2, deg = PI / 2;
-  // move obj to center, perform rotations by 90deg, move back
-  rotationStack = Multiply(
-    Translate(center, center, center),
-    Multiply(RotateX(dir[0] * deg), Identity()),
-    Multiply(RotateZ(dir[2] * deg), Identity()),
-    Translate(-center, -center, -center),
-    rotationStack,
-  );
-};
 
 const getRotationMat = () => {
   if (!moveDir) {
