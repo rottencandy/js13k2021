@@ -1,5 +1,6 @@
 import { GL_FLOAT } from './engine/gl-constants';
-import { STATIC, GAP, platformData } from './platform-types';
+import { SIGNAL_CUBE_MOVED, watchSignal } from './engine/observer';
+import { STATIC, GAP, PLATFORM_DATA } from './platform-types';
 import { Multiply, Scale, Translate } from './math';
 import { cube } from './shape';
 import { compose } from './util';
@@ -51,13 +52,23 @@ const draw = drawArrays();
 
 
 export const render = (_delta, worldMat) => {
+  // check if cube has moved
+  const p = watchSignal(SIGNAL_CUBE_MOVED);
+  if(p) {
+    // TODO: handle grid out of bounds
+    const [x, , z] = p;
+    const platform = level[z][x];
+    // run onstep handler
+    PLATFORM_DATA[platform][1]();
+  }
+
   useAndSet();
   uMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
   uModel.m4fv(false, localMat);
   uLightPos.u3f(0.5, 0.7, 1.0);
 
   level.map((rows, y) => rows.map((p, x) => {
-    const [color] = platformData(p);
+    const [color] = PLATFORM_DATA[p];
     uColor.u4f(...color);
     uGridPos.u3f(x, 0, y, 1);
     draw(6 * 6);

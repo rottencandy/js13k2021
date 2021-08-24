@@ -1,5 +1,6 @@
 import { createSM, stateArray } from './engine/state';
 import { Keys, dirKeysPressed } from './engine/input';
+import { SIGNAL_CUBE_MOVED, emitSignal } from './engine/observer';
 import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
@@ -53,6 +54,7 @@ const step = createSM({
       // +ve rotation is counter-clockwise, so invert z-axis amount
       addRotation(Vec3(moveDir[2], 0, -moveDir[0]));
       rotateAngle = moveDir = 0;
+      emitSignal(SIGNAL_CUBE_MOVED, Pos);
       return MOVED;
     }
   },
@@ -99,7 +101,7 @@ const addRotation = (dir) => {
 
 // }}}
 
-// Render {{{
+// {{{ Render
 
 // Set up GL state
 const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
