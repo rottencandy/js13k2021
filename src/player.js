@@ -7,16 +7,16 @@ import { cube } from './shape';
 import { compose, PI, isOdd } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './player.glslx';
+import { U_LIGHT_POS } from './globals';
 
 // {{{ Init
 
 let Pos = Vec3(0, 0, 0);
 const SIZE = 50;
-const A_VERTEX_POS = 'aVert',
+const A_VERTEX_POS = 'aPos',
 A_NORMAL_POS = 'aNorm',
 U_MATRIX = 'uMat',
-U_MODEL = 'uModel',
-U_LIGHT = 'uLightPos';
+U_MODEL = 'uModel';
 
 // [x, y] direction vectors for move state
 const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
@@ -106,7 +106,7 @@ const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
 const [, , setData, attribSetter ] = createBuffer();
 const uMatrix = getUniform(renaming[U_MATRIX]);
 const uModel = getUniform(renaming[U_MODEL]);
-const uLightPos = getUniform(renaming[U_LIGHT]);
+const uLightPos = getUniform(renaming[U_LIGHT_POS]);
 const useAndSet = compose(
   attribSetter(attribLoc(renaming[A_NORMAL_POS]), 3, GL_FLOAT, 24, 12),
   attribSetter(attribLoc(renaming[A_VERTEX_POS]), 3, GL_FLOAT, 24),

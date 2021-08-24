@@ -1,4 +1,4 @@
-attribute vec4 aVert;
+attribute vec4 aPos;
 attribute vec4 aNorm;
 
 precision mediump float;
@@ -13,7 +13,7 @@ varying float vNormalY;
 const vec3 objColor = vec3(1.0, 0.0, 0.0);
 
 export void vertex() {
-  gl_Position = uMat * aVert;
+  gl_Position = uMat * aPos;
   vNormal = mat3(uModel) * aNorm.xyz;
   vNormalY = aNorm.y;
 }

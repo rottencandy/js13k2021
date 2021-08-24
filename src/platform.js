@@ -1,21 +1,25 @@
 import { GL_FLOAT } from './engine/gl-constants';
-import { Multiply, Scale, Translate, Identity } from './math';
+import { STATIC, GAP, platformData } from './platform-types';
+import { Multiply, Scale, Translate } from './math';
 import { cube } from './shape';
 import { compose } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './platform.glslx';
+import { U_LIGHT_POS } from './globals';
 
 // {{{ Init
 
 const V_VERTEX_POS = 'aPos',
-U_MATRIX = 'uMatrix',
+A_NORMAL_POS = 'aNorm',
+U_MATRIX = 'uMat',
+U_MODEL = 'uModel';
 U_COLOR = 'uColor',
 U_GRID_POS = 'uGridPos',
 SIZE = 50;
 
 const level = [
-  [0, 0],
-  [0, 0],
+  [STATIC, STATIC],
+  [STATIC, GAP],
 ];
 
 // }}}
@@ -33,9 +37,14 @@ const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
 const [, , setData, attribSetter ] = createBuffer();
 
 const uMatrix = getUniform(renaming[U_MATRIX]);
+const uModel = getUniform(renaming[U_MODEL]);
 const uGridPos = getUniform(renaming[U_GRID_POS]);
 const uColor = getUniform(renaming[U_COLOR]);
-const useAndSet = compose(attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3, GL_FLOAT, 24), use);
+const uLightPos = getUniform(renaming[U_LIGHT_POS]);
+const useAndSet = compose(
+  attribSetter(attribLoc(renaming[A_NORMAL_POS]), 3, GL_FLOAT, 24, 12),
+  attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3, GL_FLOAT, 24),
+  use);
 setData(cube(SIZE));
 
 const draw = drawArrays();
@@ -44,9 +53,12 @@ const draw = drawArrays();
 export const render = (_delta, worldMat) => {
   useAndSet();
   uMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
-  uColor.u3f(0.0, 0.3, 0.7);
+  uModel.m4fv(false, localMat);
+  uLightPos.u3f(0.5, 0.7, 1.0);
 
-  level.map((rows, y) => rows.map((_tile, x) => {
+  level.map((rows, y) => rows.map((p, x) => {
+    const [color] = platformData(p);
+    uColor.u4f(...color);
     uGridPos.u3f(x, 0, y, 1);
     draw(6 * 6);
   }));
