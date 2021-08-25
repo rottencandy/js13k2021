@@ -10,22 +10,31 @@ uniform vec4 uColor;
 uniform vec3 uLightPos;
 
 varying vec3 vNormal;
+varying vec3 vFragPos;
 
 export void vertex() {
   // TODO: Is passing the grid x,y the best method?
   gl_Position = uMat * vec4(aPos.xyz + uGridPos * 50.0, 1.0);
   vNormal = mat3(uModel) * aNorm.xyz;
+  // range 0 -> 50 to -1 -> 1
+  vFragPos = (aPos.xyz / 50.0) * 2.0 - 1.0;
 }
 
 export void colorFragment() {
   // ambient light intensity
   vec3 ambient = vec3(0.3);
 
+  // calculate edge highlight
+  // range -1 -> 1 to 0 -> 1 -> 0
+  vec3 absFrag = 1.0 - abs(vFragPos);
+  float fragEdge = step(0.03, min(absFrag.x, absFrag.z) + absFrag.y);
+  fragEdge = clamp(fragEdge, 0.4, 1.0);
+
   // calculate directional lighting using normals
   vec3 normal = vec3(normalize(vNormal));
   vec3 lightPos = normalize(uLightPos);
   float light = max(dot(normal, lightPos), 0.0);
 
-  vec4 result = vec4((light + ambient) * uColor.xyz, uColor.w);
+  vec4 result = vec4((light + ambient) * fragEdge * uColor.xyz, uColor.w);
   gl_FragColor = result;
 }
