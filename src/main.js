@@ -1,5 +1,3 @@
-'use strict';
-
 import './init.js';
 import { startLoop } from './engine/loop';
 import { createSM, stateArray } from './engine/state';

@@ -3,7 +3,6 @@ import { createGLContext } from './engine/webgl.js';
 import { CANVAS, FOV, ZNEAR, ZFAR } from './globals.js';
 
 export const [
-  gl,
   clear,
   createShaderProg,
   createBuffer,

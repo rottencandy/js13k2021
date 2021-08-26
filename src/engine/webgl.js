@@ -298,7 +298,6 @@ export const createGLContext = (canvas) => {
   gl.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   return [
-    gl,
     clear(gl),
     createShaderProgramFromSrc(gl),
     createBuffer(gl),

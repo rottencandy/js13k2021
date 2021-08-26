@@ -147,7 +147,7 @@ const multiplier = (inplace) => (...matrices) =>
   matrices.reduceRight((acc, m) => m4xm4(inplace)(m, acc));
 
 export const Multiply = multiplier(0);
-export const MultiplyI = multiplier(1);
+//export const MultiplyI = multiplier(1);
 
 // }}}
 
