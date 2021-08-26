@@ -6,17 +6,9 @@ import { cube } from './shape';
 import { compose } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './platform.glslx';
-import { U_LIGHT_POS } from './globals';
+import { U_LIGHT_POS, PLATFORM_SIZE } from './globals';
 
 // {{{ Init
-
-const V_VERTEX_POS = 'aPos',
-A_NORMAL_POS = 'aNorm',
-U_MATRIX = 'uMat',
-U_MODEL = 'uModel';
-U_COLOR = 'uColor',
-U_GRID_POS = 'uGridPos',
-SIZE = 50;
 
 const level = [
   [STATIC, STATIC],
@@ -25,15 +17,15 @@ const level = [
 
 // }}}
 
-// {{{ Update
+// setup GL state {{{
 
-const localMat = Multiply(Scale(1, 0.5, 1), Translate(0, -SIZE, 0));
+const V_VERTEX_POS = 'aPos',
+A_NORMAL_POS = 'aNorm',
+U_MATRIX = 'uMat',
+U_MODEL = 'uModel';
+U_COLOR = 'uColor',
+U_GRID_POS = 'uGridPos';
 
-// }}}
-
-// {{{ Render
-
-// Setup GL state
 const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
 const [, , setData, attribSetter ] = createBuffer();
 
@@ -42,14 +34,25 @@ const uModel = getUniform(renaming[U_MODEL]);
 const uGridPos = getUniform(renaming[U_GRID_POS]);
 const uColor = getUniform(renaming[U_COLOR]);
 const uLightPos = getUniform(renaming[U_LIGHT_POS]);
+
 const useAndSet = compose(
   attribSetter(attribLoc(renaming[A_NORMAL_POS]), 3, GL_FLOAT, 24, 12),
   attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3, GL_FLOAT, 24),
   use);
-setData(cube(SIZE));
+
+setData(cube(PLATFORM_SIZE));
 
 const draw = drawArrays();
 
+// }}}
+
+// {{{ Update
+
+const localMat = Multiply(Scale(1, 0.5, 1), Translate(0, -PLATFORM_SIZE, 0));
+
+// }}}
+
+// {{{ Render
 
 export const render = (_delta, worldMat) => {
   // check if cube has moved

@@ -8,12 +8,11 @@ import { cube, plane } from './shape';
 import { compose, PI, isOdd } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, cubeFragment, faceFragment, renaming } from './player.glslx';
-import { U_LIGHT_POS } from './globals';
+import { U_LIGHT_POS, PLATFORM_SIZE } from './globals';
 
 // {{{ Init
 
 let Pos = Vec3(0, 0, 0);
-const SIZE = 50;
 
 // [x, y, z] direction vectors for move state
 const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
@@ -53,8 +52,8 @@ const useAndSetFace = compose(
   useFace,
 );
 
-setCubeData(cube(SIZE));
-setFaceData(plane(SIZE));
+setCubeData(cube(PLATFORM_SIZE));
+setFaceData(plane(PLATFORM_SIZE));
 
 const draw = drawArrays();
 
@@ -63,6 +62,7 @@ const draw = drawArrays();
 // {{{ Update
 
 const [IDLE, MOVING, MOVED] = stateArray(3);
+
 const step = createSM({
   [IDLE]: () => {
     if(dirKeysPressed()) {
@@ -103,7 +103,7 @@ let stripPos = 0;
 // matrix that keeps track of all past rotations
 let rotationStack = Identity();
 const addRotation = (dir) => {
-  const center = SIZE / 2, deg = PI / 2;
+  const center = PLATFORM_SIZE / 2, deg = PI / 2;
   // move obj to center, perform rotations by 90deg, and move back
   rotationStack = Multiply(
     Translate(center, center, center),
@@ -151,15 +151,15 @@ const getRotationMat = () => {
   if (x) {
     rot = RotateZ(rotateAngle * -x);
 
-    pre = Translate(-SIZE, 0, 0);
-    post = Translate(SIZE, 0, 0);
+    pre = Translate(-PLATFORM_SIZE, 0, 0);
+    post = Translate(PLATFORM_SIZE, 0, 0);
 
     // rotate up/down
   } else {
     rot = RotateX(rotateAngle * z);
 
-    pre = Translate(0, 0, -SIZE);
-    post = Translate(0, 0, SIZE);
+    pre = Translate(0, 0, -PLATFORM_SIZE);
+    post = Translate(0, 0, PLATFORM_SIZE);
   }
 
   // shifting pivot required if any of the angles is positive
@@ -173,12 +173,12 @@ const getRotationMat = () => {
 };
 
 // align face with the cube
-const initialFaceTransform = Multiply(Translate(0, SIZE, SIZE), RotateX(-PI / 2));
+const initialFaceTransform = Multiply(Translate(0, PLATFORM_SIZE, PLATFORM_SIZE), RotateX(-PI / 2));
 
 export const render = (delta, worldMat) => {
   step(delta);
 
-  const localMat = Multiply(Translate(Pos[0] * SIZE, 0, Pos[2] * SIZE), getRotationMat());
+  const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, 0, Pos[2] * PLATFORM_SIZE), getRotationMat());
   const modelViewMat = Multiply(CamMat(), worldMat, localMat);
   //inverse transpose is required to fix uWorldMat when transformations are done
   //const inverseMVMat = Transpose(Inverse(modelViewMat));
