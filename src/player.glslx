@@ -10,7 +10,10 @@ uniform vec3 uLightPos;
 varying vec3 vNormal;
 varying float vNormalY;
 
-const vec3 objColor = vec3(1.0, 0.0, 0.0);
+const vec3 OBJ_COLOR = vec3(1.0, 0.0, 0.0);
+const vec3 FACE_COLOR = vec3(0.0, 1.0, 0.0);
+// ambient light intensity
+const vec3 AMBIENT = vec3(0.3);
 
 export void vertex() {
   gl_Position = uMat * aPos;
@@ -18,19 +21,29 @@ export void vertex() {
   vNormalY = aNorm.y;
 }
 
-export void colorFragment() {
+export void cubeFragment() {
   // skip rendering top face
   if(vNormalY == 1.0) {
     discard;
   }
-  // ambient light intensity
-  vec3 ambient = vec3(0.3);
 
   // calculate directional lighting using normals
   vec3 normal = vec3(normalize(vNormal));
   vec3 lightPos = normalize(uLightPos);
   float light = max(dot(normal, lightPos), 0.0);
 
-  vec3 result = (light + ambient) * objColor;
+  vec3 result = (light + AMBIENT) * OBJ_COLOR;
+  gl_FragColor = vec4(result, 1.0);
+}
+
+export void faceFragment() {
+  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+
+  // calculate directional lighting using normals
+  vec3 normal = vec3(normalize(vNormal));
+  vec3 lightPos = normalize(uLightPos);
+  float light = max(dot(normal, lightPos), 0.0);
+
+  vec3 result = (light + AMBIENT) * FACE_COLOR;
   gl_FragColor = vec4(result, 1.0);
 }

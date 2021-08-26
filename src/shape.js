@@ -1,17 +1,24 @@
 /**
  * Creates a 2d plane. 6 vertices
+ * Includes normals.
  *
- * @param {number} width
- * @param {number} height
+ * @param {number} s size of cube
  * @return {Float32Array} dimensions
 */
 export const plane = (s) => new Float32Array([
   0, 0,
+  0, 1,
   s, s,
+  0, 1,
   0, s,
+  0, 1,
   0, 0,
+  0, 1,
   s, 0,
-  s, s]);
+  0, 1,
+  s, s,
+  0, 1,
+]);
 
 // stroke:
 // [2 3]
@@ -20,7 +27,10 @@ export const plane = (s) => new Float32Array([
 /**
  * Creates a cube.
  * 6 * 6 vertices.
+ * Includes normals.
+ *
  * @param {number} s size of cube
+ * @return {Float32Array} dimensions
  */
 export const cube = (s) => new Float32Array([
   // top face

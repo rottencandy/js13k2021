@@ -4,25 +4,59 @@ import { SIGNAL_CUBE_MOVED, emitSignal } from './engine/observer';
 import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
-import { cube } from './shape';
+import { cube, plane } from './shape';
 import { compose, PI, isOdd } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
-import { vertex, colorFragment, renaming } from './player.glslx';
+import { vertex, cubeFragment, faceFragment, renaming } from './player.glslx';
 import { U_LIGHT_POS } from './globals';
 
 // {{{ Init
 
 let Pos = Vec3(0, 0, 0);
 const SIZE = 50;
+
+// [x, y, z] direction vectors for move state
+const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
+let moveDir;
+let rotateAngle = 0;
+
+// }}}
+
+// {{{ GL state setup
+
 const A_VERTEX_POS = 'aPos',
 A_NORMAL_POS = 'aNorm',
 U_MATRIX = 'uMat',
 U_MODEL = 'uModel';
 
-// [x, y] direction vectors for move state
-const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
-let moveDir;
-let rotateAngle = 0;
+const [, use, getUniform, attribLoc ] = createShaderProg(vertex, cubeFragment);
+const [, useFace, getFaceUniform, faceAttribLoc ] = createShaderProg(vertex, faceFragment);
+
+const [, , setCubeData, cubeAttribSetter ] = createBuffer();
+const [, , setFaceData, faceAttribSetter ] = createBuffer();
+
+const uMatrix = getUniform(renaming[U_MATRIX]);
+const uModel = getUniform(renaming[U_MODEL]);
+const uLightPos = getUniform(renaming[U_LIGHT_POS]);
+const uFaceMatrix = getFaceUniform(renaming[U_MATRIX]);
+const uFaceModel = getFaceUniform(renaming[U_MODEL]);
+const uFaceLightPos = getFaceUniform(renaming[U_LIGHT_POS]);
+
+const useAndSetCube = compose(
+  cubeAttribSetter(attribLoc(renaming[A_NORMAL_POS]), 3, GL_FLOAT, 24, 12),
+  cubeAttribSetter(attribLoc(renaming[A_VERTEX_POS]), 3, GL_FLOAT, 24),
+  use,
+);
+const useAndSetFace = compose(
+  faceAttribSetter(faceAttribLoc(renaming[A_NORMAL_POS]), 2, GL_FLOAT, 16, 8),
+  faceAttribSetter(faceAttribLoc(renaming[A_VERTEX_POS]), 2, GL_FLOAT, 16),
+  useFace,
+);
+
+setCubeData(cube(SIZE));
+setFaceData(plane(SIZE));
+
+const draw = drawArrays();
 
 // }}}
 
@@ -103,19 +137,6 @@ const addRotation = (dir) => {
 
 // {{{ Render
 
-// Set up GL state
-const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
-const [, , setData, attribSetter ] = createBuffer();
-const uMatrix = getUniform(renaming[U_MATRIX]);
-const uModel = getUniform(renaming[U_MODEL]);
-const uLightPos = getUniform(renaming[U_LIGHT_POS]);
-const useAndSet = compose(
-  attribSetter(attribLoc(renaming[A_NORMAL_POS]), 3, GL_FLOAT, 24, 12),
-  attribSetter(attribLoc(renaming[A_VERTEX_POS]), 3, GL_FLOAT, 24),
-  use
-);
-setData(cube(SIZE));
-
 const getRotationMat = () => {
   if (!moveDir) {
     return rotationStack;
@@ -151,21 +172,28 @@ const getRotationMat = () => {
   }
 };
 
-const draw = drawArrays();
+// align face with the cube
+const initialFaceTransform = Multiply(Translate(0, SIZE, SIZE), RotateX(-PI / 2));
 
 export const render = (delta, worldMat) => {
-  useAndSet();
-
   step(delta);
 
   const localMat = Multiply(Translate(Pos[0] * SIZE, 0, Pos[2] * SIZE), getRotationMat());
-  const modelMat = Multiply(worldMat, localMat);
-  //inverse transpose is required for uWorldMat when transformations are done
+  const modelViewMat = Multiply(CamMat(), worldMat, localMat);
+  //inverse transpose is required to fix uWorldMat when transformations are done
   //const inverseMVMat = Transpose(Inverse(modelViewMat));
-  uMatrix.m4fv(false, Multiply(CamMat(), modelMat));
+
+  useAndSetCube();
+  uMatrix.m4fv(false, modelViewMat);
   uModel.m4fv(false, localMat);
   uLightPos.u3f(0.5, 0.7, 1.0);
   draw(6 * 6);
+
+  useAndSetFace();
+  uFaceMatrix.m4fv(false, Multiply(modelViewMat, initialFaceTransform));
+  uFaceModel.m4fv(false, localMat);
+  uFaceLightPos.u3f(0.5, 0.7, 1.0);
+  draw(6);
 }
 
 // }}}
