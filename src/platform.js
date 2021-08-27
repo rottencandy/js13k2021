@@ -6,7 +6,7 @@ import { cube } from './shape';
 import { compose } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './platform.glslx';
-import { U_LIGHT_POS, PLATFORM_SIZE } from './globals';
+import { PLATFORM_SIZE } from './globals';
 
 // {{{ Init
 
@@ -19,25 +19,18 @@ const level = [
 
 // setup GL state {{{
 
-const V_VERTEX_POS = 'aPos',
-A_NORMAL_POS = 'aNorm',
-U_MATRIX = 'uMat',
-U_MODEL = 'uModel';
-U_COLOR = 'uColor',
-U_GRID_POS = 'uGridPos';
-
 const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
 const [, , setData, attribSetter ] = createBuffer();
 
-const uMatrix = getUniform(renaming[U_MATRIX]);
-const uModel = getUniform(renaming[U_MODEL]);
-const uGridPos = getUniform(renaming[U_GRID_POS]);
-const uColor = getUniform(renaming[U_COLOR]);
-const uLightPos = getUniform(renaming[U_LIGHT_POS]);
+const uMatrix = getUniform(renaming.uMat);
+const uModel = getUniform(renaming.uModel);
+const uGridPos = getUniform(renaming.uGridPos);
+const uColor = getUniform(renaming.uColor);
+const uLightPos = getUniform(renaming.uLightPos);
 
 const useAndSet = compose(
-  attribSetter(attribLoc(renaming[A_NORMAL_POS]), 3, GL_FLOAT, 24, 12),
-  attribSetter(attribLoc(renaming[V_VERTEX_POS]), 3, GL_FLOAT, 24),
+  attribSetter(attribLoc(renaming.aNorm), 3, GL_FLOAT, 24, 12),
+  attribSetter(attribLoc(renaming.aPos), 3, GL_FLOAT, 24),
   use);
 
 setData(cube(PLATFORM_SIZE));

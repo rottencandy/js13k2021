@@ -8,7 +8,7 @@ import { cube, plane } from './shape';
 import { compose, PI, isOdd } from './util';
 import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
 import { vertex, cubeFragment, faceFragment, renaming } from './player.glslx';
-import { U_LIGHT_POS, PLATFORM_SIZE } from './globals';
+import { PLATFORM_SIZE } from './globals';
 
 // {{{ Init
 
@@ -23,32 +23,27 @@ let rotateAngle = 0;
 
 // {{{ GL state setup
 
-const A_VERTEX_POS = 'aPos',
-A_NORMAL_POS = 'aNorm',
-U_MATRIX = 'uMat',
-U_MODEL = 'uModel';
-
 const [, use, getUniform, attribLoc ] = createShaderProg(vertex, cubeFragment);
 const [, useFace, getFaceUniform, faceAttribLoc ] = createShaderProg(vertex, faceFragment);
 
 const [, , setCubeData, cubeAttribSetter ] = createBuffer();
 const [, , setFaceData, faceAttribSetter ] = createBuffer();
 
-const uMatrix = getUniform(renaming[U_MATRIX]);
-const uModel = getUniform(renaming[U_MODEL]);
-const uLightPos = getUniform(renaming[U_LIGHT_POS]);
-const uFaceMatrix = getFaceUniform(renaming[U_MATRIX]);
-const uFaceModel = getFaceUniform(renaming[U_MODEL]);
-const uFaceLightPos = getFaceUniform(renaming[U_LIGHT_POS]);
+const uMatrix = getUniform(renaming.uMat);
+const uModel = getUniform(renaming.uModel);
+const uLightPos = getUniform(renaming.uLightPos);
+const uFaceMatrix = getFaceUniform(renaming.uMat);
+const uFaceModel = getFaceUniform(renaming.uModel);
+const uFaceLightPos = getFaceUniform(renaming.uLightPos);
 
 const useAndSetCube = compose(
-  cubeAttribSetter(attribLoc(renaming[A_NORMAL_POS]), 3, GL_FLOAT, 24, 12),
-  cubeAttribSetter(attribLoc(renaming[A_VERTEX_POS]), 3, GL_FLOAT, 24),
+  cubeAttribSetter(attribLoc(renaming.aNorm), 3, GL_FLOAT, 24, 12),
+  cubeAttribSetter(attribLoc(renaming.aPos), 3, GL_FLOAT, 24),
   use,
 );
 const useAndSetFace = compose(
-  faceAttribSetter(faceAttribLoc(renaming[A_NORMAL_POS]), 2, GL_FLOAT, 16, 8),
-  faceAttribSetter(faceAttribLoc(renaming[A_VERTEX_POS]), 2, GL_FLOAT, 16),
+  faceAttribSetter(faceAttribLoc(renaming.aNorm), 2, GL_FLOAT, 16, 8),
+  faceAttribSetter(faceAttribLoc(renaming.aPos), 2, GL_FLOAT, 16),
   useFace,
 );
 

@@ -9,7 +9,6 @@ export const
   WIDTH = 'width',
   HEIGHT = 'height',
   STYLE = 'style',
-  U_LIGHT_POS = 'uLightPos',
   PLATFORM_SIZE = 50,
   /** Set Canvas element */
   setCanvas = (ele) => CANVAS = ele;

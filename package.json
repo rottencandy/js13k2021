@@ -10,6 +10,8 @@
     "predev": "mkdir -p app && cp assets/* app",
     "dev": "node scripts/dev.js",
     "uglify": "uglifyjs --compress --mangle --mangle-props -o app/main.js -- app/main.js",
+    "uglify-nomangle": "uglifyjs --compress --mangle -o app/main.js -- app/main.js",
+    "uglify-debug": "uglifyjs --compress --mangle --mangle-props debug --name-cache uglify-cache.json -o app/main.js -- app/main.js",
     "bundle": "./bundle.sh"
   },
   "dependencies": {
