@@ -12,6 +12,8 @@ export const
   SIN = M.sin,
   COS = M.cos,
   TAN = M.tan,
+  // identity
+  Id = () => {},
   isOdd = (x) => x % 2,
   F32 = (x) => new Float32Array(x),
   compose = (...fns) => (...args) => fns.reduceRight((res, fn) => [fn.call(0, ...res)], args)[0];

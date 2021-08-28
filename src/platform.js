@@ -1,7 +1,8 @@
+import { createSM, enumArray } from './engine/state';
 import { GL_FLOAT } from './engine/gl-constants';
-import { SIGNAL_CUBE_MOVED, watchSignal } from './engine/observer';
-import { STATIC, GAP, PLATFORM_DATA } from './platform-types';
-import { Multiply, Scale, Translate } from './math';
+import { SIGNAL_START_LEVEL, SIGNAL_CUBE_MOVED, watchSignal, emitSignal } from './engine/observer';
+import { START, STATIC, GAP, PLATFORM_DATA } from './platform-types';
+import { Multiply, Scale, Translate, Vec3 } from './math';
 import { cube } from './shape';
 import { createPipeline, CamMat, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './platform.glslx';
@@ -10,8 +11,9 @@ import { PLATFORM_SIZE } from './globals';
 // {{{ Init
 
 const level = [
-  [STATIC, STATIC],
-  [STATIC, GAP],
+  [STATIC, STATIC, STATIC],
+  [STATIC, START, GAP],
+  [GAP, STATIC, GAP],
 ];
 
 // }}}
@@ -40,22 +42,42 @@ const draw = drawArrays();
 
 // {{{ Update
 
-const localMat = Multiply(Scale(1, 0.5, 1), Translate(0, -PLATFORM_SIZE, 0));
+const [INIT, UPDATE, END] = enumArray(3);
+const [step] = createSM({
+  [INIT]: () => {
+  let startPos = [0, 0];
+    level.map((rows, z) => {
+      const x = rows.indexOf(START);
+      if (x !== -1) {
+        startPos = Vec3(x, 0, z);
+        return;
+      }
+    });
+    emitSignal(SIGNAL_START_LEVEL, startPos);
+    return UPDATE;
+  },
+  [UPDATE]: (_delta) => {
+    // check if cube has moved
+    const p = watchSignal(SIGNAL_CUBE_MOVED);
+    if (p) {
+      // TODO: handle grid out of bounds
+      const [x, , z] = p;
+      const platform = level[z][x];
+      // run onstep handler
+      PLATFORM_DATA[platform][1]();
+    }
+  },
+  [END]: () => {},
+});
 
 // }}}
 
 // {{{ Render
 
-export const render = (_delta, worldMat) => {
-  // check if cube has moved
-  const p = watchSignal(SIGNAL_CUBE_MOVED);
-  if(p) {
-    // TODO: handle grid out of bounds
-    const [x, , z] = p;
-    const platform = level[z][x];
-    // run onstep handler
-    PLATFORM_DATA[platform][1]();
-  }
+const localMat = Multiply(Scale(1, 0.5, 1), Translate(0, -PLATFORM_SIZE, 0));
+
+export const render = (delta, worldMat) => {
+  step(delta);
 
   use();
   uMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));

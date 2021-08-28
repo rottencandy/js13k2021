@@ -1,11 +1,11 @@
 import './init.js';
 import { startLoop } from './engine/loop';
-import { createSM, stateArray } from './engine/state';
+import { createSM, enumArray } from './engine/state';
 import { signalStep } from './engine/observer';
 import { update as stepGame } from './game';
 
-const [IN_GAME, IN_GUI] = stateArray(2);
-const step = createSM({
+const [IN_GAME, IN_GUI] = enumArray(2);
+const [step] = createSM({
   [IN_GAME]: (delta) => {
     stepGame(delta);
   },

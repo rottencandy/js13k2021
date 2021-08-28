@@ -1,6 +1,6 @@
-import { createSM, stateArray } from './engine/state';
+import { createSM, enumArray } from './engine/state';
 import { Keys, dirKeysPressed } from './engine/input';
-import { SIGNAL_CUBE_MOVED, emitSignal } from './engine/observer';
+import { SIGNAL_START_LEVEL, SIGNAL_CUBE_MOVED, emitSignal, watchSignal } from './engine/observer';
 import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
@@ -55,9 +55,9 @@ const draw = drawArrays();
 
 // {{{ Update
 
-const [IDLE, MOVING, MOVED] = stateArray(3);
+const [START, IDLE, MOVING, MOVED] = enumArray(4);
 
-const step = createSM({
+const [step, override] = createSM({
   [IDLE]: () => {
     if(dirKeysPressed()) {
       if(Keys.up) {
@@ -75,6 +75,9 @@ const step = createSM({
       return MOVING;
     }
   },
+  [START]: () => {
+    return IDLE;
+  },
   [MOVING]: (delta) => {
     [rotateAngle, moved] = lerp(rotateAngle, PI / 2, delta, 5);
     if (moved) {
@@ -90,6 +93,14 @@ const step = createSM({
     if(!dirKeysPressed()) return IDLE;
   },
 });
+
+const detectSignals = () => {
+  const startPos = watchSignal(SIGNAL_START_LEVEL);
+  if (startPos) {
+    Pos = startPos;
+    override(START);
+  }
+};
 
 let inXStrip = true;
 // 0 -> 3 (4 vals)
@@ -170,6 +181,7 @@ const getRotationMat = () => {
 const initialFaceTransform = Multiply(Translate(0, PLATFORM_SIZE, PLATFORM_SIZE), RotateX(-PI / 2));
 
 export const render = (delta, worldMat) => {
+  detectSignals();
   step(delta);
 
   const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, 0, Pos[2] * PLATFORM_SIZE), getRotationMat());

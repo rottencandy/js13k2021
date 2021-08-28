@@ -1,18 +1,21 @@
-import { stateArray } from './engine/state';
+import { enumArray } from './engine/state';
+import { Id } from './util';
 
 // platform types
-export const [STATIC, GAP] = stateArray(2);
+export const [START, STATIC, GAP, END] = enumArray(4);
 
 /** @typedef {[R: number, G: number, B: number, A: number]} Color */
 /** @typedef {(faceTouched: boolean) => void} OnStep */
 
 /**
- * @type {Object.<number, [Color, OnStep]>}
+ * @type {Object.<number, [Color, OnStep, Init]>}
  * Platform type data
  */
 export const PLATFORM_DATA = {
-  [STATIC]: [[.0, .3, .6, 1.0], () => {}],
-  [GAP]: [[.0, .0, .0, .0], () => {}],
+  [START]: [[.0, .3, .6, 1.0], Id],
+  [STATIC]: [[.0, .3, .6, 1.0], Id],
+  [GAP]: [[.0, .0, .0, .0], Id],
+  [END]: [[.0, .3, .6, 1.0], Id],
 };
 
 // vim: fdm=marker:et:sw=2:
