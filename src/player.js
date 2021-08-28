@@ -23,11 +23,11 @@ let rotateAngle = 0;
 
 // {{{ GL state setup
 
-const [, use, getUniform, attribLoc ] = createShaderProg(vertex, cubeFragment);
-const [, useFace, getFaceUniform, faceAttribLoc ] = createShaderProg(vertex, faceFragment);
+const [ use, getUniform, attribLoc ] = createShaderProg(vertex, cubeFragment);
+const [ useFace, getFaceUniform, faceAttribLoc ] = createShaderProg(vertex, faceFragment);
 
-const [, , setCubeData, cubeAttribSetter ] = createBuffer();
-const [, , setFaceData, faceAttribSetter ] = createBuffer();
+const [ setCubeData, cubeAttribSetter ] = createBuffer();
+const [ setFaceData, faceAttribSetter ] = createBuffer();
 
 const uMatrix = getUniform(renaming.uMat);
 const uModel = getUniform(renaming.uModel);

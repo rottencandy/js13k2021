@@ -106,7 +106,7 @@ const attribLoc = (gl) => (prg) => (variable) => gl.getAttribLocation(prg, varia
  * @callback ShaderFromSrcFn
  * @param {string} vSource
  * @param {string} fSource
- * @returns {[WebGLProgram, UsePrg, GetUniform, AttribLoc]}
+ * @returns {[UsePrg, GetUniform, AttribLoc]}
  */
 /**
  * Create Shader Program
@@ -128,7 +128,6 @@ const createShaderProgram = (gl) => (vShader, fShader) => {
   }
 
   return [
-    prg,
     useProgram(gl)(prg),
     uniformSetter(gl)(prg),
     attribLoc(gl)(prg),
@@ -203,7 +202,7 @@ const attribSetter = (gl, type, buf) => (loc, size, dataType = GL_FLOAT, stride 
  * @callback GetBufferData
  * @param {GLenum} type - Buffer type
  * @param {GLenum} mode - Buffer mode
- * @returns {[WebGLBuffer, BindBuf, SetBufDataFn, AttribSetFn]}
+ * @returns {[SetBufDataFn, AttribSetFn]}
  */
 /**
  * Create buffer
@@ -213,8 +212,6 @@ const attribSetter = (gl, type, buf) => (loc, size, dataType = GL_FLOAT, stride 
 const createBuffer = (gl) => (type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) => {
   const buf = gl.createBuffer();
   return [
-    buf,
-    () => bindBuffer(gl, type, buf),
     setBufferData(gl, buf, type, mode),
     // TODO: Return attribSetter from inside setData?
     attribSetter(gl, type, buf),

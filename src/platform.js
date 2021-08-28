@@ -19,8 +19,8 @@ const level = [
 
 // setup GL state {{{
 
-const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
-const [, , setData, attribSetter ] = createBuffer();
+const [ use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
+const [ setData, attribSetter ] = createBuffer();
 
 const uMatrix = getUniform(renaming.uMat);
 const uModel = getUniform(renaming.uModel);

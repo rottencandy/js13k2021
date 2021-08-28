@@ -11,8 +11,8 @@ import { vertex, colorFragment, renaming } from './backdrop.glslx';
 
 // setup GL state {{{
 
-const [, use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
-const [, , setData, attribSetter ] = createBuffer();
+const [ use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
+const [ setData, attribSetter ] = createBuffer();
 
 const uLightPos = getUniform(renaming.uLightPos);
 
