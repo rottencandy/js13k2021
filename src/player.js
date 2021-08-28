@@ -5,8 +5,8 @@ import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
 import { cube, plane } from './shape';
-import { compose, PI, isOdd } from './util';
-import { CamMat, createShaderProg, createBuffer, drawArrays } from './global-state';
+import { PI, isOdd } from './util';
+import { createPipeline, CamMat, drawArrays } from './global-state';
 import { vertex, cubeFragment, faceFragment, renaming } from './player.glslx';
 import { PLATFORM_SIZE } from './globals';
 
@@ -23,32 +23,31 @@ let rotateAngle = 0;
 
 // {{{ GL state setup
 
-const [ use, getUniform, attribLoc ] = createShaderProg(vertex, cubeFragment);
-const [ useFace, getFaceUniform, faceAttribLoc ] = createShaderProg(vertex, faceFragment);
+const [useCube, getCubeUniform] = createPipeline(
+  vertex,
+  cubeFragment,
+  {
+    [renaming.aPos]: [3, GL_FLOAT, 24],
+    [renaming.aNorm]: [3, GL_FLOAT, 24, 12],
+  },
+  cube(PLATFORM_SIZE)
+);
+const [useFace, getFaceUniform] = createPipeline(
+  vertex,
+  faceFragment,
+  {
+    [renaming.aPos]: [2, GL_FLOAT, 16],
+    [renaming.aNorm]: [2, GL_FLOAT, 16, 8],
+  },
+  plane(PLATFORM_SIZE)
+);
 
-const [ setCubeData, cubeAttribSetter ] = createBuffer();
-const [ setFaceData, faceAttribSetter ] = createBuffer();
-
-const uMatrix = getUniform(renaming.uMat);
-const uModel = getUniform(renaming.uModel);
-const uLightPos = getUniform(renaming.uLightPos);
+const uMatrix = getCubeUniform(renaming.uMat);
+const uModel = getCubeUniform(renaming.uModel);
+const uLightPos = getCubeUniform(renaming.uLightPos);
 const uFaceMatrix = getFaceUniform(renaming.uMat);
 const uFaceModel = getFaceUniform(renaming.uModel);
 const uFaceLightPos = getFaceUniform(renaming.uLightPos);
-
-const useAndSetCube = compose(
-  cubeAttribSetter(attribLoc(renaming.aNorm), 3, GL_FLOAT, 24, 12),
-  cubeAttribSetter(attribLoc(renaming.aPos), 3, GL_FLOAT, 24),
-  use,
-);
-const useAndSetFace = compose(
-  faceAttribSetter(faceAttribLoc(renaming.aNorm), 2, GL_FLOAT, 16, 8),
-  faceAttribSetter(faceAttribLoc(renaming.aPos), 2, GL_FLOAT, 16),
-  useFace,
-);
-
-setCubeData(cube(PLATFORM_SIZE));
-setFaceData(plane(PLATFORM_SIZE));
 
 const draw = drawArrays();
 
@@ -178,13 +177,13 @@ export const render = (delta, worldMat) => {
   //inverse transpose is required to fix uWorldMat when transformations are done
   //const inverseMVMat = Transpose(Inverse(modelViewMat));
 
-  useAndSetCube();
+  useCube();
   uMatrix.m4fv(false, modelViewMat);
   uModel.m4fv(false, localMat);
   uLightPos.u3f(0.5, 0.7, 1.0);
   draw(6 * 6);
 
-  useAndSetFace();
+  useFace();
   uFaceMatrix.m4fv(false, Multiply(modelViewMat, initialFaceTransform));
   uFaceModel.m4fv(false, localMat);
   uFaceLightPos.u3f(0.5, 0.7, 1.0);

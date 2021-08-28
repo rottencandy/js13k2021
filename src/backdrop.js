@@ -1,7 +1,6 @@
 import { GL_FLOAT } from './engine/gl-constants';
 import { absPlane } from './shape';
-import { compose } from './util';
-import { createShaderProg, createBuffer, drawArrays } from './global-state';
+import { createPipeline, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './backdrop.glslx';
 
 // {{{ Init
@@ -11,17 +10,13 @@ import { vertex, colorFragment, renaming } from './backdrop.glslx';
 
 // setup GL state {{{
 
-const [ use, getUniform, attribLoc ] = createShaderProg(vertex, colorFragment);
-const [ setData, attribSetter ] = createBuffer();
-
-const uLightPos = getUniform(renaming.uLightPos);
-
-const useAndSet = compose(
-  attribSetter(attribLoc(renaming.aPos), 2, GL_FLOAT),
-  use
+const [use, getUniform] = createPipeline(
+  vertex,
+  colorFragment,
+  { [renaming.aPos]: [2, GL_FLOAT] },
+  absPlane
 );
-
-setData(absPlane);
+const uLightPos = getUniform(renaming.uLightPos);
 
 const draw = drawArrays();
 
@@ -36,7 +31,7 @@ const draw = drawArrays();
 
 export const render = (_delta) => {
 
-  useAndSet();
+  use();
 
   draw(6);
 
