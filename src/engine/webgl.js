@@ -25,7 +25,7 @@ import {
  * @returns {ClearFn} Function that clears the canvas
  */
 const clear = (gl) => () => {
-  gl.clearColor(0.5, 0.5, 0.5, 1.0);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clearDepth(1.0);
   gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 };

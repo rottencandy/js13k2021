@@ -1,3 +1,5 @@
+import { F32 } from './util';
+
 /**
  * Creates a 2d plane. 6 vertices
  * Includes normals.
@@ -5,7 +7,7 @@
  * @param {number} s size of cube
  * @return {Float32Array} dimensions
 */
-export const plane = (s) => new Float32Array([
+export const plane = (s) => F32([
   0, 0,
   0, 1,
   s, s,
@@ -32,7 +34,7 @@ export const plane = (s) => new Float32Array([
  * @param {number} s size of cube
  * @return {Float32Array} dimensions
  */
-export const cube = (s) => new Float32Array([
+export const cube = (s) => F32([
   // top face
   0, s, 0,
   0, 1, 0,
@@ -111,6 +113,15 @@ export const cube = (s) => new Float32Array([
   0, -1, 0,
   s, 0, 0,
   0, -1, 0,
+]);
+
+export const absPlane = F32([
+  -1,  1,
+   1, -1,
+   1,  1,
+  -1,  1,
+  -1, -1,
+   1, -1,
 ]);
 
 // vim: fdm=marker:et:sw=2:
