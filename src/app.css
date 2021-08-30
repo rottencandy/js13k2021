@@ -12,12 +12,17 @@ html, body {
 #a {
   width: 100%;
   height: 100%;
-  text-align: center;
+  position: relative;
 }
 
-#b {
+#b, #c {
+  position: absolute;
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+#c {
+  z-index: 10;
 }

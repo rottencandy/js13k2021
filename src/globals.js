@@ -1,5 +1,9 @@
+import { getById } from './util.js';
+
 /** @type {HTMLCanvasElement} */
-export let CANVAS;
+export let CANVAS = getById('b');
+/** @type {HTMLCanvasElement} */
+export let CANVAS2D = getById('c');
 export const
   GAME_WIDTH = 800,
   GAME_HEIGHT = 600,

@@ -14,6 +14,7 @@ export const Keys = {
   up: 0,
   down: 0,
   space: 0,
+  esc: 0,
 };
 
 export const dirKeysPressed = () => Keys.left || Keys.right || Keys.up || Keys.down;
@@ -22,31 +23,32 @@ export const dirKeysPressed = () => Keys.left || Keys.right || Keys.up || Keys.d
  * Set up onkey listeners
 */
 export const setupKeyListener = () => {
+  const ARROW = 'Arrow';
   const setKeyState = (value) => ({key: code}) => {
     switch (code) {
-      case 'ArrowUp':
+      case ARROW + 'Up':
       case 'w':
       case 'z':
         Keys.up = value;
         break;
-      case 'ArrowDown':
+      case ARROW + 'Down':
       case 's':
         Keys.down = value;
         break;
-      case 'ArrowLeft':
+      case ARROW + 'Left':
       case 'a':
       case 'q':
         Keys.left = value;
         break;
-      case 'ArrowRight':
+      case ARROW + 'Right':
       case 'd':
         Keys.right = value;
         break;
+      case 'Escape':
+        Keys.esc = value;
+        break;
       case ' ':
         Keys.space = value;
-      //break;
-      //default:
-      //  keys[code] = value;
     }
   }
 
