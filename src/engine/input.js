@@ -15,6 +15,7 @@ export const Keys = {
   down: 0,
   space: 0,
   esc: 0,
+  clicked: 0,
 };
 
 export const dirKeysPressed = () => Keys.left || Keys.right || Keys.up || Keys.down;
@@ -54,6 +55,9 @@ export const setupKeyListener = () => {
 
   onkeydown = setKeyState(1);
   onkeyup = setKeyState(0);
+
+  onmousedown = () => Keys.clicked = 1;
+  onmouseup = () => Keys.clicked = 0;
 }
 
 // vim: fdm=marker:et:sw=2:
