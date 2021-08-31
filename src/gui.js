@@ -56,7 +56,7 @@ const [step] = createSM({
     text(GAME_WIDTH / 2, GAME_HEIGHT / 3, color(0, 0, 0, 1), TITLE_FONT, 'SPACE');
     text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, color(0, 0, 0, 1), SUB_FONT, 'start');
 
-    if(Keys.space || Keys.clicked) {
+    if(Keys.space || Keys.clicked || Keys.touching) {
       return IN_GAME;
     }
   },

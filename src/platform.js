@@ -1,7 +1,7 @@
 import { createSM, enumArray } from './engine/state';
 import { GL_FLOAT } from './engine/gl-constants';
 import { SIGNAL_START_LEVEL, SIGNAL_CUBE_MOVED, watchSignal, emitSignal } from './engine/observer';
-import { START, STATIC, GAP, PLATFORM_DATA } from './platform-types';
+import { START, PLATFORM_DATA } from './platform-types';
 import { Multiply, Scale, Translate, Vec3 } from './math';
 import { cube } from './shape';
 import { createPipeline, CamMat, drawArrays } from './global-state';
@@ -10,11 +10,8 @@ import { PLATFORM_SIZE } from './globals';
 
 // {{{ Init
 
-const level = [
-  [STATIC, STATIC, STATIC],
-  [STATIC, START, GAP],
-  [GAP, STATIC, GAP],
-];
+let LoadedLevel = [];
+export const setLevel = (l) => LoadedLevel = l;
 
 // }}}
 
@@ -46,7 +43,7 @@ const [INIT, UPDATE, END] = enumArray(3);
 const [step] = createSM({
   [INIT]: () => {
   let startPos = [0, 0];
-    level.map((rows, z) => {
+    LoadedLevel.map((rows, z) => {
       const x = rows.indexOf(START);
       if (x !== -1) {
         startPos = Vec3(x, 0, z);
@@ -62,7 +59,7 @@ const [step] = createSM({
     if (p) {
       // TODO: handle grid out of bounds
       const [x, , z] = p;
-      const platform = level[z][x];
+      const platform = LoadedLevel[z][x];
       // run onstep handler
       PLATFORM_DATA[platform][1]();
     }
@@ -84,7 +81,7 @@ export const render = (delta, worldMat) => {
   uModel.m4fv(false, localMat);
   uLightPos.u3f(0.5, 0.7, 1.0);
 
-  level.map((rows, y) => rows.map((p, x) => {
+  LoadedLevel.map((rows, y) => rows.map((p, x) => {
     const [color] = PLATFORM_DATA[p];
     uColor.u4f(...color);
     uGridPos.u3f(x, 0, y, 1);

@@ -1,17 +1,12 @@
-import { CamLookAt, clear } from './global-state';
-import { Translate } from './math';
-import { render as  renderPlayer } from './player';
-import { render as  renderPlatform } from './platform';
-import { render as  renderBackdrop } from './backdrop';
+import { clear } from './global-state';
+import { LEVELS } from './levels';
+import { render, loadLevel } from './scene';
 
-let worldMat = Translate(10, 0, 10);
+loadLevel(LEVELS[0]);
+
 export const update = (delta) => {
   clear();
-  CamLookAt([100, 200, 300], [0, 0, 0]);
-
-  renderBackdrop();
-  renderPlayer(delta, worldMat);
-  renderPlatform(delta, worldMat);
+  render(delta);
 }
 
 // vim: fdm=marker:et:sw=2:

@@ -4,6 +4,13 @@ import { Id } from './util';
 // platform types
 export const [START, STATIC, GAP, END] = enumArray(4);
 
+export const PLATFORM_CODE = {
+  a: START,
+  b: STATIC,
+  c: GAP,
+  d: END,
+};
+
 /** @typedef {[R: number, G: number, B: number, A: number]} Color */
 /** @typedef {(faceTouched: boolean) => void} OnStep */
 

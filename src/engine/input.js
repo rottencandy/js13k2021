@@ -1,3 +1,4 @@
+import { CANVAS2D } from '../globals';
 /**
  * Keys being watched
  * @typedef {Object} WatchedKeys
@@ -6,6 +7,11 @@
  * @property {boolean} up - up key
  * @property {boolean} down - down key
  * @property {boolean} space - space key
+ * @property {boolean} esc - escape key
+ * @property {boolean} clicked - clicked mouse btn
+ * @property {boolean} touching - touching screen
+ * @property {number} touchX - touch screen coordinates
+ * @property {number} touchY - touch screen coordinates
 */
 /** @type {WatchedKeys} */
 export const Keys = {
@@ -16,6 +22,9 @@ export const Keys = {
   space: 0,
   esc: 0,
   clicked: 0,
+  touching: 0,
+  touchX: 0,
+  touchY: 0,
 };
 
 export const dirKeysPressed = () => Keys.left || Keys.right || Keys.up || Keys.down;
@@ -24,8 +33,8 @@ export const dirKeysPressed = () => Keys.left || Keys.right || Keys.up || Keys.d
  * Set up onkey listeners
 */
 export const setupKeyListener = () => {
-  const ARROW = 'Arrow';
   const setKeyState = (value) => ({key: code}) => {
+    const ARROW = 'Arrow';
     switch (code) {
       case ARROW + 'Up':
       case 'w':
@@ -56,8 +65,20 @@ export const setupKeyListener = () => {
   onkeydown = setKeyState(1);
   onkeyup = setKeyState(0);
 
-  onmousedown = () => Keys.clicked = 1;
-  onmouseup = () => Keys.clicked = 0;
+  CANVAS2D.onpointerdown = () => Keys.clicked = 1;
+  CANVAS2D.onpointerup = () => Keys.clicked = 0;
+  CANVAS2D.onpointermove = e => {
+    Keys.touchX = e.offsetX;
+    Keys.touchY = e.offsetY;
+  }
+  CANVAS2D.ontouchstart = CANVAS2D.ontouchmove = CANVAS2D.ontouchend = CANVAS2D.ontouchcancel = e => {
+    e.preventDefault();
+    Keys.touching = e.touches.length > 0;
+    if(Keys.touching) {
+      Keys.touchX = e.touches[0].offsetX;
+      Keys.touchY = e.touches[0].offsetY;
+    }
+  }
 }
 
 // vim: fdm=marker:et:sw=2:
