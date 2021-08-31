@@ -1,4 +1,5 @@
 import { Keys, dirKeysPressed } from './engine/input';
+import { SIGNAL_CUBE_MOVE_STARTED, emitSignal } from './engine/observer';
 import { CamLookAt } from './global-state';
 import { MAX, FLOOR, TAN } from './util';
 import { FOV, PLATFORM_SIZE } from './globals';
@@ -56,15 +57,19 @@ const moveDirectionVector = () => {
 
 // }}}
 
+// Loop {{{
+
 let worldMat = Translate(10, 0, 10);
 export const render = (delta) => {
   let moveDir = moveDirectionVector();
-  if (moveDir && !canMoveTo(playerPos, moveDir)) {
-    moveDir = undefined;
+  if (moveDir && canMoveTo(playerPos, moveDir)) {
+    emitSignal(SIGNAL_CUBE_MOVE_STARTED, moveDir);
   }
   renderBackdrop();
   renderPlayer(delta, worldMat, moveDir);
   renderPlatform(delta, worldMat);
 }
+
+// }}}
 
 // vim: fdm=marker:et:sw=2:

@@ -1,6 +1,5 @@
 import { createSM, enumArray } from './engine/state';
-import { dirKeysPressed } from './engine/input';
-import { SIGNAL_START_LEVEL, SIGNAL_CUBE_MOVED, emitSignal, watchSignal } from './engine/observer';
+import { SIGNAL_START_LEVEL, SIGNAL_CUBE_MOVE_STARTED, SIGNAL_CUBE_MOVE_ENDED, emitSignal, watchSignal } from './engine/observer';
 import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
@@ -55,11 +54,12 @@ const draw = drawArrays();
 
 // {{{ Update
 
-const [START, IDLE, MOVING, MOVED] = enumArray(4);
+const [START, IDLE, MOVING] = enumArray(3);
 
 const [step, override] = createSM({
-  [IDLE]: (_delta, moveDir) => {
-    if(moveDir) {
+  [IDLE]: () => {
+    const moveDir = watchSignal(SIGNAL_CUBE_MOVE_STARTED);
+    if (moveDir) {
       movementDirection = moveDir;
       return MOVING;
     }
@@ -74,12 +74,9 @@ const [step, override] = createSM({
       // +ve rotation is counter-clockwise, so invert z-axis amount
       addRotation(Vec3(movementDirection[2], 0, -movementDirection[0]));
       rotateAngle = movementDirection = 0;
-      emitSignal(SIGNAL_CUBE_MOVED, Pos);
-      return MOVED;
+      emitSignal(SIGNAL_CUBE_MOVE_ENDED, Pos);
+      return IDLE;
     }
-  },
-  [MOVED]: () => {
-    if(!dirKeysPressed()) return IDLE;
   },
 });
 
@@ -169,9 +166,9 @@ const getRotationMat = () => {
 // align face with the cube
 const initialFaceTransform = Multiply(Translate(0, PLATFORM_SIZE, PLATFORM_SIZE), RotateX(-PI / 2));
 
-export const render = (delta, worldMat, moveDir) => {
+export const render = (delta, worldMat) => {
   detectSignals();
-  step(delta, moveDir);
+  step(delta);
 
   const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, 0, Pos[2] * PLATFORM_SIZE), getRotationMat());
   const modelViewMat = Multiply(CamMat(), worldMat, localMat);

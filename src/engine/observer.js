@@ -1,9 +1,10 @@
 import { enumArray } from './state';
 
 export const [
-  SIGNAL_CUBE_MOVED,
+  SIGNAL_CUBE_MOVE_STARTED,
+  SIGNAL_CUBE_MOVE_ENDED,
   SIGNAL_START_LEVEL,
-] = enumArray(2);
+] = enumArray(3);
 
 let PREV_SIGNALS = {}, NEXT_SIGNALS = {};
 
