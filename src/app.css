@@ -6,23 +6,31 @@ html, body {
   margin: 0;
   width: 100%;
   height: 100%;
-  background: #333;
+  background: #111;
 }
 
+/* Container div */
 #a {
   width: 100%;
   height: 100%;
   position: relative;
 }
 
+/* Canvases */
 #b, #c {
+  left: 0;
+  right: 0;
+  margin: auto;
   position: absolute;
+
+  /* Pixelate instead of blurring */
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
 
+/* GUI should be in the front */
 #c {
   z-index: 10;
 }
