@@ -13,16 +13,17 @@ export const PLATFORM_CODE = {
 
 /** @typedef {[R: number, G: number, B: number, A: number]} Color */
 /** @typedef {(faceTouched: boolean) => void} OnStep */
+/** @typedef {boolean} CanBeStepped */
 
 /**
- * @type {Object.<number, [Color, OnStep, Init]>}
+ * @type {Object.<number, [Color, OnStep, Init, CanBeStepped]>}
  * Platform type data
  */
 export const PLATFORM_DATA = {
-  [START]: [[.0, .3, .6, 1.0], Id],
-  [STATIC]: [[.0, .3, .6, 1.0], Id],
-  [GAP]: [[.0, .0, .0, .0], Id],
-  [END]: [[.0, .3, .6, 1.0], Id],
+  [START]: [[.0, .3, .6, 1.0], Id, true],
+  [STATIC]: [[.0, .3, .6, 1.0], Id, true],
+  [GAP]: [[.0, .0, .0, .0], Id, false],
+  [END]: [[.0, .3, .6, 1.0], Id, true],
 };
 
 // vim: fdm=marker:et:sw=2:

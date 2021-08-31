@@ -1,5 +1,5 @@
 import { createSM, enumArray } from './engine/state';
-import { Keys, dirKeysPressed } from './engine/input';
+import { dirKeysPressed } from './engine/input';
 import { SIGNAL_START_LEVEL, SIGNAL_CUBE_MOVED, emitSignal, watchSignal } from './engine/observer';
 import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
@@ -12,12 +12,12 @@ import { PLATFORM_SIZE } from './globals';
 
 // {{{ Init
 
-let Pos = Vec3(0, 0, 0);
+export let Pos = Vec3(0, 0, 0);
 
-// [x, y, z] direction vectors for move state
-const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
-let moveDir;
+// angle of rotation(if cube is currently rotating)
 let rotateAngle = 0;
+// movement direction vector(if cube is currently moving)
+let movementDirection = 0;
 
 // }}}
 
@@ -58,20 +58,9 @@ const draw = drawArrays();
 const [START, IDLE, MOVING, MOVED] = enumArray(4);
 
 const [step, override] = createSM({
-  [IDLE]: () => {
-    if(dirKeysPressed()) {
-      if(Keys.up) {
-        moveDir = UP;
-      }
-      if(Keys.down) {
-        moveDir = DOWN;
-      }
-      if(Keys.left) {
-        moveDir = LEFT;
-      }
-      if(Keys.right) {
-        moveDir = RIGHT;
-      }
+  [IDLE]: (_delta, moveDir) => {
+    if(moveDir) {
+      movementDirection = moveDir;
       return MOVING;
     }
   },
@@ -81,10 +70,10 @@ const [step, override] = createSM({
   [MOVING]: (delta) => {
     [rotateAngle, moved] = lerp(rotateAngle, PI / 2, delta, 5);
     if (moved) {
-      Pos = V3Add(Pos, moveDir);
+      Pos = V3Add(Pos, movementDirection);
       // +ve rotation is counter-clockwise, so invert z-axis amount
-      addRotation(Vec3(moveDir[2], 0, -moveDir[0]));
-      rotateAngle = moveDir = 0;
+      addRotation(Vec3(movementDirection[2], 0, -movementDirection[0]));
+      rotateAngle = movementDirection = 0;
       emitSignal(SIGNAL_CUBE_MOVED, Pos);
       return MOVED;
     }
@@ -143,14 +132,14 @@ const addRotation = (dir) => {
 // {{{ Render
 
 const getRotationMat = () => {
-  if (!moveDir) {
+  if (!movementDirection) {
     return rotationStack;
   }
 
   // rot = rotation matrix
   // pre & post are only used if pivot point needs to be shifted
   let rot, pre, post;
-  const [x,,z] = moveDir;
+  const [x,,z] = movementDirection;
 
   // rotate left/right
   if (x) {
@@ -180,9 +169,9 @@ const getRotationMat = () => {
 // align face with the cube
 const initialFaceTransform = Multiply(Translate(0, PLATFORM_SIZE, PLATFORM_SIZE), RotateX(-PI / 2));
 
-export const render = (delta, worldMat) => {
+export const render = (delta, worldMat, moveDir) => {
   detectSignals();
-  step(delta);
+  step(delta, moveDir);
 
   const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, 0, Pos[2] * PLATFORM_SIZE), getRotationMat());
   const modelViewMat = Multiply(CamMat(), worldMat, localMat);

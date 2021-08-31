@@ -2,7 +2,7 @@ import { createSM, enumArray } from './engine/state';
 import { GL_FLOAT } from './engine/gl-constants';
 import { SIGNAL_START_LEVEL, SIGNAL_CUBE_MOVED, watchSignal, emitSignal } from './engine/observer';
 import { START, PLATFORM_DATA } from './platform-types';
-import { Multiply, Scale, Translate, Vec3 } from './math';
+import { Multiply, Scale, Translate, Vec3, V3Add } from './math';
 import { cube } from './shape';
 import { createPipeline, CamMat, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './platform.glslx';
@@ -34,6 +34,20 @@ const uColor = getUniform(renaming.uColor);
 const uLightPos = getUniform(renaming.uLightPos);
 
 const draw = drawArrays();
+
+// }}}
+
+// Util {{{
+
+export const canMoveTo = (curPos, moveDir) => {
+  const [x, , z] = V3Add(curPos, moveDir);
+  // usual out of grid bounds check
+  if (x < 0 || z < 0 || x >= LoadedLevel[0].length || z >= LoadedLevel.length) {
+    return false;
+  }
+  // check if tile can be stepped on
+  return PLATFORM_DATA[LoadedLevel[z][x]][2];
+};
 
 // }}}
 
