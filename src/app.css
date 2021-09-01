@@ -34,3 +34,12 @@ html, body {
 #c {
   z-index: 10;
 }
+
+/* Note for potrait devices */
+#d {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  color: green;
+  font: 100 42px sans-serif;
+}
