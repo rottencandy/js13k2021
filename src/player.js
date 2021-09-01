@@ -8,6 +8,7 @@ import { PI, isOdd } from './util';
 import { createPipeline, CamMat, drawArrays } from './global-state';
 import { vertex, cubeFragment, faceFragment, renaming } from './player.glslx';
 import { PLATFORM_SIZE } from './globals';
+import { playCubeSound } from './sound';
 
 // {{{ Init
 
@@ -75,6 +76,7 @@ const [step, override] = createSM({
       addRotation(Vec3(movementDirection[2], 0, -movementDirection[0]));
       rotateAngle = movementDirection = 0;
       emitSignal(SIGNAL_CUBE_MOVE_ENDED, Pos);
+      playCubeSound();
       return IDLE;
     }
   },

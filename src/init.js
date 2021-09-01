@@ -1,6 +1,7 @@
-import { GAME_WIDTH, GAME_HEIGHT, CANVAS, CANVAS2D, WIDTH, HEIGHT, STYLE } from './globals.js';
-import { MIN, getById } from './util.js';
-import { setupKeyListener } from './engine/input.js';
+import { setupKeyListener } from './engine/input';
+import { initAudio } from './sound';
+import { GAME_WIDTH, GAME_HEIGHT, CANVAS, CANVAS2D, WIDTH, HEIGHT, STYLE } from './globals';
+import { MIN, getById } from './util';
 
 onresize = () => {
   const ratio = MIN(innerWidth / GAME_WIDTH, innerHeight / GAME_HEIGHT);
@@ -14,6 +15,7 @@ CANVAS[WIDTH] = CANVAS2D[WIDTH] = GAME_WIDTH;
 CANVAS[HEIGHT] = CANVAS2D[HEIGHT] = GAME_HEIGHT;
 onresize();
 
+initAudio();
 setupKeyListener();
 
 // vim: fdm=marker:et:sw=2:
