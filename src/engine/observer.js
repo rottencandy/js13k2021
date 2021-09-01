@@ -4,7 +4,9 @@ export const [
   SIGNAL_CUBE_MOVE_STARTED,
   SIGNAL_CUBE_MOVE_ENDED,
   SIGNAL_START_LEVEL,
-] = enumArray(3);
+  SIGNAL_GAME_STARTED,
+  SIGNAL_GAME_PAUSED,
+] = enumArray(5);
 
 let PREV_SIGNALS = {}, NEXT_SIGNALS = {};
 

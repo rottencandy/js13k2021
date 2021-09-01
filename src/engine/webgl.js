@@ -169,7 +169,6 @@ const setBufferData = (gl, buf, type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) =
   gl.bufferData(type, data, mode);
 };
 
-// TODO: Take an array of pinters to enable at once?
 /**
  * @callback AttribSetFn
  * @param {number} loc attrib location

@@ -71,7 +71,6 @@ const [step] = createSM({
     // check if cube has moved
     const p = watchSignal(SIGNAL_CUBE_MOVE_ENDED);
     if (p) {
-      // TODO: handle grid out of bounds
       const [x, , z] = p;
       const platform = LoadedLevel[z][x];
       // run onstep handler

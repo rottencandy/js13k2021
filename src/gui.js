@@ -1,6 +1,6 @@
 import { createSM, enumArray } from './engine/state';
 import { Keys } from './engine/input';
-import { emitSignal, watchSignal } from './engine/observer';
+import { SIGNAL_GAME_STARTED, SIGNAL_GAME_PAUSED, emitSignal, watchSignal } from './engine/observer';
 import { CANVAS2D, GAME_WIDTH, GAME_HEIGHT } from './globals.js';
 import { PI, SQRT } from './util';
 
@@ -57,6 +57,7 @@ const [step] = createSM({
     text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, color(0, 0, 0, 1), SUB_FONT, 'start');
 
     if(Keys.space || Keys.clicked || Keys.touching) {
+      emitSignal(SIGNAL_GAME_STARTED, 1);
       return IN_GAME;
     }
   },
@@ -65,6 +66,7 @@ const [step] = createSM({
     text(GAME_WIDTH / 2, 50, color(50, 50, 50, 1), BOLD_FONT, 'II');
 
     if(Keys.esc) {
+      emitSignal(SIGNAL_GAME_PAUSED, 1);
       return PAUSE;
     }
   },
