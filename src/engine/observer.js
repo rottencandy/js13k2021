@@ -3,10 +3,12 @@ import { enumArray } from './state';
 export const [
   SIGNAL_CUBE_MOVE_STARTED,
   SIGNAL_CUBE_MOVE_ENDED,
-  SIGNAL_START_LEVEL,
   SIGNAL_GAME_STARTED,
   SIGNAL_GAME_PAUSED,
-] = enumArray(5);
+  SIGNAL_LEVEL_LOADED,
+  SIGNAL_LEVEL_STARTED,
+  SIGNAL_LEVEL_SOLVED,
+] = enumArray(7);
 
 let PREV_SIGNALS = {}, NEXT_SIGNALS = {};
 
@@ -21,7 +23,7 @@ export const signalStep = () => {
   }
 };
 
-export const emitSignal = (signal, data) => {
+export const emitSignal = (signal, data = 1) => {
   NEXT_SIGNALS[signal] = data;
 };
 

@@ -7,7 +7,7 @@ import { render, loadLevel } from './scene';
 // load initial level
 loadLevel(LEVELS[0]);
 
-const [PLAYING, PAUSED] = enumArray(2);
+const [PAUSED, PLAYING] = enumArray(2);
 const [step] = createSM({
   [PAUSED]: () => {
     if(watchSignal(SIGNAL_GAME_STARTED)) {

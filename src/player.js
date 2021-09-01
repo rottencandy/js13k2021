@@ -1,5 +1,5 @@
 import { createSM, enumArray } from './engine/state';
-import { SIGNAL_START_LEVEL, SIGNAL_CUBE_MOVE_STARTED, SIGNAL_CUBE_MOVE_ENDED, emitSignal, watchSignal } from './engine/observer';
+import { SIGNAL_LEVEL_LOADED, SIGNAL_CUBE_MOVE_STARTED, SIGNAL_CUBE_MOVE_ENDED, SIGNAL_LEVEL_STARTED, emitSignal, watchSignal } from './engine/observer';
 import { lerp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
@@ -55,7 +55,7 @@ const draw = drawArrays();
 
 // {{{ Update
 
-const [START, IDLE, MOVING] = enumArray(3);
+const [UNRENDERED, IDLE, MOVING] = enumArray(3);
 
 const [step, override] = createSM({
   [IDLE]: () => {
@@ -65,8 +65,10 @@ const [step, override] = createSM({
       return MOVING;
     }
   },
-  [START]: () => {
-    return IDLE;
+  [UNRENDERED]: () => {
+    if (watchSignal(SIGNAL_LEVEL_STARTED)) {
+      return IDLE;
+    }
   },
   [MOVING]: (delta) => {
     [rotateAngle, moved] = lerp(rotateAngle, PI / 2, delta, 5);
@@ -82,11 +84,11 @@ const [step, override] = createSM({
   },
 });
 
-const detectSignals = () => {
-  const startPos = watchSignal(SIGNAL_START_LEVEL);
+const observeSignals = () => {
+  const startPos = watchSignal(SIGNAL_LEVEL_LOADED);
   if (startPos) {
     Pos = startPos;
-    override(START);
+    override(UNRENDERED);
   }
 };
 
@@ -169,10 +171,13 @@ const getRotationMat = () => {
 const initialFaceTransform = Multiply(Translate(0, PLATFORM_SIZE, PLATFORM_SIZE), RotateX(-PI / 2));
 
 export const render = (delta, worldMat) => {
-  detectSignals();
-  step(delta);
+  observeSignals();
+  const currentState = step(delta);
+  if (currentState === UNRENDERED) {
+    return;
+  }
 
-  const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, 0, Pos[2] * PLATFORM_SIZE), getRotationMat());
+  const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, PLATFORM_SIZE / 2, Pos[2] * PLATFORM_SIZE), getRotationMat());
   const modelViewMat = Multiply(CamMat(), worldMat, localMat);
   //inverse transpose is required to fix uWorldMat when transformations are done
   //const inverseMVMat = Transpose(Inverse(modelViewMat));

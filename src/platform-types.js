@@ -1,4 +1,5 @@
 import { enumArray } from './engine/state';
+import { SIGNAL_LEVEL_SOLVED, emitSignal } from './engine/observer';
 import { Id } from './util';
 
 // platform types
@@ -20,10 +21,26 @@ export const PLATFORM_CODE = {
  * Platform type data
  */
 export const PLATFORM_DATA = {
-  [START]: [[.0, .3, .6, 1.0], Id, true],
-  [STATIC]: [[.0, .3, .6, 1.0], Id, true],
-  [GAP]: [[.0, .0, .0, .0], Id, false],
-  [END]: [[.0, .3, .6, 1.0], Id, true],
+  [START]: [
+    [.0, .3, .6, 1.0],
+    Id,
+    1
+  ],
+  [STATIC]: [
+    [.0, .3, .6, 1.0],
+    Id,
+    1
+  ],
+  [GAP]: [
+    [.0, .0, .0, .0], 
+    Id, 
+    0
+  ],
+  [END]: [
+    [.0, .6, .3, 1.0], 
+    () => {emitSignal(SIGNAL_LEVEL_SOLVED)}, 
+    1
+  ],
 };
 
 // vim: fdm=marker:et:sw=2:

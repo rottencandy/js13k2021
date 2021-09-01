@@ -53,11 +53,11 @@ const [SPLASH, IN_GAME, PAUSE] = enumArray(3);
 const [step] = createSM({
   [SPLASH]: () => {
     fullGradient(color(100, 100, 100, 1),color(200, 200, 200, 1));
-    text(GAME_WIDTH / 2, GAME_HEIGHT / 3, color(0, 0, 0, 1), TITLE_FONT, 'SPACE');
+    text(GAME_WIDTH / 2, GAME_HEIGHT / 3, color(0, 0, 0, 1), TITLE_FONT, 'UNTITLED SPACE GAME');
     text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, color(0, 0, 0, 1), SUB_FONT, 'start');
 
     if(Keys.space || Keys.clicked || Keys.touching) {
-      emitSignal(SIGNAL_GAME_STARTED, 1);
+      emitSignal(SIGNAL_GAME_STARTED);
       return IN_GAME;
     }
   },
@@ -66,7 +66,7 @@ const [step] = createSM({
     text(GAME_WIDTH / 2, 50, color(50, 50, 50, 1), BOLD_FONT, 'II');
 
     if(Keys.esc) {
-      emitSignal(SIGNAL_GAME_PAUSED, 1);
+      emitSignal(SIGNAL_GAME_PAUSED);
       return PAUSE;
     }
   },
