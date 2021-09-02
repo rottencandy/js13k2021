@@ -1,6 +1,6 @@
 import { createSM, enumArray } from './engine/state';
 import { SIGNAL_LEVEL_LOADED, SIGNAL_CUBE_MOVE_STARTED, SIGNAL_CUBE_MOVE_ENDED, SIGNAL_LEVEL_STARTED, SIGNAL_LEVEL_SOLVED, emitSignal, watchSignal } from './engine/observer';
-import { lerp, createInterp } from './engine/lerp';
+import { createInterp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
 import { cube, plane } from './shape';
@@ -15,7 +15,7 @@ import { playCubeSound } from './sound';
 export let Pos = Vec3(0, 0, 0);
 
 // angle of rotation(if cube is currently rotating)
-const tweenedAngle = createInterp(0, PI / 2, 0.3);
+const tweenedAngle = createInterp(0, PI / 2, 0.4);
 // movement direction vector(if cube is currently moving)
 let movementDirection = 0;
 

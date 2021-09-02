@@ -1,9 +1,9 @@
 import { createSM, enumArray } from './engine/state';
 import { GL_FLOAT } from './engine/gl-constants';
-import { lerp, createInterp } from './engine/lerp';
+import { createInterp } from './engine/lerp';
 import { SIGNAL_LEVEL_LOADED, SIGNAL_LEVEL_STARTED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_SOLVED, SIGNAL_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
 import { START, PLATFORM_DATA } from './platform-types';
-import { Multiply, Scale, Translate, Vec3, V3Add } from './math';
+import { Multiply, Scale, Vec3, V3Add } from './math';
 import { cube } from './shape';
 import { createPipeline, CamMat, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './platform.glslx';

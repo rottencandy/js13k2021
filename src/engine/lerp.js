@@ -43,12 +43,4 @@ export const createInterp = (from, to, duration, func = LINEAR) => {
   ]
 };
 
-export const lerp = (from, to, delta, step = 1) => {
-  if (from >= to) {
-    return [to, true];
-  } else {
-    return [from += step * delta, false];
-  }
-};
-
 // vim: fdm=marker:et:sw=2:
