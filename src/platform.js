@@ -1,6 +1,6 @@
 import { createSM, enumArray } from './engine/state';
 import { GL_FLOAT } from './engine/gl-constants';
-import { lerp } from './engine/lerp';
+import { lerp, createInterp } from './engine/lerp';
 import { SIGNAL_LEVEL_LOADED, SIGNAL_LEVEL_STARTED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_SOLVED, SIGNAL_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
 import { START, PLATFORM_DATA } from './platform-types';
 import { Multiply, Scale, Translate, Vec3, V3Add } from './math';
@@ -15,7 +15,7 @@ let currentState;
 let LoadedLevel = [];
 let resetPlatform = false;
 // TODO: Lerp should also work with negative values
-let platformInitialHeight, platformEndHeight;
+let tweenedPlatformHeight;
 export const setLevel = (l) => { LoadedLevel = l; resetPlatform = true };
 
 // }}}
@@ -72,20 +72,19 @@ const [step, override] = createSM({
         startPos = Vec3(x, 0, z);
       }
     });
-    platformInitialHeight = 0;
+    tweenedPlatformHeight = createInterp(0, 0.5, 1);
     emitSignal(SIGNAL_LEVEL_LOADED, startPos);
     return START_ANIM;
   },
   [START_ANIM]: (delta) => {
-    [platformInitialHeight, done] = lerp(platformInitialHeight, 0.5, delta);
+    const done = tweenedPlatformHeight[0](delta);
     if (done) {
       emitSignal(SIGNAL_LEVEL_STARTED);
       return UPDATE;
     }
   },
   [END_ANIM]: (delta) => {
-    [platformEndHeight, done] = lerp(platformEndHeight, 0.5, delta);
-    platformInitialHeight = 0.5 - platformEndHeight;
+    const done = tweenedPlatformHeight[0](delta);
     if (done) {
       emitSignal(SIGNAL_LEVEL_ENDED);
     }
@@ -101,7 +100,7 @@ const [step, override] = createSM({
     }
     // end if level is completed
     if (watchSignal(SIGNAL_LEVEL_SOLVED)) {
-      platformEndHeight = 0;
+      tweenedPlatformHeight = createInterp(0.5, 0, 1);
       return END_ANIM;
     }
   },
@@ -119,9 +118,9 @@ export const render = (delta, worldMat) => {
   }
   currentState = step(delta);
 
-  if (platformInitialHeight > 0) {
+  if (tweenedPlatformHeight[1]() > 0) {
     use();
-    const localMat = Scale(1, platformInitialHeight, 1);
+    const localMat = Scale(1, tweenedPlatformHeight[1](), 1);
     uMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
     uModel.m4fv(false, localMat);
     uLightPos.u3f(0.5, 0.7, 1.0);

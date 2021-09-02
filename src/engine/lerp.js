@@ -4,18 +4,43 @@ export const EASEOUTQUINT = t => 1 + (--t) * t * t * t * t;
 export const EASEINQUINT = t => t * t * t * t * t;
 export const EASEINOUTCUBIC = t => t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
 
-export const createInterp = (from, to, t, duration, func = LINEAR) => {
+/** @typedef {(delta: number) => boolean} Interpolate */
+/** @typedef {() => number} GetValue */
+/** @typedef {() => void} Reset */
+/**
+ * Create an interpolated value calculator
+ * @param {number} from Start value
+ * @param {number} to End value
+ * @param {number} duration duration of interpolation
+ * @param {any?} function the interpolation function to use
+ * @returns {[Interpolate, GetValue, Reset]} functions to operate the interpolation
+*/
+export const createInterp = (from, to, duration, func = LINEAR) => {
   // t goes from 0 -> duration
+  let t = 0, value = from;
   const difference = to - from;
 
-  // check if interpolation is done
-  if (t >= duration) {
-    return [to, duration, true];
+  const interpolate = (delta) => {
+    // check if interpolation is done
+    if (t >= duration) {
+      value = to;
+      return true;
 
-    // convert t into range 0 -> 1 and get lerped value
-  } else {
-    return [func(++t / duration) * difference, t, false];
-  }
+      // convert t into range 0 -> 1 and get interpolated value
+    } else {
+      t += delta;
+      value = from + func(t / duration) * difference;
+      return false;
+    }
+  };
+
+  const reset = () => (t = 0, value = from);
+
+  return [
+    interpolate,
+    () => value,
+    reset,
+  ]
 };
 
 export const lerp = (from, to, delta, step = 1) => {

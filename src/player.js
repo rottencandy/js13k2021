@@ -1,6 +1,6 @@
 import { createSM, enumArray } from './engine/state';
-import { SIGNAL_LEVEL_LOADED, SIGNAL_CUBE_MOVE_STARTED, SIGNAL_CUBE_MOVE_ENDED, SIGNAL_LEVEL_STARTED, emitSignal, watchSignal } from './engine/observer';
-import { lerp } from './engine/lerp';
+import { SIGNAL_LEVEL_LOADED, SIGNAL_CUBE_MOVE_STARTED, SIGNAL_CUBE_MOVE_ENDED, SIGNAL_LEVEL_STARTED, SIGNAL_LEVEL_SOLVED, emitSignal, watchSignal } from './engine/observer';
+import { lerp, createInterp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
 import { cube, plane } from './shape';
@@ -15,7 +15,7 @@ import { playCubeSound } from './sound';
 export let Pos = Vec3(0, 0, 0);
 
 // angle of rotation(if cube is currently rotating)
-let rotateAngle = 0;
+const tweenedAngle = createInterp(0, PI / 2, 0.3);
 // movement direction vector(if cube is currently moving)
 let movementDirection = 0;
 
@@ -55,7 +55,7 @@ const draw = drawArrays();
 
 // {{{ Update
 
-const [UNRENDERED, IDLE, MOVING] = enumArray(3);
+const [UNRENDERED, IDLE, MOVING, END_ANIM] = enumArray(4);
 
 const [step, override] = createSM({
   [IDLE]: () => {
@@ -71,17 +71,21 @@ const [step, override] = createSM({
     }
   },
   [MOVING]: (delta) => {
-    [rotateAngle, moved] = lerp(rotateAngle, PI / 2, delta, 5);
+    const moved = tweenedAngle[0](delta);
     if (moved) {
       Pos = V3Add(Pos, movementDirection);
       // +ve rotation is counter-clockwise, so invert z-axis amount
       addRotation(Vec3(movementDirection[2], 0, -movementDirection[0]));
-      rotateAngle = movementDirection = 0;
+      movementDirection = 0;
+      tweenedAngle[2]();
       emitSignal(SIGNAL_CUBE_MOVE_ENDED, Pos);
       playCubeSound();
       return IDLE;
     }
   },
+  [END_ANIM]: () => {
+    return UNRENDERED;
+  }
 });
 
 const observeSignals = () => {
@@ -89,6 +93,9 @@ const observeSignals = () => {
   if (startPos) {
     Pos = startPos;
     override(UNRENDERED);
+  }
+  if (watchSignal(SIGNAL_LEVEL_SOLVED)) {
+    override(END_ANIM);
   }
 };
 
@@ -144,14 +151,14 @@ const getRotationMat = () => {
 
   // rotate left/right
   if (x) {
-    rot = RotateZ(rotateAngle * -x);
+    rot = RotateZ(tweenedAngle[1]() * -x);
 
     pre = Translate(-PLATFORM_SIZE, 0, 0);
     post = Translate(PLATFORM_SIZE, 0, 0);
 
     // rotate up/down
   } else {
-    rot = RotateX(rotateAngle * z);
+    rot = RotateX(tweenedAngle[1]() * z);
 
     pre = Translate(0, 0, -PLATFORM_SIZE);
     post = Translate(0, 0, PLATFORM_SIZE);
