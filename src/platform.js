@@ -1,7 +1,7 @@
 import { createSM, enumArray } from './engine/state';
 import { GL_FLOAT } from './engine/gl-constants';
 import { lerp } from './engine/lerp';
-import { SIGNAL_LEVEL_LOADED, SIGNAL_LEVEL_STARTED, SIGNAL_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
+import { SIGNAL_LEVEL_LOADED, SIGNAL_LEVEL_STARTED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_SOLVED, SIGNAL_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
 import { START, PLATFORM_DATA } from './platform-types';
 import { Multiply, Scale, Translate, Vec3, V3Add } from './math';
 import { cube } from './shape';
@@ -14,7 +14,8 @@ import { PLATFORM_SIZE } from './globals';
 let currentState;
 let LoadedLevel = [];
 let resetPlatform = false;
-let platformInitialHeight;
+// TODO: Lerp should also work with negative values
+let platformInitialHeight, platformEndHeight;
 export const setLevel = (l) => { LoadedLevel = l; resetPlatform = true };
 
 // }}}
@@ -45,7 +46,7 @@ const draw = drawArrays();
 
 export const canMoveTo = (curPos, moveDir) => {
   // make player unresponsive if scene is animating
-  if(currentState === ANIMATING) {
+  if(currentState === START_ANIM) {
     return false;
   }
   const [x, , z] = V3Add(curPos, moveDir);
@@ -61,7 +62,7 @@ export const canMoveTo = (curPos, moveDir) => {
 
 // {{{ Update
 
-const [INIT, ANIMATING, UPDATE, END] = enumArray(4);
+const [INIT, START_ANIM, END_ANIM, UPDATE, END] = enumArray(5);
 const [step, override] = createSM({
   [INIT]: () => {
   let startPos = [0, 0];
@@ -73,13 +74,20 @@ const [step, override] = createSM({
     });
     platformInitialHeight = 0;
     emitSignal(SIGNAL_LEVEL_LOADED, startPos);
-    return ANIMATING;
+    return START_ANIM;
   },
-  [ANIMATING]: (delta) => {
+  [START_ANIM]: (delta) => {
     [platformInitialHeight, done] = lerp(platformInitialHeight, 0.5, delta);
     if (done) {
       emitSignal(SIGNAL_LEVEL_STARTED);
       return UPDATE;
+    }
+  },
+  [END_ANIM]: (delta) => {
+    [platformEndHeight, done] = lerp(platformEndHeight, 0.5, delta);
+    platformInitialHeight = 0.5 - platformEndHeight;
+    if (done) {
+      emitSignal(SIGNAL_LEVEL_ENDED);
     }
   },
   [UPDATE]: (_delta) => {
@@ -88,8 +96,13 @@ const [step, override] = createSM({
     if (p) {
       const [x, , z] = p;
       const platform = LoadedLevel[z][x];
-      // run onstep handler
-      PLATFORM_DATA[platform][1]();
+      // run onstep handler, providing platform coordinates
+      PLATFORM_DATA[platform][1](z, x);
+    }
+    // end if level is completed
+    if (watchSignal(SIGNAL_LEVEL_SOLVED)) {
+      platformEndHeight = 0;
+      return END_ANIM;
     }
   },
   [END]: () => {},
@@ -106,18 +119,20 @@ export const render = (delta, worldMat) => {
   }
   currentState = step(delta);
 
-  use();
-  const localMat = Scale(1, platformInitialHeight, 1);
-  uMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
-  uModel.m4fv(false, localMat);
-  uLightPos.u3f(0.5, 0.7, 1.0);
+  if (platformInitialHeight > 0) {
+    use();
+    const localMat = Scale(1, platformInitialHeight, 1);
+    uMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
+    uModel.m4fv(false, localMat);
+    uLightPos.u3f(0.5, 0.7, 1.0);
 
-  LoadedLevel.map((rows, y) => rows.map((p, x) => {
-    const [color] = PLATFORM_DATA[p];
-    uColor.u4f(...color);
-    uGridPos.u3f(x, 0, y, 1);
-    draw(6 * 6);
-  }));
+    LoadedLevel.map((rows, y) => rows.map((p, x) => {
+      const [color] = PLATFORM_DATA[p];
+      uColor.u4f(...color);
+      uGridPos.u3f(x, 0, y, 1);
+      draw(6 * 6);
+    }));
+  }
 
 }
 

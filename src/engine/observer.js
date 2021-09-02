@@ -8,7 +8,8 @@ export const [
   SIGNAL_LEVEL_LOADED,
   SIGNAL_LEVEL_STARTED,
   SIGNAL_LEVEL_SOLVED,
-] = enumArray(7);
+  SIGNAL_LEVEL_ENDED,
+] = enumArray(8);
 
 let PREV_SIGNALS = {}, NEXT_SIGNALS = {};
 
