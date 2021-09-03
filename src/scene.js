@@ -1,7 +1,7 @@
 import { Keys, dirKeysPressed } from './engine/input';
 import { SIGNAL_CUBE_MOVE_STARTED, emitSignal } from './engine/observer';
-import { CamLookAt } from './global-state';
-import { MAX, FLOOR, TAN } from './util';
+import { CamLookAt, CamMove } from './global-state';
+import { MAX, FLOOR, SIN, COS, TAN } from './util';
 import { FOV, PLATFORM_SIZE } from './globals';
 import { Translate, Vec3 } from './math';
 import { parseLevel } from './levels';
@@ -59,15 +59,22 @@ const moveDirectionVector = () => {
 
 // Loop {{{
 
-let worldMat = Translate(10, 0, 10);
+let worldMat = Translate(10, 0, 10), t = 0;
 export const render = (delta) => {
   let moveDir = moveDirectionVector();
   if (moveDir && canMoveTo(playerPos, moveDir)) {
     emitSignal(SIGNAL_CUBE_MOVE_STARTED, moveDir);
   }
-  renderBackdrop();
+
+  // light camera shake
+  const speed = t / 100, amt = 20;
+  CamMove(SIN(speed) / amt, COS(speed * 2) / amt, 0);
+
+  renderBackdrop(delta, t);
   renderPlayer(delta, worldMat, moveDir);
   renderPlatform(delta, worldMat);
+
+  t++;
 }
 
 // }}}
