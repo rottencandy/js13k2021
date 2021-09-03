@@ -75,9 +75,11 @@ export const setupKeyListener = () => {
     e.preventDefault();
     Keys.clicked = e.touches.length > 0;
     if(Keys.clicked) {
+      const offset = CANVAS2D.getBoundingClientRect();
       const ratio = deviceScaleRatio();
-      Keys.touchX = e.touches[0].offsetX / ratio;
-      Keys.touchY = e.touches[0].offsetY / ratio;
+      Keys.touchX = (e.touches[0].clientX - offset.left) / ratio;
+      // offset.top is not needed since canvas is always stuck to top
+      Keys.touchY = e.touches[0].clientY / ratio;
     }
   }
 }
