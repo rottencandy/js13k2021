@@ -1,6 +1,7 @@
 import { createSM, enumArray } from './engine/state';
 import { Keys } from './engine/input';
 import { SIGNAL_GAME_STARTED, SIGNAL_GAME_PAUSED, emitSignal, watchSignal } from './engine/observer';
+import { createInterp, EASEOUTQUAD } from './engine/lerp';
 import { CANVAS2D, GAME_WIDTH, GAME_HEIGHT } from './globals.js';
 import { PI, SQRT } from './util';
 
@@ -13,6 +14,9 @@ const BASE_FONT = ' Trebuchet, sans-serif';
 const TITLE_FONT = '100 48px' + BASE_FONT;
 const SUB_FONT = '100 26px' + BASE_FONT;
 const BOLD_FONT = '26px' + BASE_FONT;
+
+let tweenedBackground = createInterp(50, 220, 5, EASEOUTQUAD);
+let tweenedPauseCircle;
 
 // Utils {{{
 
@@ -47,30 +51,60 @@ const isInCircle = (px, py, cx, cy, radius) => {
 
 // }}}
 
+// Config {{{
+
+const pauseScrnColor = color(180, 200, 200, 1),
+  pauseBtnX = GAME_WIDTH / 2,
+  pauseBtnY = 50,
+  pauseBtnSize = 25;
+
+// }}}
+
 // Update {{{
 
-const [SPLASH, IN_GAME, PAUSE] = enumArray(3);
+const [SPLASH, INTRO_TRANSITION, IN_GAME, PAUSE_TRANSITION, PAUSED] = enumArray(5);
 const [step] = createSM({
-  [SPLASH]: () => {
-    fullGradient(color(100, 100, 100, 1),color(200, 200, 200, 1));
+  [SPLASH]: (delta) => {
+    tweenedBackground[0](delta);
+    const col = tweenedBackground[1]();
+    fullGradient(color(30, 40, 40, 1),color(col, col, col, 1));
     text(GAME_WIDTH / 2, GAME_HEIGHT / 3, color(0, 0, 0, 1), TITLE_FONT, 'UNTITLED SPACE GAME');
     text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, color(0, 0, 0, 1), SUB_FONT, 'start');
 
     if(Keys.space || Keys.clicked || Keys.touching) {
+      tweenedBackground = createInterp(1, 0, 1, EASEOUTQUAD);
+      return INTRO_TRANSITION;
+    }
+  },
+  [INTRO_TRANSITION]: (delta) => {
+    const done = tweenedBackground[0](delta);
+    const alpha = tweenedBackground[1]();
+    const col = 220;
+    fullGradient(color(30, 40, 40, alpha),color(col, col, col, alpha));
+    if (done) {
       emitSignal(SIGNAL_GAME_STARTED);
       return IN_GAME;
     }
   },
   [IN_GAME]: () => {
-    circle(GAME_WIDTH / 2, 50, 25, color(200, 200, 200, 1));
+    circle(pauseBtnX, pauseBtnY, pauseBtnSize, pauseScrnColor);
     text(GAME_WIDTH / 2, 50, color(50, 50, 50, 1), BOLD_FONT, 'II');
 
-    if(Keys.esc) {
+    if(Keys.esc || Keys.clicked && isInCircle(Keys.touchX, Keys.touchY, pauseBtnX, pauseBtnY, pauseBtnSize)) {
       emitSignal(SIGNAL_GAME_PAUSED);
-      return PAUSE;
+      tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
+      return PAUSE_TRANSITION;
     }
   },
-  [PAUSE]: () => {
+  [PAUSE_TRANSITION]: (delta) => {
+    const done = tweenedPauseCircle[0](delta);
+    const size = tweenedPauseCircle[1]();
+    circle(pauseBtnX, pauseBtnY, size, pauseScrnColor);
+    if (done) {
+      return PAUSED;
+    }
+  },
+  [PAUSED]: () => {
     text(GAME_WIDTH / 2, 100, color(0, 0, 0, 1), TITLE_FONT, 'RESUME');
   },
 });

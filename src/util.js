@@ -1,8 +1,10 @@
+import { GAME_WIDTH, GAME_HEIGHT } from './globals';
 const M = Math;
 
 export const
   /** Alias for `document.getElementById()` */
   getById = (id) => document.getElementById(id),
+  deviceScaleRatio = () => MIN(innerWidth / GAME_WIDTH, innerHeight / GAME_HEIGHT),
   RAF = requestAnimationFrame,
   MIN = M.min,
   MAX = M.max,

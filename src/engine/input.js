@@ -1,4 +1,5 @@
 import { CANVAS2D } from '../globals';
+import { deviceScaleRatio } from '../util';
 /**
  * Keys being watched
  * @typedef {Object} WatchedKeys
@@ -9,7 +10,6 @@ import { CANVAS2D } from '../globals';
  * @property {boolean} space - space key
  * @property {boolean} esc - escape key
  * @property {boolean} clicked - clicked mouse btn
- * @property {boolean} touching - touching screen
  * @property {number} touchX - touch screen coordinates
  * @property {number} touchY - touch screen coordinates
 */
@@ -22,7 +22,6 @@ export const Keys = {
   space: 0,
   esc: 0,
   clicked: 0,
-  touching: 0,
   touchX: 0,
   touchY: 0,
 };
@@ -68,15 +67,17 @@ export const setupKeyListener = () => {
   CANVAS2D.onpointerdown = () => Keys.clicked = 1;
   CANVAS2D.onpointerup = () => Keys.clicked = 0;
   CANVAS2D.onpointermove = e => {
-    Keys.touchX = e.offsetX;
-    Keys.touchY = e.offsetY;
+    const ratio = deviceScaleRatio();
+    Keys.touchX = e.offsetX / ratio;
+    Keys.touchY = e.offsetY / ratio;
   }
   CANVAS2D.ontouchstart = CANVAS2D.ontouchmove = CANVAS2D.ontouchend = CANVAS2D.ontouchcancel = e => {
     e.preventDefault();
-    Keys.touching = e.touches.length > 0;
-    if(Keys.touching) {
-      Keys.touchX = e.touches[0].offsetX;
-      Keys.touchY = e.touches[0].offsetY;
+    Keys.clicked = e.touches.length > 0;
+    if(Keys.clicked) {
+      const ratio = deviceScaleRatio();
+      Keys.touchX = e.touches[0].offsetX / ratio;
+      Keys.touchY = e.touches[0].offsetY / ratio;
     }
   }
 }
