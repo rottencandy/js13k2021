@@ -1,19 +1,14 @@
 import { createSM, enumArray } from './engine/state';
-import { Keys } from './engine/input';
+import { Keys, ARROW } from './engine/input';
 import { SIGNAL_GAME_STARTED, SIGNAL_GAME_PAUSED, emitSignal, watchSignal } from './engine/observer';
 import { createInterp, EASEOUTQUAD } from './engine/lerp';
 import { CANVAS2D, GAME_WIDTH, GAME_HEIGHT } from './globals.js';
-import { PI, SQRT } from './util';
+import { ABS, PI, SQRT } from './util';
 
 const ctx = CANVAS2D.getContext('2d');
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
-
 const FILL_STYLE = 'fillStyle';
-const BASE_FONT = ' Trebuchet, sans-serif';
-const TITLE_FONT = '100 48px' + BASE_FONT;
-const SUB_FONT = '100 26px' + BASE_FONT;
-const BOLD_FONT = '26px' + BASE_FONT;
 
 let tweenedBackground = createInterp(50, 220, 5, EASEOUTQUAD);
 let tweenedPauseCircle;
@@ -49,14 +44,83 @@ const isInCircle = (px, py, cx, cy, radius) => {
   return dist <= radius;
 };
 
+const drawDragIndicatorLR = (invert) => {
+  const xpos = invert? indicatorSize:-indicatorSize;
+  ctx[FILL_STYLE] = indicatorColor;
+  ctx.beginPath();
+  ctx.moveTo(GAME_WIDTH / 2 + xpos, GAME_HEIGHT / 2);
+  ctx.lineTo(GAME_WIDTH / 2, GAME_HEIGHT / 2 + indicatorSize);
+  ctx.lineTo(GAME_WIDTH / 2, GAME_HEIGHT / 2 - indicatorSize);
+  ctx.fill();
+};
+
+const drawDragIndicatorUD = (invert) => {
+  const ypos = invert? 50:-50;
+  ctx[FILL_STYLE] = indicatorColor;
+  ctx.beginPath();
+  ctx.moveTo(GAME_WIDTH / 2, GAME_HEIGHT / 2 + ypos);
+  ctx.lineTo(GAME_WIDTH / 2 + indicatorSize, GAME_HEIGHT / 2);
+  ctx.lineTo(GAME_WIDTH / 2 - indicatorSize, GAME_HEIGHT / 2);
+  ctx.fill();
+};
+
+let initialPos = 0;
+let pendingEventFire = 0;
+let touchDir = '';
+const calculateDragDirection = () => {
+  const THRESHOLD = 50;
+  if (Keys.clicked) {
+    if (!initialPos) {
+      initialPos = [Keys.touchX, Keys.touchY];
+    }
+    const relX = Keys.touchX - initialPos[0];
+    const relY = Keys.touchY - initialPos[1];
+    const absX = ABS(relX);
+    const absY = ABS(relY);
+
+    //circle(initialPos[0], initialPos[1], 30, indicatorCircle);
+
+    if (absX < THRESHOLD && absY < THRESHOLD) {
+      pendingEventFire = 0, touchDir = '';
+    } else {
+      pendingEventFire = 1;
+      if (absX > absY) {
+        touchDir = relX < 0 ? 'Left' : 'Right';
+        drawDragIndicatorLR(relX > 0);
+      } else {
+        touchDir = relY < 0 ? 'Up' : 'Down';
+        drawDragIndicatorUD(relY > 0);
+      }
+      return true;
+    }
+
+  } else {
+    if (pendingEventFire) {
+      onkeydown({ key: ARROW + touchDir });
+      pendingEventFire = initialPos = 0;
+    } else if (touchDir) {
+      onkeyup({ key: ARROW + touchDir });
+      touchDir = '';
+    }
+  }
+};
+
 // }}}
 
 // Config {{{
+
+const BASE_FONT = ' Trebuchet, sans-serif';
+const TITLE_FONT = '100 48px' + BASE_FONT;
+const SUB_FONT = '100 26px' + BASE_FONT;
+const BOLD_FONT = '26px' + BASE_FONT;
 
 const pauseScrnColor = color(180, 200, 200, 1),
   pauseBtnX = GAME_WIDTH / 2,
   pauseBtnY = 50,
   pauseBtnSize = 25;
+const indicatorColor = color(190, 200, 200, 1);
+const indicatorSize = 60;
+//const indicatorCircle = color(190, 200, 200, 0.5);
 
 // }}}
 
@@ -89,8 +153,9 @@ const [step] = createSM({
   [IN_GAME]: () => {
     circle(pauseBtnX, pauseBtnY, pauseBtnSize, pauseScrnColor);
     text(GAME_WIDTH / 2, 50, color(50, 50, 50, 1), BOLD_FONT, 'II');
+    const isDragging = calculateDragDirection();
 
-    if(Keys.esc || Keys.clicked && isInCircle(Keys.touchX, Keys.touchY, pauseBtnX, pauseBtnY, pauseBtnSize)) {
+    if (!isDragging && (Keys.esc || (Keys.clicked && isInCircle(Keys.touchX, Keys.touchY, pauseBtnX, pauseBtnY, pauseBtnSize)))) {
       emitSignal(SIGNAL_GAME_PAUSED);
       tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
       return PAUSE_TRANSITION;

@@ -28,12 +28,13 @@ export const Keys = {
 
 export const dirKeysPressed = () => Keys.left || Keys.right || Keys.up || Keys.down;
 
+export const ARROW = 'Arrow';
+
 /**
  * Set up onkey listeners
 */
 export const setupKeyListener = () => {
   const setKeyState = (value) => ({key: code}) => {
-    const ARROW = 'Arrow';
     switch (code) {
       case ARROW + 'Up':
       case 'w':
@@ -71,6 +72,7 @@ export const setupKeyListener = () => {
     Keys.touchX = e.offsetX / ratio;
     Keys.touchY = e.offsetY / ratio;
   }
+
   CANVAS2D.ontouchstart = CANVAS2D.ontouchmove = CANVAS2D.ontouchend = CANVAS2D.ontouchcancel = e => {
     e.preventDefault();
     Keys.clicked = e.touches.length > 0;
