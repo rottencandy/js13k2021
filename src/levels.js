@@ -5,7 +5,7 @@ import { PLATFORM_CODE } from './platform-types';
 */
 export const LEVELS = {
   // level selection scene
-  0: '3:4ba2cbd',
+  0: '3:4ba2cbe',
   1: '4:4ba2bd',
 };
 

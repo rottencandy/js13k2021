@@ -1,6 +1,6 @@
 import { createSM, enumArray } from './engine/state';
 import { Keys, ARROW } from './engine/input';
-import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_END_ANIM_PLAYED, emitSignal, watchSignal } from './engine/observer';
+import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_SELECTED, SIGNAL_LEVEL_END_ANIM_PLAYED, emitSignal, watchSignal } from './engine/observer';
 import { createInterp, EASEOUTQUAD } from './engine/lerp';
 import { CANVAS2D, GAME_WIDTH, GAME_HEIGHT } from './globals.js';
 import { ABS, PI, SQRT, MAX } from './util';
@@ -163,7 +163,7 @@ const [step] = createSM({
       return PAUSE_TRANSITION;
     }
 
-    if (watchSignal(SIGNAL_LEVEL_ENDED)) {
+    if (watchSignal(SIGNAL_LEVEL_ENDED) || watchSignal(SIGNAL_LEVEL_SELECTED)) {
       emitSignal(SIGNAL_GAME_PAUSED);
       tweenedTransition = createInterp(0, GAME_WIDTH, 1);
       return LEVEL_TRANSITION;

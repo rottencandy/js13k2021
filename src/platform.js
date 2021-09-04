@@ -12,11 +12,10 @@ import { PLATFORM_SIZE } from './globals';
 // {{{ Init
 
 let currentState;
-let LoadedLevel = [];
+let PlatformData = [];
 let resetPlatform = false, skipIntroAnim = false;
-// TODO: Lerp should also work with negative values
 let tweenedPlatformHeight;
-export const setLevel = (l, showIntro) => { LoadedLevel = l; resetPlatform = true, skipIntroAnim = !showIntro; };
+export const setLevel = (l, showIntro) => { PlatformData = l; resetPlatform = true, skipIntroAnim = !showIntro; };
 
 // }}}
 
@@ -51,11 +50,11 @@ export const canMoveTo = (curPos, moveDir) => {
   }
   const [x, , z] = V3Add(curPos, moveDir);
   // usual out of grid bounds check
-  if (x < 0 || z < 0 || x >= LoadedLevel[0].length || z >= LoadedLevel.length) {
+  if (x < 0 || z < 0 || x >= PlatformData[0].length || z >= PlatformData.length) {
     return false;
   }
   // check if tile can be stepped on
-  return PLATFORM_DATA[LoadedLevel[z][x]][2];
+  return PlatformData[z][x][2]();
 };
 
 // }}}
@@ -64,16 +63,18 @@ export const canMoveTo = (curPos, moveDir) => {
 
 const [INIT, START_ANIM, END_ANIM, UPDATE] = enumArray(4);
 const [step, override] = createSM({
-  // set platform height to 0 and reset player pos
+  // set load level data and reset player pos
   [INIT]: () => {
   let startPos = [0, 0];
-    LoadedLevel.map((rows, z) => {
+    PlatformData = PlatformData.map((rows, z) => {
       const x = rows.indexOf(START);
       if (x !== -1) {
         startPos = Vec3(x, 0, z);
       }
+      return rows.map((v) => PLATFORM_DATA[v]());
     });
 
+    // skip platform raise animation
     const initHeight = skipIntroAnim ? 0.5 : 0;
     tweenedPlatformHeight = createInterp(initHeight, 0.5, 1);
     emitSignal(SIGNAL_LEVEL_LOADED, [startPos, skipIntroAnim]);
@@ -100,9 +101,8 @@ const [step, override] = createSM({
     const p = watchSignal(SIGNAL_CUBE_MOVE_ENDED);
     if (p) {
       const [x, , z] = p;
-      const platform = LoadedLevel[z][x];
       // run onstep handler, providing platform coordinates
-      PLATFORM_DATA[platform][1](z, x);
+      PlatformData[z][x][1](z, x);
     }
     // end if level is completed
     if (watchSignal(SIGNAL_LEVEL_SOLVED)) {
@@ -131,8 +131,8 @@ export const render = (delta, worldMat, paused) => {
     uModel.m4fv(false, localMat);
     uLightPos.u3f(0.5, 0.7, 1.0);
 
-    LoadedLevel.map((rows, y) => rows.map((p, x) => {
-      const [color] = PLATFORM_DATA[p];
+    PlatformData.map((rows, y) => rows.map((p, x) => {
+      const color = p[0]();
       uColor.u4f(...color);
       uGridPos.u3f(x, 0, y, 1);
       draw(6 * 6);
