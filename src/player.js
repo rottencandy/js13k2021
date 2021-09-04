@@ -70,8 +70,8 @@ const [step, override] = createSM({
       return IDLE;
     }
   },
-  [MOVING]: (delta) => {
-    const moved = tweenedAngle[0](delta);
+  [MOVING]: (delta, paused) => {
+    const moved = paused?0:tweenedAngle[0](delta);
     if (moved) {
       Pos = V3Add(Pos, movementDirection);
       // +ve rotation is counter-clockwise, so invert z-axis amount
@@ -95,9 +95,9 @@ const [step, override] = createSM({
 const observeSignals = () => {
   const startPos = watchSignal(SIGNAL_LEVEL_LOADED);
   if (startPos) {
-    Pos = startPos;
+    [Pos, skipIntro] = startPos;
     resetRotations();
-    override(UNRENDERED);
+    override(skipIntro ? IDLE : UNRENDERED);
   }
 
   if (watchSignal(SIGNAL_LEVEL_SOLVED)) {
@@ -194,10 +194,10 @@ const getRotationMat = () => {
 // align face with the cube
 const initialFaceTransform = Multiply(Translate(0, PLATFORM_SIZE, PLATFORM_SIZE), RotateX(-PI / 2));
 
-export const render = (delta, worldMat) => {
+export const render = (delta, worldMat, paused) => {
   observeSignals();
 
-  const currentState = step(delta);
+  const currentState = step(delta, paused);
   if (currentState === UNRENDERED) {
     return;
   }

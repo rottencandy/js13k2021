@@ -11,9 +11,9 @@ import { render as renderBackdrop } from './backdrop';
 
 // Utils {{{
 
-export const loadLevel = (data) => {
+export const loadLevel = (data, showAnim = true) => {
   const levelData = parseLevel(data);
-  setLevel(levelData);
+  setLevel(levelData, showAnim);
 
   // {{{ Calculate cam pos
   // calculate amount of required camera raise distance
@@ -62,22 +62,26 @@ const getInputVector = () => {
 // Loop {{{
 
 let worldMat = Translate(10, 0, 10), t = 0;
-export const render = (delta) => {
+
+export const render = (delta, paused) => {
+
   // Check input {{{
-  let moveDir = getInputVector();
-  if (moveDir && canMoveTo(playerPos, moveDir)) {
-    emitSignal(SIGNAL_CUBE_MOVE_STARTED, moveDir);
+  if (!paused) {
+    let moveDir = getInputVector();
+    if (moveDir && canMoveTo(playerPos, moveDir)) {
+      emitSignal(SIGNAL_CUBE_MOVE_STARTED, moveDir);
+    }
   }
   // }}}
 
-  // {{{ light camera shake
+  // {{{ camera shake
   const speed = t / 100, amt = 20;
   CamMove(SIN(speed) / amt, COS(speed * 2) / amt, 0);
   // }}}
 
-  renderBackdrop(delta, t);
-  renderPlayer(delta, worldMat, moveDir);
-  renderPlatform(delta, worldMat);
+  renderBackdrop(delta, t, paused);
+  renderPlayer(delta, worldMat, paused);
+  renderPlatform(delta, worldMat, paused);
 
   t++;
 }

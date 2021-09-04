@@ -13,10 +13,10 @@ import { PLATFORM_SIZE } from './globals';
 
 let currentState;
 let LoadedLevel = [];
-let resetPlatform = false;
+let resetPlatform = false, skipIntroAnim = false;
 // TODO: Lerp should also work with negative values
 let tweenedPlatformHeight;
-export const setLevel = (l) => { LoadedLevel = l; resetPlatform = true };
+export const setLevel = (l, showIntro) => { LoadedLevel = l; resetPlatform = true, skipIntroAnim = !showIntro; };
 
 // }}}
 
@@ -62,9 +62,9 @@ export const canMoveTo = (curPos, moveDir) => {
 
 // {{{ Update
 
-const [INIT, START_ANIM, END_ANIM, UPDATE, END] = enumArray(5);
+const [INIT, START_ANIM, END_ANIM, UPDATE] = enumArray(4);
 const [step, override] = createSM({
-  // set platform heights to 0 and reset player pos
+  // set platform height to 0 and reset player pos
   [INIT]: () => {
   let startPos = [0, 0];
     LoadedLevel.map((rows, z) => {
@@ -73,20 +73,24 @@ const [step, override] = createSM({
         startPos = Vec3(x, 0, z);
       }
     });
-    tweenedPlatformHeight = createInterp(0, 0.5, 1);
-    emitSignal(SIGNAL_LEVEL_LOADED, startPos);
+
+    const initHeight = skipIntroAnim ? 0.5 : 0;
+    tweenedPlatformHeight = createInterp(initHeight, 0.5, 1);
+    emitSignal(SIGNAL_LEVEL_LOADED, [startPos, skipIntroAnim]);
+    skipIntroAnim = false;
     return START_ANIM;
   },
+
   // start platforms raising anim
-  [START_ANIM]: (delta) => {
-    const done = tweenedPlatformHeight[0](delta);
+  [START_ANIM]: (delta, paused) => {
+    const done = paused ? 0 : tweenedPlatformHeight[0](delta);
     if (done) {
       emitSignal(SIGNAL_LEVEL_STARTED);
       return UPDATE;
     }
   },
-  [END_ANIM]: (delta) => {
-    const done = tweenedPlatformHeight[0](delta);
+  [END_ANIM]: (delta, paused) => {
+    const done = paused ? 0 : tweenedPlatformHeight[0](delta);
     if (done) {
       emitSignal(SIGNAL_LEVEL_ENDED);
     }
@@ -106,23 +110,23 @@ const [step, override] = createSM({
       return END_ANIM;
     }
   },
-  [END]: () => {},
 });
 
 // }}}
 
 // {{{ Render
 
-export const render = (delta, worldMat) => {
+export const render = (delta, worldMat, paused) => {
   if (resetPlatform) {
     override(INIT);
     resetPlatform = false;
   }
-  currentState = step(delta);
+  currentState = step(delta, paused);
 
-  if (tweenedPlatformHeight[1]() > 0) {
+  const platformHeight = tweenedPlatformHeight[1]();
+  if (platformHeight > 0) {
     use();
-    const localMat = Scale(1, tweenedPlatformHeight[1](), 1);
+    const localMat = Scale(1, platformHeight, 1);
     uMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
     uModel.m4fv(false, localMat);
     uLightPos.u3f(0.5, 0.7, 1.0);

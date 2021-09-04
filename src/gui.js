@@ -1,9 +1,9 @@
 import { createSM, enumArray } from './engine/state';
 import { Keys, ARROW } from './engine/input';
-import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_ENDED, emitSignal, watchSignal } from './engine/observer';
+import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_END_ANIM_PLAYED, emitSignal, watchSignal } from './engine/observer';
 import { createInterp, EASEOUTQUAD } from './engine/lerp';
 import { CANVAS2D, GAME_WIDTH, GAME_HEIGHT } from './globals.js';
-import { ABS, PI, SQRT } from './util';
+import { ABS, PI, SQRT, MAX } from './util';
 
 const ctx = CANVAS2D.getContext('2d');
 ctx.textAlign = 'center';
@@ -170,11 +170,19 @@ const [step] = createSM({
     }
   },
   [LEVEL_TRANSITION]: (delta) => {
+    // MAX is a safety net, drawing circles with -ve radius crashes
+    const value = MAX(tweenedTransition[1](), 0);
+    circle(GAME_WIDTH / 2, GAME_HEIGHT / 2, value, levelTransitionColor);
+
     const done = tweenedTransition[0](delta);
-    circle(GAME_WIDTH / 2, GAME_HEIGHT / 2, tweenedTransition[1](), levelTransitionColor);
     if (done) {
-      emitSignal(SIGNAL_GAME_RESUMED);
-      return IN_GAME;
+      if (value === 0) {
+        emitSignal(SIGNAL_GAME_RESUMED);
+        return IN_GAME;
+      }
+      emitSignal(SIGNAL_LEVEL_END_ANIM_PLAYED);
+      // reuse the same var to tween in the reverse direction
+      tweenedTransition = createInterp(GAME_WIDTH, 0, 1);
     }
   },
   [PAUSE_TRANSITION]: (delta) => {

@@ -1,33 +1,28 @@
-import { createSM, enumArray } from './engine/state';
-import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_ENDED, watchSignal } from './engine/observer';
+import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_END_ANIM_PLAYED, watchSignal } from './engine/observer';
 import { clear } from './global-state';
 import { LEVELS } from './levels';
 import { render, loadLevel } from './scene';
 
 // load hub level
-loadLevel(LEVELS[0]);
+loadLevel(LEVELS[1]);
+let paused = true;
 
-const [PAUSED, PLAYING] = enumArray(2);
-const [step] = createSM({
-  [PAUSED]: () => {
-    if(watchSignal(SIGNAL_GAME_RESUMED)) {
-      return PLAYING;
-    }
-  },
-  [PLAYING]: (delta) => {
-    if(watchSignal(SIGNAL_GAME_PAUSED)) {
-      return PAUSED;
-    }
-    clear();
-    render(delta);
-  },
-});
+const observeSignals = () => {
+  if(watchSignal(SIGNAL_GAME_RESUMED)) {
+    paused = false;
+  }
+  if(watchSignal(SIGNAL_GAME_PAUSED)) {
+    paused = true;
+  }
+  if(watchSignal(SIGNAL_LEVEL_END_ANIM_PLAYED)) {
+    loadLevel(LEVELS[0], false);
+  }
+}
 
 export const update = (delta) => {
-  step(delta);
-  if(watchSignal(SIGNAL_LEVEL_ENDED)) {
-    loadLevel(LEVELS[0]);
-  }
+  observeSignals();
+  clear();
+  render(delta, paused);
 }
 
 // vim: fdm=marker:et:sw=2:
