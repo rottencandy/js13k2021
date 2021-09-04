@@ -38,6 +38,25 @@ const circle = (x, y, radius, color) => {
   ctx.fill();
 };
 
+const triangle = (p1, p2, p3) => {
+  ctx[FILL_STYLE] = indicatorColor;
+  ctx.beginPath();
+  ctx.lineCap = 'round';
+  ctx.moveTo(p1[0], p1[1]);
+  ctx.lineTo(p2[0], p2[1]);
+  ctx.lineTo(p3[0], p3[1]);
+  ctx.fill();
+};
+
+const line = (p1, p2) => {
+  ctx.strokeStyle = indicatorColor;
+  ctx.beginPath();
+  ctx.lineWidth = 20;
+  ctx.moveTo(p1[0], p1[1]);
+  ctx.lineTo(p2[0], p2[1]);
+  ctx.stroke();
+};
+
 const isInCircle = (px, py, cx, cy, radius) => {
   const distX = px - cx;
   const distY = py - cy;
@@ -47,22 +66,22 @@ const isInCircle = (px, py, cx, cy, radius) => {
 
 const drawDragIndicatorLR = (invert) => {
   const xpos = invert? indicatorSize:-indicatorSize;
-  ctx[FILL_STYLE] = indicatorColor;
-  ctx.beginPath();
-  ctx.moveTo(GAME_WIDTH / 2 + xpos, GAME_HEIGHT / 2);
-  ctx.lineTo(GAME_WIDTH / 2, GAME_HEIGHT / 2 + indicatorSize);
-  ctx.lineTo(GAME_WIDTH / 2, GAME_HEIGHT / 2 - indicatorSize);
-  ctx.fill();
+  const halfWidth = GAME_WIDTH / 2;
+  const halfHeight = GAME_HEIGHT / 2;
+  triangle(
+    [halfWidth + xpos, halfHeight],
+    [halfWidth, halfHeight + indicatorSize],
+    [halfWidth, halfHeight - indicatorSize]);
 };
 
 const drawDragIndicatorUD = (invert) => {
   const ypos = invert? 50:-50;
-  ctx[FILL_STYLE] = indicatorColor;
-  ctx.beginPath();
-  ctx.moveTo(GAME_WIDTH / 2, GAME_HEIGHT / 2 + ypos);
-  ctx.lineTo(GAME_WIDTH / 2 + indicatorSize, GAME_HEIGHT / 2);
-  ctx.lineTo(GAME_WIDTH / 2 - indicatorSize, GAME_HEIGHT / 2);
-  ctx.fill();
+  const halfWidth = GAME_WIDTH / 2;
+  const halfHeight = GAME_HEIGHT / 2;
+  triangle(
+    [halfWidth, halfHeight + ypos],
+    [halfWidth + indicatorSize, halfHeight],
+    [halfWidth - indicatorSize, halfHeight]);
 };
 
 let initialPos = 0;
@@ -79,7 +98,8 @@ const calculateDragDirection = () => {
     const absX = ABS(relX);
     const absY = ABS(relY);
 
-    //circle(initialPos[0], initialPos[1], 30, indicatorCircle);
+    // draw drag indicator line
+    line(initialPos, [Keys.touchX, Keys.touchY]);
 
     if (absX < THRESHOLD && absY < THRESHOLD) {
       pendingEventFire = 0, touchDir = '';
@@ -119,7 +139,7 @@ const pauseScrnColor = rgba(180, 200, 200, 1),
   pauseBtnX = GAME_WIDTH / 2,
   pauseBtnY = 50,
   pauseBtnSize = 25;
-const indicatorColor = rgba(190, 200, 200, 1);
+const indicatorColor = rgba(190, 200, 200, 0.7);
 const indicatorSize = 60;
 //const indicatorCircle = color(190, 200, 200, 0.5);
 const levelTransitionColor = rgba(200, 190, 200, 1);
