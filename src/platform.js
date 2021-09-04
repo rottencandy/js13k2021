@@ -64,6 +64,7 @@ export const canMoveTo = (curPos, moveDir) => {
 
 const [INIT, START_ANIM, END_ANIM, UPDATE, END] = enumArray(5);
 const [step, override] = createSM({
+  // set platform heights to 0 and reset player pos
   [INIT]: () => {
   let startPos = [0, 0];
     LoadedLevel.map((rows, z) => {
@@ -76,6 +77,7 @@ const [step, override] = createSM({
     emitSignal(SIGNAL_LEVEL_LOADED, startPos);
     return START_ANIM;
   },
+  // start platforms raising anim
   [START_ANIM]: (delta) => {
     const done = tweenedPlatformHeight[0](delta);
     if (done) {

@@ -88,22 +88,39 @@ const [step, override] = createSM({
   }
 });
 
+// }}}
+
+// Handle signals {{{
+
 const observeSignals = () => {
   const startPos = watchSignal(SIGNAL_LEVEL_LOADED);
   if (startPos) {
     Pos = startPos;
+    resetRotations();
     override(UNRENDERED);
   }
+
   if (watchSignal(SIGNAL_LEVEL_SOLVED)) {
     override(END_ANIM);
   }
 };
+
+// }}}
+
+// Cube rotations {{{
 
 let inXStrip = true;
 // 0 -> 3 (4 vals)
 let stripPos = 0;
 // matrix that keeps track of all past rotations
 let rotationStack = Identity();
+
+const resetRotations = () => {
+  rotationStack = Identity();
+  inXStrip = true;
+  stripPos = 0;
+};
+
 const addRotation = (dir) => {
   const center = PLATFORM_SIZE / 2, deg = PI / 2;
   // move obj to center, perform rotations by 90deg, and move back
@@ -134,10 +151,6 @@ const addRotation = (dir) => {
   }
 };
 // const isFaceDown = () => ABS(stripPos) === 2
-
-// }}}
-
-// {{{ Render
 
 const getRotationMat = () => {
   if (!movementDirection) {
@@ -174,11 +187,16 @@ const getRotationMat = () => {
   }
 };
 
+// }}}
+
+// {{{ Render
+
 // align face with the cube
 const initialFaceTransform = Multiply(Translate(0, PLATFORM_SIZE, PLATFORM_SIZE), RotateX(-PI / 2));
 
 export const render = (delta, worldMat) => {
   observeSignals();
+
   const currentState = step(delta);
   if (currentState === UNRENDERED) {
     return;
