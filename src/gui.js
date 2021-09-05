@@ -100,6 +100,7 @@ const calculateDragDirection = () => {
 
     // draw drag indicator line
     line(initialPos, [Keys.touchX, Keys.touchY]);
+    circle(initialPos[0], initialPos[1], 20, indicatorColor);
 
     if (absX < THRESHOLD && absY < THRESHOLD) {
       pendingEventFire = 0, touchDir = '';

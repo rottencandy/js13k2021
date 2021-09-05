@@ -1,19 +1,19 @@
 import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_SELECTED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_END_ANIM_PLAYED, watchSignal } from './engine/observer';
 import { clear } from './global-state';
 import { LEVELS } from './levels';
-import { render, loadLevel } from './scene';
+import { updateScene, loadLevel } from './scene';
 
-let paused = true, nextScene = 0;
+let paused = 1, nextScene = 0;
 
 // load hub level
 loadLevel(LEVELS[nextScene]);
 
 const observeSignals = () => {
   if(watchSignal(SIGNAL_GAME_RESUMED)) {
-    paused = false;
+    paused = 0;
   }
   if(watchSignal(SIGNAL_GAME_PAUSED)) {
-    paused = true;
+    paused = 1;
   }
   if(watchSignal(SIGNAL_LEVEL_SELECTED)) {
     nextScene = 1;
@@ -22,14 +22,14 @@ const observeSignals = () => {
     nextScene = 0;
   }
   if(watchSignal(SIGNAL_LEVEL_END_ANIM_PLAYED)) {
-    loadLevel(LEVELS[nextScene], false);
+    loadLevel(LEVELS[nextScene], 0);
   }
 }
 
 export const update = (delta) => {
   observeSignals();
   clear();
-  render(delta, paused);
+  updateScene(delta, paused);
 }
 
 // vim: fdm=marker:et:sw=2:

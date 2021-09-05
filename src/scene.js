@@ -63,7 +63,7 @@ const getInputVector = () => {
 
 let worldMat = Translate(10, 0, 10), t = 0;
 
-export const render = (delta, paused) => {
+export const updateScene = (delta, paused) => {
 
   // Check input {{{
   if (!paused) {
