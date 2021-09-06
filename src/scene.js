@@ -1,9 +1,9 @@
-import { Keys, dirKeysPressed } from './engine/input';
 import { SIGNAL_CUBE_MOVE_STARTED, emitSignal, watchSignal } from './engine/observer';
 import { CamLookAt, CamMove } from './global-state';
+import { getInputVector } from './input';
 import { MAX, FLOOR, SIN, COS, TAN } from './util';
 import { FOV, PLATFORM_SIZE } from './globals';
-import { Translate, Vec3 } from './math';
+import { Translate } from './math';
 import { parseLevel } from './levels';
 import { render as renderPlayer, Pos as playerPos } from './player';
 import { render as renderPlatform, setLevel, canMoveTo } from './platform';
@@ -27,34 +27,6 @@ export const loadLevel = (data, showAnim = true) => {
   // The +size * 3 and *3 is used for additional offset on top of minimum distance
   CamLookAt([base, perpendicular + PLATFORM_SIZE * 3, base * 3], [base, 0, base]);
   // }}}
-};
-
-const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
-let isAlreadyPressed = false;
-const getInputVector = () => {
-  if (isAlreadyPressed) {
-    if (!dirKeysPressed()) {
-      isAlreadyPressed = false;
-    }
-    return;
-  }
-  let moveDir;
-  if(dirKeysPressed()) {
-    if(Keys.up) {
-      moveDir = UP;
-    }
-    if(Keys.down) {
-      moveDir = DOWN;
-    }
-    if(Keys.left) {
-      moveDir = LEFT;
-    }
-    if(Keys.right) {
-      moveDir = RIGHT;
-    }
-    isAlreadyPressed = true;
-    return moveDir;
-  }
 };
 
 // }}}
