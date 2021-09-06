@@ -10,7 +10,7 @@ ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
 const FILL_STYLE = 'fillStyle';
 
-let tweenedBackground = createInterp(50, 220, 5, EASEOUTQUAD);
+let tweenedIntroBG = createInterp(50, 210, 10, EASEOUTQUAD);
 let tweenedTransition;
 let tweenedPauseCircle;
 
@@ -147,25 +147,25 @@ const levelTransitionColor = rgba(200, 190, 200, 1);
 
 // }}}
 
-// Update {{{
+// SM {{{
 
 const [SPLASH, INTRO_TRANSITION, IN_GAME, PAUSE_TRANSITION, LEVEL_TRANSITION, PAUSED] = enumArray(5);
 const [step] = createSM({
   [SPLASH]: (delta) => {
-    tweenedBackground[0](delta);
-    const col = tweenedBackground[1]();
-    fullGradient(rgba(30, 40, 40, 1),rgba(col, col, col, 1));
+    tweenedIntroBG[0](delta);
+    const col = tweenedIntroBG[1]();
+    fullGradient(rgba(30, 20, 20, 1),rgba(col + 30, col, col - 50, 1));
     text(GAME_WIDTH / 2, GAME_HEIGHT / 3, rgba(0, 0, 0, 1), TITLE_FONT, 'UNTITLED SPACE GAME');
     text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, rgba(0, 0, 0, 1), SUB_FONT, 'start');
 
     if(Keys.space || Keys.clicked || Keys.touching) {
-      tweenedBackground = createInterp(1, 0, 1, EASEOUTQUAD);
+      tweenedIntroBG = createInterp(1, 0, 1, EASEOUTQUAD);
       return INTRO_TRANSITION;
     }
   },
   [INTRO_TRANSITION]: (delta) => {
-    const done = tweenedBackground[0](delta);
-    const alpha = tweenedBackground[1]();
+    const done = tweenedIntroBG[0](delta);
+    const alpha = tweenedIntroBG[1]();
     const col = 220;
     fullGradient(rgba(30, 40, 40, alpha),rgba(col, col, col, alpha));
     if (done) {

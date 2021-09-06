@@ -1,8 +1,7 @@
 import { SIGNAL_CUBE_MOVE_STARTED, emitSignal, watchSignal } from './engine/observer';
-import { CamLookAt, CamMove } from './global-state';
+import { CamMove, repositionCamera } from './global-state';
 import { getInputVector } from './input';
-import { MAX, FLOOR, SIN, COS, TAN } from './util';
-import { FOV, PLATFORM_SIZE } from './globals';
+import { SIN, COS } from './util';
 import { Translate } from './math';
 import { parseLevel } from './levels';
 import { render as renderPlayer, Pos as playerPos } from './player';
@@ -15,18 +14,7 @@ export const loadLevel = (data, showAnim = true) => {
   const levelData = parseLevel(data);
   setLevel(levelData, showAnim);
 
-  // {{{ Calculate cam pos
-  // calculate amount of required camera raise distance
-  // so that the entire level is visible
-  const rows = levelData.length;
-  const cols = levelData[0].length;
-  // calculate distance using whichever of {width/height} is larger
-  const maxOrd = MAX(rows, cols);
-  const base = FLOOR(maxOrd) * PLATFORM_SIZE / 2;
-  const perpendicular = base / TAN(FOV / 2);
-  // The +size * 3 and *3 is used for additional offset on top of minimum distance
-  CamLookAt([base, perpendicular + PLATFORM_SIZE * 3, base * 3], [base, 0, base]);
-  // }}}
+  repositionCamera(levelData.length, levelData[0].length);
 };
 
 // }}}

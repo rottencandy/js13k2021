@@ -2,6 +2,7 @@ import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_SELECTED, SIGNAL_
 import { clear } from './global-state';
 import { LEVELS } from './levels';
 import { updateScene, loadLevel } from './scene';
+import { updateEditor } from './editor';
 
 let paused = 1, nextScene = 0;
 
@@ -29,7 +30,9 @@ const observeSignals = () => {
 export const update = (delta) => {
   observeSignals();
   clear();
-  updateScene(delta, paused);
+  //updateScene(delta, paused);
+
+  updateEditor(delta, paused);
 }
 
 // vim: fdm=marker:et:sw=2:

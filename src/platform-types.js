@@ -3,7 +3,9 @@ import { SIGNAL_LEVEL_SOLVED, SIGNAL_LEVEL_SELECTED, emitSignal } from './engine
 import { Id } from './util';
 
 // platform types
-export const [START, STATIC, GAP, END, LEVEL_ENTRANCE, LEVEL_GATE] = enumArray(6);
+const len = 6;
+export const [START, STATIC, GAP, END, LEVEL_ENTRANCE, LEVEL_GATE] = enumArray(len);
+export const nextPlatform = (i) => ++i >= len-1 ? 0 : i;
 
 export const PLATFORM_CODE = {
   a: START,
@@ -45,7 +47,7 @@ export const PLATFORM_DATA = {
   ],
   [LEVEL_ENTRANCE]: () => [
     () => [.6, .5, .0, 1.0],
-    () => {emitSignal(SIGNAL_LEVEL_SELECTED, 1)},
+    () => {emitSignal(SIGNAL_LEVEL_SELECTED)},
     () => 1
   ],
   [LEVEL_GATE]: () => [

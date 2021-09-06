@@ -1,7 +1,7 @@
 import { Camera } from './engine/cam.js';
 import { createGLContext } from './engine/webgl.js';
-import { CANVAS, FOV, ZNEAR, ZFAR } from './globals.js';
-import { compose } from './util';
+import { CANVAS, ZNEAR, ZFAR, PLATFORM_SIZE, FOV } from './globals.js';
+import { compose, MAX, TAN } from './util';
 
 export const [
   clear,
@@ -29,5 +29,15 @@ export const createPipeline = (vs, fs, attribs, data) => {
 };
 
 export const [CamMove, CamLookAt, CamMat] = Camera(FOV, CANVAS.clientWidth / CANVAS.clientHeight, ZNEAR, ZFAR);
+
+// calculate amount of required camera raise distance
+// so that the entire level is visible
+export const repositionCamera = (rows, cols) => {
+  const maxOrd = MAX(rows, cols);
+  const base = maxOrd * PLATFORM_SIZE / 2;
+  const perpendicular = base / TAN(FOV / 2);
+  // The +size * 3 and *3 is used for additional offset on top of minimum distance
+  CamLookAt([base, perpendicular + PLATFORM_SIZE * 3, base * 3], [base, 0, base]);
+};
 
 // vim: fdm=marker:et:sw=2:
