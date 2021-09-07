@@ -25,9 +25,9 @@ import {
  * @returns {ClearFn} Function that clears the canvas
  */
 const clear = (gl) => () => {
-  gl.clC(0.0, 0.0, 0.0, 1.0);
-  gl.clD(1.0);
-  gl.cl(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearDepth(1.0);
+  gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 };
 
 /**
@@ -43,7 +43,7 @@ const clear = (gl) => () => {
  * @returns {(mode: GLenum) => DrawFn} Draw arrays from loaded buffers
  */
 const drawArrays = (gl) => (mode = GL_TRIANGLES) => (count, offset = 0) =>
-  gl.drA(mode, offset, count);
+  gl.drawArrays(mode, offset, count);
 
 /**
  * Create shader
@@ -53,9 +53,9 @@ const drawArrays = (gl) => (mode = GL_TRIANGLES) => (count, offset = 0) =>
  * @returns {WebGLShader} shader
  */
 const createShader = (gl, type, source) => {
-  const shader = gl.crS(type);
-  gl.shS(shader, source);
-  gl.coS(shader);
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
   return shader;
 };
 
@@ -64,7 +64,7 @@ const createShader = (gl, type, source) => {
  * @param {WebGLRenderingContext} gl - WebGL Rendering Context
  * @returns {(prg: WebGLProgram) => () => void} Create function that sets active shader program
  */
-const useProgram = (gl) => (prg) => () => gl.usP(prg);
+const useProgram = (gl) => (prg) => () => gl.useProgram(prg);
 
 /**
  * Use uniform setters
@@ -72,16 +72,16 @@ const useProgram = (gl) => (prg) => () => gl.usP(prg);
  * @returns {(prg: WebGLProgram) => (variable: string) => any} Create uniform setter obj
  */
 const uniformSetter = (gl) => (prg) => (variable) => {
-  const loc = gl.geUL(prg, variable);
+  const loc = gl.getUniformLocation(prg, variable);
 
   return {
-    u1f: (...data) => gl.un1f(loc, ...data),
-    u2f: (...data) => gl.un2f(loc, ...data),
-    u3f: (...data) => gl.un3f(loc, ...data),
-    u4f: (...data) => gl.un4f(loc, ...data),
-    m3fv: (...data) => gl.unM3fv(loc, ...data),
-    m4fv: (...data) => gl.unM4fv(loc, ...data),
-    u1i: (...data) => gl.un1i(loc, ...data),
+    u1f: (...data) => gl.uniform1f(loc, ...data),
+    u2f: (...data) => gl.uniform2f(loc, ...data),
+    u3f: (...data) => gl.uniform3f(loc, ...data),
+    u4f: (...data) => gl.uniform4f(loc, ...data),
+    m3fv: (...data) => gl.uniformMatrix3fv(loc, ...data),
+    m4fv: (...data) => gl.uniformMatrix4fv(loc, ...data),
+    u1i: (...data) => gl.uniform1i(loc, ...data),
   };
 };
 
@@ -90,7 +90,7 @@ const uniformSetter = (gl) => (prg) => (variable) => {
  * @param {WebGLRenderingContext} gl - WebGL Rendering Context
  * @returns {(prg: WebGLProgram) => (variable: string) => void} Set attrib loc
  */
-const attribLoc = (gl) => (prg) => (variable) => gl.geAL(prg, variable);
+const attribLoc = (gl) => (prg) => (variable) => gl.getAttribLocation(prg, variable);
 
 /** @callback UsePrg use shader program
  * @returns {void}
@@ -114,16 +114,16 @@ const attribLoc = (gl) => (prg) => (variable) => gl.geAL(prg, variable);
  * @returns {ShaderFns} Shader functions
  */
 const createShaderProgram = (gl) => (vShader, fShader) => {
-  const prg = gl.crP();
-  gl.atS(prg, vShader);
-  gl.atS(prg, fShader);
-  gl.liP(prg);
+  const prg = gl.createProgram();
+  gl.attachShader(prg, vShader);
+  gl.attachShader(prg, fShader);
+  gl.linkProgram(prg);
 
   // TODO: remove before final release
-  if (!gl.gePP(prg, GL_LINK_STATUS)) {
-    console.error('Link failed: ', gl.gePIL(prg));
-    console.error('vs info-log: ', gl.geSIL(vShader));
-    console.error('fs info-log: ', gl.geSIL(fShader));
+  if (!gl.getProgramParameter(prg, GL_LINK_STATUS)) {
+    console.error('Link failed: ', gl.getProgramInfoLog(prg));
+    console.error('vs info-log: ', gl.getShaderInfoLog(vShader));
+    console.error('fs info-log: ', gl.getShaderInfoLog(fShader));
     return null;
   }
 
@@ -153,7 +153,7 @@ const createShaderProgramFromSrc = (gl) => (vsSource, fsSource) => {
  * @param {GLenum} type - Buffer type
  * @param {WebGLBuffer} buf - Buffer
  */
-const bindBuffer = (gl, type, buf) => gl.biB(type, buf);
+const bindBuffer = (gl, type, buf) => gl.bindBuffer(type, buf);
 
 /**
  * @typedef {(data: any) => void} SetBufDataFn Set data to buffer
@@ -166,7 +166,7 @@ const bindBuffer = (gl, type, buf) => gl.biB(type, buf);
  */
 const setBufferData = (gl, buf, type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) => (data) => {
   bindBuffer(gl, type, buf);
-  gl.buD(type, data, mode);
+  gl.bufferData(type, data, mode);
 };
 
 /**
@@ -188,8 +188,8 @@ const setBufferData = (gl, buf, type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) =
  */
 const attribSetter = (gl, type, buf) => (loc, size, dataType = GL_FLOAT, stride = 0, offset = 0, normalize = false) => () => {
   bindBuffer(gl, type, buf);
-  gl.enVAA(loc);
-  gl.veAP(loc, size, dataType, normalize, stride, offset);
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, size, dataType, normalize, stride, offset);
 };
 
 /**
@@ -209,7 +209,7 @@ const attribSetter = (gl, type, buf) => (loc, size, dataType = GL_FLOAT, stride 
  * @returns {GetBufferData}
  */
 const createBuffer = (gl) => (type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) => {
-  const buf = gl.crB();
+  const buf = gl.createBuffer();
   return [
     setBufferData(gl, buf, type, mode),
     // TODO: Return attribSetter from inside setData?
@@ -286,19 +286,12 @@ export const createGLContext = (canvas) => {
     return null;
   };
 
-  // create smaller names of all GL methods
-  for (let name in gl) {
-    if (gl[name].length !== undefined) { // is function?
-      gl[name.match(/(^..|[A-Z]|\d.|v$)/g).join('')] = gl[name];
-    }
-  }
-
-  gl.vi(0, 0, canvas.width, canvas.height);
-  gl.en(GL_CULL_FACE);
-  gl.en(GL_DEPTH_TEST);
-  gl.en(GL_BLEND);
-  gl.deF(GL_LEQUAL);
-  gl.blF(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.enable(GL_CULL_FACE);
+  gl.enable(GL_DEPTH_TEST);
+  gl.enable(GL_BLEND);
+  gl.depthFunc(GL_LEQUAL);
+  gl.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   return [
     clear(gl),
