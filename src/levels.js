@@ -1,11 +1,11 @@
-import { PLATFORM_CODE } from './platform-types';
+import { PLATFORM_CODE, findCode, GAP } from './platform-types';
 
 /*
  * Format: <cols>:(...[<num_platforms>]<platform_code>)
 */
 export const LEVELS = {
   // level selection scene
-  0: '3:4ba2cbe',
+  0: '3:4ba2cbg',
   1: '4:4ba2bd',
 };
 
@@ -51,6 +51,54 @@ export const parseLevel = (data) => {
   });
 
   return finalLevel;
+};
+
+// }}}
+
+// Encoder {{{
+
+// TODO: This fails for a 1x1 empty array
+// NOTE: This modifies the passed array, but that's okay since we're done with it anyways
+export const encodeLevel = (levelData) => {
+  let rows = levelData.length - 1;
+  let cols = levelData[0].length - 1;
+
+  while (levelData[rows].every(([_, v]) => v === GAP)) {
+    levelData.pop();
+    rows--;
+  }
+  while (levelData[0].every(([_, v]) => v === GAP)) {
+    levelData.shift();
+    rows--;
+  }
+
+  while (levelData.every(r => r[cols][1] === GAP)) {
+    levelData.map(r => r.pop());
+    cols--;
+  }
+  while (levelData.every(r => r[0][1] === GAP)) {
+    levelData.map(r => r.shift());
+    cols--;
+  }
+
+  let flatData = [];
+  levelData.map(r => flatData.push(...r));
+  flatData = flatData.map(d => findCode(d[1]));
+
+  let prevStr = flatData[0], count = 1, finalStr = '';
+  for(let i = 1; i < flatData.length; i++) {
+    const cur = flatData[i];
+    if (cur !== prevStr) {
+      finalStr += count === 1 ? prevStr : '' + count + prevStr;
+      prevStr = cur;
+      count = 1;
+    } else {
+      count++;
+    }
+  }
+  finalStr += count === 1 ? prevStr : '' + count + prevStr;
+
+  return '' + (cols + 1) + ':' + finalStr;
 };
 
 // }}}
