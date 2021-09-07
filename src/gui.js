@@ -1,6 +1,6 @@
 import { createSM, enumArray } from './engine/state';
 import { Keys, ARROW } from './engine/input';
-import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_SELECTED, SIGNAL_LEVEL_END_ANIM_PLAYED, emitSignal, watchSignal } from './engine/observer';
+import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_SELECTED, SIGNAL_LEVEL_END_ANIM_PLAYED, SIGNAL_LEVEL_EDITOR, SIGNAL_EDIT_FINISHED, emitSignal, watchSignal } from './engine/observer';
 import { createInterp, EASEOUTQUAD } from './engine/lerp';
 import { CANVAS2D, GAME_WIDTH, GAME_HEIGHT } from './globals.js';
 import { ABS, PI, SQRT, MAX } from './util';
@@ -10,6 +10,7 @@ ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
 const FILL_STYLE = 'fillStyle';
 
+let inEditor = false;
 let tweenedIntroBG = createInterp(50, 210, 10, EASEOUTQUAD);
 let tweenedTransition;
 let tweenedPauseCircle;
@@ -57,9 +58,17 @@ const line = (p1, p2) => {
   ctx.stroke();
 };
 
-const isInCircle = (px, py, cx, cy, radius) => {
-  const distX = px - cx;
-  const distY = py - cy;
+const circleBtn = (x, y, radius, btnColor, textColor, font, content) => {
+  circle(x, y, radius, btnColor);
+  text(x, y, textColor, font, content);
+};
+
+const isCircleClicked = (cx, cy, radius) => {
+  if (!Keys.clicked) {
+    return false;
+  }
+  const distX = Keys.touchX - cx;
+  const distY = Keys.touchY - cy;
   const dist = SQRT(distX * distX + distY * distY);
   return dist <= radius;
 };
@@ -87,7 +96,7 @@ const drawDragIndicatorUD = (invert) => {
 let initialPos = 0;
 let pendingEventFire = 0;
 let touchDir = '';
-const calculateDragDirection = () => {
+const handleDragDirection = () => {
   const THRESHOLD = 50;
   if (Keys.clicked) {
     if (!initialPos) {
@@ -137,9 +146,9 @@ const SUB_FONT = '100 26px' + BASE_FONT;
 const BOLD_FONT = '26px' + BASE_FONT;
 
 const pauseScrnColor = rgba(180, 200, 200, 1),
-  pauseBtnX = GAME_WIDTH / 2,
-  pauseBtnY = 50,
-  pauseBtnSize = 25;
+  topBtnX = GAME_WIDTH / 2,
+  topBtnY = 50,
+  topBtnSize = 25;
 const indicatorColor = rgba(190, 200, 200, 0.7);
 const indicatorSize = 60;
 //const indicatorCircle = color(190, 200, 200, 0.5);
@@ -158,7 +167,7 @@ const [step] = createSM({
     text(GAME_WIDTH / 2, GAME_HEIGHT / 3, rgba(0, 0, 0, 1), TITLE_FONT, 'UNTITLED SPACE GAME');
     text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, rgba(0, 0, 0, 1), SUB_FONT, 'start');
 
-    if(Keys.space || Keys.clicked || Keys.touching) {
+    if(Keys.space || Keys.clicked) {
       tweenedIntroBG = createInterp(1, 0, 1, EASEOUTQUAD);
       return INTRO_TRANSITION;
     }
@@ -174,19 +183,29 @@ const [step] = createSM({
     }
   },
   [IN_GAME]: () => {
-    circle(pauseBtnX, pauseBtnY, pauseBtnSize, pauseScrnColor);
-    text(GAME_WIDTH / 2, 50, rgba(50, 50, 50, 1), BOLD_FONT, 'II');
-    const isDragging = calculateDragDirection();
+    circleBtn(topBtnX, topBtnY, topBtnSize, pauseScrnColor, rgba(50, 50, 50, 1), BOLD_FONT, 'II');
+    inEditor && circleBtn(topBtnX + 90, topBtnY, topBtnSize, pauseScrnColor, rgba(50, 50, 50, 1), BOLD_FONT, '🗸');
 
-    if (!isDragging && (Keys.esc || (Keys.clicked && isInCircle(Keys.touchX, Keys.touchY, pauseBtnX, pauseBtnY, pauseBtnSize)))) {
+    const isDragging = handleDragDirection();
+
+    // paused
+    if (!isDragging && (Keys.esc || isCircleClicked(topBtnX, topBtnY, topBtnSize))) {
       emitSignal(SIGNAL_GAME_PAUSED);
       tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
       return PAUSE_TRANSITION;
     }
 
-    if (watchSignal(SIGNAL_LEVEL_ENDED) || watchSignal(SIGNAL_LEVEL_SELECTED)) {
+    // edit completed
+    if (inEditor && !isDragging && isCircleClicked(topBtnX + 90, topBtnY, topBtnSize)) {
+      emitSignal(SIGNAL_EDIT_FINISHED);
+      tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
+      return PAUSE_TRANSITION;
+    }
+
+    if (watchSignal(SIGNAL_LEVEL_ENDED) || watchSignal(SIGNAL_LEVEL_SELECTED) || watchSignal(SIGNAL_LEVEL_EDITOR)) {
       emitSignal(SIGNAL_GAME_PAUSED);
       tweenedTransition = createInterp(0, GAME_WIDTH, 1);
+      inEditor = watchSignal(SIGNAL_LEVEL_EDITOR);
       return LEVEL_TRANSITION;
     }
   },
@@ -209,7 +228,7 @@ const [step] = createSM({
   [PAUSE_TRANSITION]: (delta) => {
     const done = tweenedPauseCircle[0](delta);
     const size = tweenedPauseCircle[1]();
-    circle(pauseBtnX, pauseBtnY, size, pauseScrnColor);
+    circle(topBtnX, topBtnY, size, pauseScrnColor);
     if (done) {
       return PAUSED;
     }
