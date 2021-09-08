@@ -13,7 +13,6 @@ varying vec3 vNormal;
 varying vec3 vFragPos;
 
 export void vertex() {
-  // TODO: Is passing the grid x,y the best method?
   gl_Position = uMat * vec4(aPos.xyz + uGridPos * 50.0, 1.0);
   vNormal = mat3(uModel) * aNorm.xyz;
   // range 0 -> 50 to -1 -> 1
@@ -40,7 +39,6 @@ export void colorFragment() {
 }
 
 export void selVertex() {
-  // TODO: Is passing the grid x,y the best method?
   gl_Position = uMat * vec4(aPos.xyz + uGridPos * 50.0, 1.0);
   // range 0 -> 50 to -1 -> 1
   vFragPos = (aPos.xyz / 50.0) * 2.0 - 1.0;

@@ -247,7 +247,6 @@ export const V3Normalize = (v) => {
     return [0, 0, 0];
   }
 }
-// TODO: Use all operators as fns
 export const V3Multiply = (v, n) => v.map(x => x * n)
 
 // }}}

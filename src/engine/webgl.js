@@ -212,12 +212,11 @@ const createBuffer = (gl) => (type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) => 
   const buf = gl.createBuffer();
   return [
     setBufferData(gl, buf, type, mode),
-    // TODO: Return attribSetter from inside setData?
     attribSetter(gl, type, buf),
   ];
 };
 
-// TODO: texture functions
+// texture functions
 //const bindTexture = (gl) => (type) => (buf) => gl.bindTexture(type, buf);
 
 //const setTexure = (gl) => (type) => (buf) => (...data) => {
@@ -257,7 +256,6 @@ const createBuffer = (gl) => (type = GL_ARRAY_BUFFER, mode = GL_STATIC_DRAW) => 
 //    setTex: () => setTexure(gl)(type)(texBuf),
 //    // Bind buffer and specify how shader reads it
 //    attribSetter: texAttribSetter(gl)(type)(texBuf),
-//    // TODO: Move into setTex and run with a flag?
 //    genMipmap: () => gl.generateMipmap(type),
 //  };
 //};

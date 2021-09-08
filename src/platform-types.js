@@ -1,5 +1,10 @@
 import { enumArray } from './engine/state';
-import { S_LEVEL_SOLVED, S_LEVEL_SELECTED, S_LEVEL_EDITOR, emitSignal } from './engine/observer';
+import {
+  S_LEVEL_SELECTED,
+  S_LEVEL_SOLVED,
+  S_LEVEL_EDITOR,
+  emitSignal
+} from './engine/observer';
 import { Id } from './util';
 
 // platform types

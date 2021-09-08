@@ -3,6 +3,7 @@ export const EASEOUTQUAD = t => t * (2 - t);
 export const EASEOUTQUINT = t => 1 + (--t) * t * t * t * t;
 export const EASEINQUINT = t => t * t * t * t * t;
 export const EASEINOUTCUBIC = t => t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+export const THERENBACK = t => t < .5 ? 2 * t : 2 * (1 - t)
 
 /** @typedef {(delta: number) => boolean} Interpolate */
 /** @typedef {() => number} GetValue */

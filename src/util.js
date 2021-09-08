@@ -8,7 +8,7 @@ export const
   RAF = requestAnimationFrame,
   MIN = M.min,
   MAX = M.max,
-  FLOOR = M.floor,
+  FLOOR = x => ~~x,
   ABS = M.abs,
   SQRT = M.sqrt,
   PI = M.PI,
