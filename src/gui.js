@@ -14,18 +14,12 @@ import {
 } from './engine/observer';
 import { createInterp, EASEOUTQUAD } from './engine/lerp';
 import { CANVAS2D, GAME_WIDTH, GAME_HEIGHT } from './globals.js';
-import { ABS, PI, SQRT, MAX } from './util';
+import { getById, ABS, PI, SQRT, MAX } from './util';
 
 const ctx = CANVAS2D.getContext('2d');
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
 const FILL_STYLE = 'fillStyle';
-
-let inEditor = false;
-let unpauseToMain = false;
-let tweenedIntroBG = createInterp(50, 210, 10, EASEOUTQUAD);
-let tweenedTransition;
-let tweenedPauseCircle;
 
 // Utils {{{
 
@@ -150,6 +144,11 @@ const handleDragDirection = () => {
   }
 };
 
+const Inp = getById('e');
+const hideInput = () => {
+  Inp.style.display = 'none';
+};
+
 // }}}
 
 // Config {{{
@@ -157,7 +156,15 @@ const handleDragDirection = () => {
 const BASE_FONT = ' Trebuchet, sans-serif';
 const TITLE_FONT = '100 48px' + BASE_FONT;
 const SUB_FONT = '100 26px' + BASE_FONT;
+const SUB_FONT2 = '100 16px' + BASE_FONT;
 const BOLD_FONT = '26px' + BASE_FONT;
+
+const titleGradient1 = rgba(30, 20, 20, 1);
+const titleGradient2_from = 50;
+const titleGradient2_to = 210;
+const titleTextColor = rgba(0, 0, 0, 1);
+const subtitleTextColor = rgba(20, 20, 20, 1);
+const CONTROLS = 'Controls: ←↑→↓ | WASD | ZQSD | Touch & drag';
 
 const pauseScrnColor = rgba(180, 200, 200, 1),
   topBtnX = GAME_WIDTH / 2,
@@ -166,10 +173,15 @@ const pauseScrnColor = rgba(180, 200, 200, 1),
   midBtnX = GAME_WIDTH / 2,
   midBtnY = GAME_HEIGHT / 2,
   btnTextColor = rgba(50, 50, 50, 1);
+
 const indicatorColor = rgba(190, 200, 200, 0.7);
 const indicatorSize = 60;
-//const indicatorCircle = color(190, 200, 200, 0.5);
 const levelTransitionColor = rgba(200, 190, 200, 1);
+
+let inEditor = false;
+let tweenedIntroBG = createInterp(titleGradient2_from, titleGradient2_to, 10, EASEOUTQUAD);
+let tweenedTransition;
+let tweenedPauseCircle;
 
 // }}}
 
@@ -180,9 +192,10 @@ const [step] = createSM({
   [SPLASH]: (delta) => {
     tweenedIntroBG[0](delta);
     const col = tweenedIntroBG[1]();
-    fullGradient(rgba(30, 20, 20, 1),rgba(col + 30, col, col - 50, 1));
-    text(GAME_WIDTH / 2, GAME_HEIGHT / 3, rgba(0, 0, 0, 1), TITLE_FONT, 'UNTITLED SPACE GAME');
-    text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, rgba(0, 0, 0, 1), SUB_FONT, 'start');
+    fullGradient(titleGradient1, rgba(col, col, col, 1));
+    text(GAME_WIDTH / 2, GAME_HEIGHT / 3, titleTextColor, TITLE_FONT, 'UNTITLED SPACE GAME');
+    text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, titleTextColor, SUB_FONT, 'START');
+    text(GAME_WIDTH / 2, GAME_HEIGHT - 50, subtitleTextColor, SUB_FONT2, CONTROLS);
 
     if(Keys.space || Keys.clicked) {
       tweenedIntroBG = createInterp(1, 0, 1, EASEOUTQUAD);
@@ -201,6 +214,7 @@ const [step] = createSM({
   },
   [IN_GAME]: () => {
     circleBtn(topBtnX, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, 'II');
+    inEditor && circleBtn(topBtnX - 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '⦺');
     inEditor && circleBtn(topBtnX + 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '🗸');
 
     const isDragging = handleDragDirection();
@@ -212,11 +226,21 @@ const [step] = createSM({
       return PAUSE_TRANSITION;
     }
 
-    // edit completed
-    if (inEditor && !isDragging && isCircleClicked(topBtnX + 90, topBtnY, btnSize)) {
-      emitSignal(S_EDIT_FINISHED);
-      tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
-      return PAUSE_TRANSITION;
+    if (inEditor) {
+      // edit completed
+      if (!isDragging && isCircleClicked(topBtnX + 90, topBtnY, btnSize)) {
+        emitSignal(S_EDIT_FINISHED);
+        tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
+        return PAUSE_TRANSITION;
+      }
+      // cycle platform
+      if (!isDragging && isCircleClicked(topBtnX - 90, topBtnY, btnSize)) {
+        // NOTE: setting state directly like this causes flickering after delay
+        // but it's fine as there is a good amount of delay
+        Keys.space = 1;
+      } else {
+        Keys.space = 0;
+      }
     }
 
     if (watchSignal(S_LEVEL_ENDED) || watchSignal(S_LEVEL_SELECTED) || watchSignal(S_LEVEL_EDITOR)) {
@@ -266,11 +290,13 @@ const [step] = createSM({
 
     if (isCircleClicked(midBtnX - 50, midBtnY, btnSize)) {
       tweenedPauseCircle = createInterp(GAME_WIDTH, 0, 0.7);
+      hideInput();
       return UNPAUSE_TRANSITION;
     }
     if (isCircleClicked(midBtnX + 50, midBtnY, btnSize)) {
       tweenedPauseCircle = createInterp(GAME_WIDTH, 0, 0.7);
       emitSignal(S_QUIT_TO_MAIN);
+      hideInput();
       return UNPAUSE_TRANSITION;
     }
   },

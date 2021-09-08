@@ -11,6 +11,7 @@ import { createPipeline, CamMat, drawArrays, repositionCamera } from './global-s
 import { vertex, colorFragment, selVertex, editorSelectorFragment, renaming } from './platform.glslx';
 import { PLATFORM_SIZE } from './globals';
 import { encodeLevel } from './levels';
+import { getById } from './util';
 
 // {{{ Init
 
@@ -90,6 +91,17 @@ const cycleCurrentTile = () => {
   PlatformData[SelectorPos[2]][SelectorPos[0]] = [PLATFORM_DATA[next](), next];
 };
 
+const Inp = getById('e');
+Inp.onclick = () => {
+  Inp.select();
+  document.execCommand('copy');
+};
+const setAndShowInput = (data) => {
+  Inp.readonly = true;
+  Inp.value = data;
+  Inp.style.display = 'block';
+};
+
 // }}}
 
 // {{{ Update
@@ -110,7 +122,6 @@ const [step] = createSM({
       tweenedSelectorY = createInterp(SelectorPos[2], newSelectorPos[2], 0.3);
       return MOVING;
     }
-    // TODO: touch controls
     if (Keys.space) {
       cycleCurrentTile();
       return MOVED;
@@ -148,7 +159,7 @@ const selectorMat = Translate(0, 0.5, 0);
 
 export const updateEditor = (delta, paused) => {
   if (watchSignal(S_EDIT_FINISHED)) {
-    console.log('level data = ', encodeLevel(PlatformData));
+    setAndShowInput(encodeLevel(PlatformData));
   }
 
   step(delta, paused);

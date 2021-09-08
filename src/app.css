@@ -35,6 +35,20 @@ html, body {
   z-index: 10;
 }
 
+/* input field */
+#e {
+  position: absolute;
+  display: none;
+  margin: auto;
+
+  left: 0;
+  right: 0;
+
+  z-index: 20;
+  top: 15%;
+  font: 100 42px sans-serif;
+}
+
 /* Note for potrait devices */
 #d {
   display: none;
