@@ -1,6 +1,17 @@
 import { createSM, enumArray } from './engine/state';
 import { Keys, ARROW } from './engine/input';
-import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_SELECTED, SIGNAL_LEVEL_END_ANIM_PLAYED, SIGNAL_LEVEL_EDITOR, SIGNAL_EDIT_FINISHED, emitSignal, watchSignal } from './engine/observer';
+import {
+  SIGNAL_GAME_RESUMED,
+  SIGNAL_GAME_PAUSED,
+  SIGNAL_LEVEL_ENDED,
+  SIGNAL_LEVEL_SELECTED,
+  SIGNAL_LEVEL_END_ANIM_PLAYED,
+  SIGNAL_LEVEL_EDITOR,
+  SIGNAL_EDIT_FINISHED,
+  SIGNAL_QUIT_TO_MAIN,
+  emitSignal,
+  watchSignal
+} from './engine/observer';
 import { createInterp, EASEOUTQUAD } from './engine/lerp';
 import { CANVAS2D, GAME_WIDTH, GAME_HEIGHT } from './globals.js';
 import { ABS, PI, SQRT, MAX } from './util';
@@ -11,6 +22,7 @@ ctx.textBaseline = 'middle';
 const FILL_STYLE = 'fillStyle';
 
 let inEditor = false;
+let unpauseToMain = false;
 let tweenedIntroBG = createInterp(50, 210, 10, EASEOUTQUAD);
 let tweenedTransition;
 let tweenedPauseCircle;
@@ -126,9 +138,11 @@ const handleDragDirection = () => {
     }
 
   } else {
+    initialPos = 0;
+
     if (pendingEventFire) {
       onkeydown({ key: ARROW + touchDir });
-      pendingEventFire = initialPos = 0;
+      pendingEventFire = 0;
     } else if (touchDir) {
       onkeyup({ key: ARROW + touchDir });
       touchDir = '';
@@ -148,7 +162,10 @@ const BOLD_FONT = '26px' + BASE_FONT;
 const pauseScrnColor = rgba(180, 200, 200, 1),
   topBtnX = GAME_WIDTH / 2,
   topBtnY = 50,
-  topBtnSize = 25;
+  btnSize = 25,
+  midBtnX = GAME_WIDTH / 2,
+  midBtnY = GAME_HEIGHT / 2,
+  btnTextColor = rgba(50, 50, 50, 1);
 const indicatorColor = rgba(190, 200, 200, 0.7);
 const indicatorSize = 60;
 //const indicatorCircle = color(190, 200, 200, 0.5);
@@ -158,7 +175,7 @@ const levelTransitionColor = rgba(200, 190, 200, 1);
 
 // SM {{{
 
-const [SPLASH, INTRO_TRANSITION, IN_GAME, PAUSE_TRANSITION, LEVEL_TRANSITION, PAUSED] = enumArray(5);
+const [SPLASH, INTRO_TRANSITION, IN_GAME, PAUSE_TRANSITION, UNPAUSE_TRANSITION, LEVEL_TRANSITION, PAUSED] = enumArray(7);
 const [step] = createSM({
   [SPLASH]: (delta) => {
     tweenedIntroBG[0](delta);
@@ -183,20 +200,20 @@ const [step] = createSM({
     }
   },
   [IN_GAME]: () => {
-    circleBtn(topBtnX, topBtnY, topBtnSize, pauseScrnColor, rgba(50, 50, 50, 1), BOLD_FONT, 'II');
-    inEditor && circleBtn(topBtnX + 90, topBtnY, topBtnSize, pauseScrnColor, rgba(50, 50, 50, 1), BOLD_FONT, '🗸');
+    circleBtn(topBtnX, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, 'II');
+    inEditor && circleBtn(topBtnX + 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '🗸');
 
     const isDragging = handleDragDirection();
 
     // paused
-    if (!isDragging && (Keys.esc || isCircleClicked(topBtnX, topBtnY, topBtnSize))) {
+    if (!isDragging && (Keys.esc || isCircleClicked(topBtnX, topBtnY, btnSize))) {
       emitSignal(SIGNAL_GAME_PAUSED);
       tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
       return PAUSE_TRANSITION;
     }
 
     // edit completed
-    if (inEditor && !isDragging && isCircleClicked(topBtnX + 90, topBtnY, topBtnSize)) {
+    if (inEditor && !isDragging && isCircleClicked(topBtnX + 90, topBtnY, btnSize)) {
       emitSignal(SIGNAL_EDIT_FINISHED);
       tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
       return PAUSE_TRANSITION;
@@ -233,8 +250,29 @@ const [step] = createSM({
       return PAUSED;
     }
   },
+  [UNPAUSE_TRANSITION]: (delta) => {
+    const done = tweenedPauseCircle[0](delta);
+    const size = MAX(tweenedPauseCircle[1](), 0);
+    circle(topBtnX, topBtnY, size, pauseScrnColor);
+    if (done) {
+      emitSignal(SIGNAL_GAME_RESUMED);
+      return IN_GAME;
+    }
+  },
   [PAUSED]: () => {
-    text(GAME_WIDTH / 2, 100, rgba(0, 0, 0, 1), TITLE_FONT, 'RESUME');
+    fullGradient(pauseScrnColor, pauseScrnColor);
+    circleBtn(midBtnX - 50, midBtnY, btnSize, btnTextColor, pauseScrnColor, BOLD_FONT, '▶');
+    circleBtn(midBtnX + 50, midBtnY, btnSize, btnTextColor, pauseScrnColor, BOLD_FONT, '⌂');
+
+    if (isCircleClicked(midBtnX - 50, midBtnY, btnSize)) {
+      tweenedPauseCircle = createInterp(GAME_WIDTH, 0, 0.7);
+      return UNPAUSE_TRANSITION;
+    }
+    if (isCircleClicked(midBtnX + 50, midBtnY, btnSize)) {
+      tweenedPauseCircle = createInterp(GAME_WIDTH, 0, 0.7);
+      emitSignal(SIGNAL_QUIT_TO_MAIN);
+      return UNPAUSE_TRANSITION;
+    }
   },
 });
 

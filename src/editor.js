@@ -144,7 +144,7 @@ const [step] = createSM({
 // {{{ Render
 
 const localPlatformsMat = Scale(1, 0.2, 1);
-const selectorMat = Multiply(Scale(1, 0.2, 1), Translate(0, 0.5, 0));
+const selectorMat = Translate(0, 0.5, 0);
 
 export const updateEditor = (delta, paused) => {
   if (watchSignal(SIGNAL_EDIT_FINISHED)) {

@@ -13,7 +13,8 @@ export const [
   SIGNAL_LEVEL_SELECTED,
   SIGNAL_LEVEL_EDITOR,
   SIGNAL_EDIT_FINISHED,
-] = enumArray(12);
+  SIGNAL_QUIT_TO_MAIN,
+] = enumArray(13);
 
 let PREV_SIGNALS = {}, NEXT_SIGNALS = {};
 

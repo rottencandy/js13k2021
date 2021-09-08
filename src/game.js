@@ -1,4 +1,13 @@
-import { SIGNAL_GAME_RESUMED, SIGNAL_GAME_PAUSED, SIGNAL_LEVEL_SELECTED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_END_ANIM_PLAYED, SIGNAL_LEVEL_EDITOR, watchSignal } from './engine/observer';
+import {
+  SIGNAL_GAME_RESUMED,
+  SIGNAL_GAME_PAUSED,
+  SIGNAL_LEVEL_SELECTED,
+  SIGNAL_LEVEL_ENDED,
+  SIGNAL_LEVEL_END_ANIM_PLAYED,
+  SIGNAL_LEVEL_EDITOR,
+  SIGNAL_QUIT_TO_MAIN,
+  watchSignal
+} from './engine/observer';
 import { clear } from './global-state';
 import { LEVELS } from './levels';
 import { updateScene, loadLevel } from './scene';
@@ -24,6 +33,10 @@ const observeSignals = () => {
   }
   if(watchSignal(SIGNAL_LEVEL_ENDED)) {
     nextScene = 0;
+  }
+  if(watchSignal(SIGNAL_QUIT_TO_MAIN)) {
+    activeScene = updateScene;
+    loadLevel(LEVELS[0], 0);
   }
   if(watchSignal(SIGNAL_LEVEL_END_ANIM_PLAYED)) {
     if (nextScene === -1) {
