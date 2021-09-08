@@ -37,7 +37,7 @@ export const repositionCamera = (rows, cols) => {
   const base = maxOrd * PLATFORM_SIZE / 2;
   const perpendicular = base / TAN(FOV / 2);
   // The +size * 3 and *3 is used for additional offset on top of minimum distance
-  CamLookAt([base, perpendicular + PLATFORM_SIZE * 3, base * 3], [base, 0, base]);
+  CamLookAt([base, perpendicular + PLATFORM_SIZE * 2, base * 2], [base, 0, base]);
 };
 
 // vim: fdm=marker:et:sw=2:

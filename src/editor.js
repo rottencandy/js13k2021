@@ -63,6 +63,7 @@ const draw = drawArrays();
 
 export const resetEditor = () => {
   PlatformData = [[[PLATFORM_DATA[START](), START]]];
+  repositionCamera(3, 3);
   SelectorPos = [0, 0, 0];
 };
 

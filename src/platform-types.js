@@ -34,12 +34,12 @@ export const findCode = (val) => Object.keys(PLATFORM_CODE).find(k => PLATFORM_C
  */
 export const PLATFORM_DATA = {
   [START]: () => [
-    () => [.5, .7, .6, 1.0],
+    () => [.5, .7, .6, 1.],
     Id,
     () => 1
   ],
   [STATIC]: () => [
-    () => [.0, .3, .5, 1.0],
+    () => [.0, .3, .5, 1.],
     Id,
     () => 1
   ],
@@ -49,24 +49,24 @@ export const PLATFORM_DATA = {
     () => 0
   ],
   [END]: () => [
-    () => [.0, .6, .3, 1.0], 
+    () => [.0, .6, .3, 1.], 
     () => emitSignal(S_LEVEL_SOLVED), 
     () => 1
   ],
   [LEVEL_ENTRANCE]: () => [
-    () => [.6, .5, .0, 1.0],
+    () => [.6, .5, .0, 1.],
     (x, y) => {
       emitSignal(S_LEVEL_SELECTED);
     },
     () => 1
   ],
   [LEVEL_GATE]: () => [
-    () => [1., 1., 1., 1.0],
+    () => [1., 1., 1., 1.],
     Id,
     () => 1
   ],
   [EDITOR]: () => [
-    () => [.1, 1., 1., 1.0],
+    () => [.1, 1., 1., 1.],
     () => emitSignal(S_LEVEL_EDITOR),
     () => 1
   ],
