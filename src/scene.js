@@ -1,4 +1,4 @@
-import { SIGNAL_CUBE_MOVE_STARTED, emitSignal, watchSignal } from './engine/observer';
+import { S_CUBE_MOVE_STARTED, emitSignal, watchSignal } from './engine/observer';
 import { CamMove, repositionCamera } from './global-state';
 import { getInputVector } from './input';
 import { SIN, COS } from './util';
@@ -29,7 +29,7 @@ export const updateScene = (delta, paused) => {
   if (!paused) {
     let moveDir = getInputVector();
     if (moveDir && canMoveTo(playerPos, moveDir)) {
-      emitSignal(SIGNAL_CUBE_MOVE_STARTED, moveDir);
+      emitSignal(S_CUBE_MOVE_STARTED, moveDir);
     }
   }
   // }}}

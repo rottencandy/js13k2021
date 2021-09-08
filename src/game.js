@@ -1,11 +1,11 @@
 import {
-  SIGNAL_GAME_RESUMED,
-  SIGNAL_GAME_PAUSED,
-  SIGNAL_LEVEL_SELECTED,
-  SIGNAL_LEVEL_ENDED,
-  SIGNAL_LEVEL_END_ANIM_PLAYED,
-  SIGNAL_LEVEL_EDITOR,
-  SIGNAL_QUIT_TO_MAIN,
+  S_GAME_RESUMED,
+  S_GAME_PAUSED,
+  S_LEVEL_SELECTED,
+  S_LEVEL_ENDED,
+  S_LEVEL_END_ANIM_PLAYED,
+  S_LEVEL_EDITOR,
+  S_QUIT_TO_MAIN,
   watchSignal
 } from './engine/observer';
 import { clear } from './global-state';
@@ -19,26 +19,26 @@ let paused = 1, nextScene = 0, activeScene = updateScene;
 loadLevel(LEVELS[nextScene]);
 
 const observeSignals = () => {
-  if(watchSignal(SIGNAL_GAME_RESUMED)) {
+  if(watchSignal(S_GAME_RESUMED)) {
     paused = 0;
   }
-  if(watchSignal(SIGNAL_GAME_PAUSED)) {
+  if(watchSignal(S_GAME_PAUSED)) {
     paused = 1;
   }
-  if(watchSignal(SIGNAL_LEVEL_SELECTED)) {
+  if(watchSignal(S_LEVEL_SELECTED)) {
     nextScene = 1;
   }
-  if(watchSignal(SIGNAL_LEVEL_EDITOR)) {
+  if(watchSignal(S_LEVEL_EDITOR)) {
     nextScene = -1;
   }
-  if(watchSignal(SIGNAL_LEVEL_ENDED)) {
+  if(watchSignal(S_LEVEL_ENDED)) {
     nextScene = 0;
   }
-  if(watchSignal(SIGNAL_QUIT_TO_MAIN)) {
+  if(watchSignal(S_QUIT_TO_MAIN)) {
     activeScene = updateScene;
     loadLevel(LEVELS[0], 0);
   }
-  if(watchSignal(SIGNAL_LEVEL_END_ANIM_PLAYED)) {
+  if(watchSignal(S_LEVEL_END_ANIM_PLAYED)) {
     if (nextScene === -1) {
       resetEditor();
       activeScene = updateEditor;

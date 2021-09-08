@@ -1,5 +1,5 @@
 import { enumArray } from './engine/state';
-import { SIGNAL_LEVEL_SOLVED, SIGNAL_LEVEL_SELECTED, SIGNAL_LEVEL_EDITOR, emitSignal } from './engine/observer';
+import { S_LEVEL_SOLVED, S_LEVEL_SELECTED, S_LEVEL_EDITOR, emitSignal } from './engine/observer';
 import { Id } from './util';
 
 // platform types
@@ -45,12 +45,12 @@ export const PLATFORM_DATA = {
   ],
   [END]: () => [
     () => [.0, .6, .3, 1.0], 
-    () => emitSignal(SIGNAL_LEVEL_SOLVED), 
+    () => emitSignal(S_LEVEL_SOLVED), 
     () => 1
   ],
   [LEVEL_ENTRANCE]: () => [
     () => [.6, .5, .0, 1.0],
-    () => emitSignal(SIGNAL_LEVEL_SELECTED),
+    () => emitSignal(S_LEVEL_SELECTED),
     () => 1
   ],
   [LEVEL_GATE]: () => [
@@ -60,7 +60,7 @@ export const PLATFORM_DATA = {
   ],
   [EDITOR]: () => [
     () => [.1, 1., 1., 1.0],
-    () => emitSignal(SIGNAL_LEVEL_EDITOR),
+    () => emitSignal(S_LEVEL_EDITOR),
     () => 1
   ],
 };

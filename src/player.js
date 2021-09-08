@@ -1,5 +1,5 @@
 import { createSM, enumArray } from './engine/state';
-import { SIGNAL_LEVEL_LOADED, SIGNAL_CUBE_MOVE_STARTED, SIGNAL_CUBE_MOVE_ENDED, SIGNAL_LEVEL_STARTED, SIGNAL_LEVEL_SOLVED, emitSignal, watchSignal } from './engine/observer';
+import { S_LEVEL_LOADED, S_CUBE_MOVE_STARTED, S_CUBE_MOVE_ENDED, S_LEVEL_STARTED, S_LEVEL_SOLVED, emitSignal, watchSignal } from './engine/observer';
 import { createInterp } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
@@ -59,14 +59,14 @@ const [UNRENDERED, IDLE, MOVING, END_ANIM] = enumArray(4);
 
 const [step, override] = createSM({
   [IDLE]: () => {
-    const moveDir = watchSignal(SIGNAL_CUBE_MOVE_STARTED);
+    const moveDir = watchSignal(S_CUBE_MOVE_STARTED);
     if (moveDir) {
       movementDirection = moveDir;
       return MOVING;
     }
   },
   [UNRENDERED]: () => {
-    if (watchSignal(SIGNAL_LEVEL_STARTED)) {
+    if (watchSignal(S_LEVEL_STARTED)) {
       return IDLE;
     }
   },
@@ -78,7 +78,7 @@ const [step, override] = createSM({
       addRotation(Vec3(movementDirection[2], 0, -movementDirection[0]));
       movementDirection = 0;
       tweenedAngle[2]();
-      emitSignal(SIGNAL_CUBE_MOVE_ENDED, Pos);
+      emitSignal(S_CUBE_MOVE_ENDED, Pos);
       playCubeSound();
       return IDLE;
     }
@@ -93,14 +93,14 @@ const [step, override] = createSM({
 // Handle signals {{{
 
 const observeSignals = () => {
-  const startPos = watchSignal(SIGNAL_LEVEL_LOADED);
+  const startPos = watchSignal(S_LEVEL_LOADED);
   if (startPos) {
     [Pos, skipIntro] = startPos;
     resetRotations();
     override(skipIntro ? IDLE : UNRENDERED);
   }
 
-  if (watchSignal(SIGNAL_LEVEL_SOLVED)) {
+  if (watchSignal(S_LEVEL_SOLVED)) {
     override(END_ANIM);
   }
 };

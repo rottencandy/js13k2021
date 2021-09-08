@@ -2,7 +2,7 @@ import { createSM, enumArray } from './engine/state';
 import { GL_FLOAT } from './engine/gl-constants';
 import { createInterp } from './engine/lerp';
 import { Keys, dirKeysPressed } from './engine/input';
-import { SIGNAL_EDIT_FINISHED, SIGNAL_LEVEL_STARTED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_SOLVED, SIGNAL_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
+import { S_EDIT_FINISHED, S_LEVEL_STARTED, S_LEVEL_ENDED, S_LEVEL_SOLVED, S_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
 import { getInputVector } from './input';
 import { START, GAP, PLATFORM_CODE, PLATFORM_DATA, nextPlatform } from './platform-types';
 import { Multiply, Translate, Scale, Vec3, V3Add } from './math';
@@ -147,7 +147,7 @@ const localPlatformsMat = Scale(1, 0.2, 1);
 const selectorMat = Translate(0, 0.5, 0);
 
 export const updateEditor = (delta, paused) => {
-  if (watchSignal(SIGNAL_EDIT_FINISHED)) {
+  if (watchSignal(S_EDIT_FINISHED)) {
     console.log('level data = ', encodeLevel(PlatformData));
   }
 

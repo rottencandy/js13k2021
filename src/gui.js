@@ -1,14 +1,14 @@
 import { createSM, enumArray } from './engine/state';
 import { Keys, ARROW } from './engine/input';
 import {
-  SIGNAL_GAME_RESUMED,
-  SIGNAL_GAME_PAUSED,
-  SIGNAL_LEVEL_ENDED,
-  SIGNAL_LEVEL_SELECTED,
-  SIGNAL_LEVEL_END_ANIM_PLAYED,
-  SIGNAL_LEVEL_EDITOR,
-  SIGNAL_EDIT_FINISHED,
-  SIGNAL_QUIT_TO_MAIN,
+  S_GAME_RESUMED,
+  S_GAME_PAUSED,
+  S_LEVEL_ENDED,
+  S_LEVEL_SELECTED,
+  S_LEVEL_END_ANIM_PLAYED,
+  S_LEVEL_EDITOR,
+  S_EDIT_FINISHED,
+  S_QUIT_TO_MAIN,
   emitSignal,
   watchSignal
 } from './engine/observer';
@@ -195,7 +195,7 @@ const [step] = createSM({
     const col = 220;
     fullGradient(rgba(30, 40, 40, alpha),rgba(col, col, col, alpha));
     if (done) {
-      emitSignal(SIGNAL_GAME_RESUMED);
+      emitSignal(S_GAME_RESUMED);
       return IN_GAME;
     }
   },
@@ -207,22 +207,22 @@ const [step] = createSM({
 
     // paused
     if (!isDragging && (Keys.esc || isCircleClicked(topBtnX, topBtnY, btnSize))) {
-      emitSignal(SIGNAL_GAME_PAUSED);
+      emitSignal(S_GAME_PAUSED);
       tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
       return PAUSE_TRANSITION;
     }
 
     // edit completed
     if (inEditor && !isDragging && isCircleClicked(topBtnX + 90, topBtnY, btnSize)) {
-      emitSignal(SIGNAL_EDIT_FINISHED);
+      emitSignal(S_EDIT_FINISHED);
       tweenedPauseCircle = createInterp(0, GAME_WIDTH, 0.7);
       return PAUSE_TRANSITION;
     }
 
-    if (watchSignal(SIGNAL_LEVEL_ENDED) || watchSignal(SIGNAL_LEVEL_SELECTED) || watchSignal(SIGNAL_LEVEL_EDITOR)) {
-      emitSignal(SIGNAL_GAME_PAUSED);
+    if (watchSignal(S_LEVEL_ENDED) || watchSignal(S_LEVEL_SELECTED) || watchSignal(S_LEVEL_EDITOR)) {
+      emitSignal(S_GAME_PAUSED);
       tweenedTransition = createInterp(0, GAME_WIDTH, 1);
-      inEditor = watchSignal(SIGNAL_LEVEL_EDITOR);
+      inEditor = watchSignal(S_LEVEL_EDITOR);
       return LEVEL_TRANSITION;
     }
   },
@@ -234,10 +234,10 @@ const [step] = createSM({
     const done = tweenedTransition[0](delta);
     if (done) {
       if (value === 0) {
-        emitSignal(SIGNAL_GAME_RESUMED);
+        emitSignal(S_GAME_RESUMED);
         return IN_GAME;
       }
-      emitSignal(SIGNAL_LEVEL_END_ANIM_PLAYED);
+      emitSignal(S_LEVEL_END_ANIM_PLAYED);
       // reuse the same var to tween in the reverse direction
       tweenedTransition = createInterp(GAME_WIDTH, 0, 1);
     }
@@ -255,7 +255,7 @@ const [step] = createSM({
     const size = MAX(tweenedPauseCircle[1](), 0);
     circle(topBtnX, topBtnY, size, pauseScrnColor);
     if (done) {
-      emitSignal(SIGNAL_GAME_RESUMED);
+      emitSignal(S_GAME_RESUMED);
       return IN_GAME;
     }
   },
@@ -270,7 +270,7 @@ const [step] = createSM({
     }
     if (isCircleClicked(midBtnX + 50, midBtnY, btnSize)) {
       tweenedPauseCircle = createInterp(GAME_WIDTH, 0, 0.7);
-      emitSignal(SIGNAL_QUIT_TO_MAIN);
+      emitSignal(S_QUIT_TO_MAIN);
       return UNPAUSE_TRANSITION;
     }
   },

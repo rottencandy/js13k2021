@@ -1,7 +1,7 @@
 import { createSM, enumArray } from './engine/state';
 import { GL_FLOAT } from './engine/gl-constants';
 import { createInterp } from './engine/lerp';
-import { SIGNAL_LEVEL_LOADED, SIGNAL_LEVEL_STARTED, SIGNAL_LEVEL_ENDED, SIGNAL_LEVEL_SOLVED, SIGNAL_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
+import { S_LEVEL_LOADED, S_LEVEL_STARTED, S_LEVEL_ENDED, S_LEVEL_SOLVED, S_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
 import { START, PLATFORM_DATA } from './platform-types';
 import { Multiply, Scale, Vec3, V3Add } from './math';
 import { cube } from './shape';
@@ -77,7 +77,7 @@ const [step, override] = createSM({
     // skip platform raise animation
     const initHeight = skipIntroAnim ? 0.5 : 0;
     tweenedPlatformHeight = createInterp(initHeight, 0.5, 1);
-    emitSignal(SIGNAL_LEVEL_LOADED, [startPos, skipIntroAnim]);
+    emitSignal(S_LEVEL_LOADED, [startPos, skipIntroAnim]);
     skipIntroAnim = false;
     return START_ANIM;
   },
@@ -86,26 +86,26 @@ const [step, override] = createSM({
   [START_ANIM]: (delta, paused) => {
     const done = paused ? 0 : tweenedPlatformHeight[0](delta);
     if (done) {
-      emitSignal(SIGNAL_LEVEL_STARTED);
+      emitSignal(S_LEVEL_STARTED);
       return UPDATE;
     }
   },
   [END_ANIM]: (delta, paused) => {
     const done = paused ? 0 : tweenedPlatformHeight[0](delta);
     if (done) {
-      emitSignal(SIGNAL_LEVEL_ENDED);
+      emitSignal(S_LEVEL_ENDED);
     }
   },
   [UPDATE]: (_delta) => {
     // check if cube has moved
-    const p = watchSignal(SIGNAL_CUBE_MOVE_ENDED);
+    const p = watchSignal(S_CUBE_MOVE_ENDED);
     if (p) {
       const [x, , z] = p;
       // run onstep handler, providing platform coordinates
       PlatformData[z][x][1](z, x);
     }
     // end if level is completed
-    if (watchSignal(SIGNAL_LEVEL_SOLVED)) {
+    if (watchSignal(S_LEVEL_SOLVED)) {
       tweenedPlatformHeight = createInterp(0.5, 0, 1);
       return END_ANIM;
     }
