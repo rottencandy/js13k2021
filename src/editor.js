@@ -69,17 +69,17 @@ export const resetEditor = () => {
 // If selector is out of bounds, enlarge the platform array
 const recalculatePlatformArrayPos = () => {
   if (SelectorPos[0] >= PlatformData[0].length) {
-    PlatformData.map(rows => rows.push([PLATFORM_DATA[START](), START]));
+    PlatformData.map(rows => rows.push([PLATFORM_DATA[GAP](), GAP]));
   }
   if (SelectorPos[0] < 0) {
-    PlatformData.map(rows => rows.unshift([PLATFORM_DATA[START](), START]));
+    PlatformData.map(rows => rows.unshift([PLATFORM_DATA[GAP](), GAP]));
     SelectorPos[0] = 0;
   }
   if (SelectorPos[2] >= PlatformData.length) {
-    PlatformData.push(PlatformData[0].map(() => [PLATFORM_DATA[START](), START]));
+    PlatformData.push(PlatformData[0].map(() => [PLATFORM_DATA[GAP](), GAP]));
   }
   if (SelectorPos[2] < 0) {
-    PlatformData.unshift(PlatformData[0].map(() => [PLATFORM_DATA[START](), START]));
+    PlatformData.unshift(PlatformData[0].map(() => [PLATFORM_DATA[GAP](), GAP]));
     SelectorPos[2] = 0;
   }
   repositionCamera(PlatformData.length, PlatformData[0].length);

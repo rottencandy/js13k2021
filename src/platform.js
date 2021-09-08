@@ -13,9 +13,9 @@ import { PLATFORM_SIZE } from './globals';
 
 let currentState;
 let PlatformData = [];
-let resetPlatform = false, skipIntroAnim = false;
+let resetPlatform = false, isLevel = false;
 let tweenedPlatformHeight;
-export const setLevel = (l, showIntro) => { PlatformData = l; resetPlatform = true, skipIntroAnim = !showIntro; };
+export const setLevel = (l, isMain) => { PlatformData = l; resetPlatform = true, isLevel = !isMain; };
 
 // }}}
 
@@ -75,10 +75,9 @@ const [step, override] = createSM({
     });
 
     // skip platform raise animation
-    const initHeight = skipIntroAnim ? 0.5 : 0;
+    const initHeight = isLevel ? 0 : 0.5;
     tweenedPlatformHeight = createInterp(initHeight, 0.5, 1);
-    emitSignal(S_LEVEL_LOADED, [startPos, skipIntroAnim]);
-    skipIntroAnim = false;
+    emitSignal(S_LEVEL_LOADED, [startPos, isLevel]);
     return START_ANIM;
   },
 
@@ -102,7 +101,7 @@ const [step, override] = createSM({
     if (p) {
       const [x, , z] = p;
       // run onstep handler, providing platform coordinates
-      PlatformData[z][x][1](z, x);
+      PlatformData[z][x][1](x, z);
     }
     // end if level is completed
     if (watchSignal(S_LEVEL_SOLVED)) {

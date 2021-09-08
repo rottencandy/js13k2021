@@ -10,9 +10,9 @@ import { render as renderBackdrop } from './backdrop';
 
 // Utils {{{
 
-export const loadLevel = (data, showAnim = true) => {
+export const loadLevel = (data, isMain = false) => {
   const levelData = parseLevel(data);
-  setLevel(levelData, showAnim);
+  setLevel(levelData, isMain);
 
   repositionCamera(levelData.length, levelData[0].length);
 };

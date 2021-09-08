@@ -13,6 +13,8 @@ import { playCubeSound } from './sound';
 // {{{ Init
 
 export let Pos = Vec3(0, 0, 0);
+let mainAreaPos = [0, 0, 0];
+export const saveLastPos = () => mainAreaPos = [Pos[0], Pos[1], Pos[2]];
 
 // angle of rotation(if cube is currently rotating)
 const tweenedAngle = createInterp(0, PI / 2, 0.4);
@@ -95,9 +97,16 @@ const [step, override] = createSM({
 const observeSignals = () => {
   const startPos = watchSignal(S_LEVEL_LOADED);
   if (startPos) {
-    [Pos, skipIntro] = startPos;
+    const [pos, isLevel] = startPos;
     resetRotations();
-    override(skipIntro ? IDLE : UNRENDERED);
+    override(isLevel ? UNRENDERED : IDLE);
+
+    if (isLevel) {
+      saveLastPos();
+      Pos = pos;
+    } else {
+      Pos = mainAreaPos;
+    }
   }
 
   if (watchSignal(S_LEVEL_SOLVED)) {

@@ -288,15 +288,18 @@ const [step] = createSM({
     circleBtn(midBtnX - 50, midBtnY, btnSize, btnTextColor, pauseScrnColor, BOLD_FONT, '▶');
     circleBtn(midBtnX + 50, midBtnY, btnSize, btnTextColor, pauseScrnColor, BOLD_FONT, '⌂');
 
+    // resume button
     if (isCircleClicked(midBtnX - 50, midBtnY, btnSize)) {
       tweenedPauseCircle = createInterp(GAME_WIDTH, 0, 0.7);
       hideInput();
       return UNPAUSE_TRANSITION;
     }
+    // home button
     if (isCircleClicked(midBtnX + 50, midBtnY, btnSize)) {
       tweenedPauseCircle = createInterp(GAME_WIDTH, 0, 0.7);
       emitSignal(S_QUIT_TO_MAIN);
       hideInput();
+      inEditor = false;
       return UNPAUSE_TRANSITION;
     }
   },
