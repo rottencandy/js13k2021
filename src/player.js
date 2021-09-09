@@ -1,6 +1,6 @@
 import { createSM, enumArray } from './engine/state';
 import { S_LEVEL_LOADED, S_CUBE_MOVE_STARTED, S_CUBE_MOVE_ENDED, S_LEVEL_STARTED, S_LEVEL_SOLVED, emitSignal, watchSignal } from './engine/observer';
-import { createInterp } from './engine/lerp';
+import { createInterp, EASEINELASTIC, EASEINQUINT } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
 import { cube, plane } from './shape';
@@ -15,6 +15,8 @@ import { playCubeSound } from './sound';
 export let Pos = Vec3(0, 0, 0);
 let mainAreaPos = [0, 0, 0];
 export const saveLastPos = () => mainAreaPos = [Pos[0], Pos[1], Pos[2]];
+let baseHeight;
+let tweenedBaseHeight;
 
 // angle of rotation(if cube is currently rotating)
 const tweenedAngle = createInterp(0, PI / 2, 0.4);
@@ -57,7 +59,7 @@ const draw = drawArrays();
 
 // {{{ Update
 
-const [UNRENDERED, IDLE, MOVING, END_ANIM] = enumArray(4);
+const [UNRENDERED, START_ANIM, IDLE, MOVING, END_ANIM] = enumArray(5);
 
 const [step, override] = createSM({
   [IDLE]: () => {
@@ -69,6 +71,15 @@ const [step, override] = createSM({
   },
   [UNRENDERED]: () => {
     if (watchSignal(S_LEVEL_STARTED)) {
+      tweenedBaseHeight = createInterp(200, PLATFORM_SIZE / 2, 1.2, EASEINELASTIC);
+      return START_ANIM;
+    }
+  },
+  [START_ANIM]: (dt) => {
+    const done = tweenedBaseHeight[0](dt);
+    baseHeight = tweenedBaseHeight[1]();
+
+    if (done) {
       return IDLE;
     }
   },
@@ -85,8 +96,13 @@ const [step, override] = createSM({
       return IDLE;
     }
   },
-  [END_ANIM]: () => {
-    return UNRENDERED;
+  [END_ANIM]: (dt) => {
+    const done = tweenedBaseHeight[0](dt);
+    baseHeight = tweenedBaseHeight[1]();
+
+    if (done) {
+      return UNRENDERED;
+    }
   }
 });
 
@@ -98,7 +114,7 @@ const observeSignals = () => {
   const startPos = watchSignal(S_LEVEL_LOADED);
   if (startPos) {
     const [pos, isLevel] = startPos;
-    resetRotations();
+    resetTransforms();
     override(isLevel ? UNRENDERED : IDLE);
 
     if (isLevel) {
@@ -110,6 +126,7 @@ const observeSignals = () => {
   }
 
   if (watchSignal(S_LEVEL_SOLVED)) {
+    tweenedBaseHeight = createInterp(PLATFORM_SIZE / 2, 300, 1.5, EASEINQUINT);
     override(END_ANIM);
   }
 };
@@ -124,10 +141,11 @@ let stripPos = 0;
 // matrix that keeps track of all past rotations
 let rotationStack = Identity();
 
-const resetRotations = () => {
+const resetTransforms = () => {
   rotationStack = Identity();
   inXStrip = true;
   stripPos = 0;
+  baseHeight = PLATFORM_SIZE / 2;
 };
 
 const addRotation = (dir) => {
@@ -211,7 +229,7 @@ export const render = (delta, worldMat, paused) => {
     return;
   }
 
-  const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, PLATFORM_SIZE / 2, Pos[2] * PLATFORM_SIZE), getRotationMat());
+  const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, baseHeight, Pos[2] * PLATFORM_SIZE), getRotationMat());
   const modelViewMat = Multiply(CamMat(), worldMat, localMat);
   //inverse transpose is required to fix uWorldMat when transformations are done
   //const inverseMVMat = Transpose(Inverse(modelViewMat));
