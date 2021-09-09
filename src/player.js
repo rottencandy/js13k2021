@@ -8,7 +8,7 @@ import { PI, isOdd } from './util';
 import { createPipeline, CamMat, drawArrays } from './global-state';
 import { vertex, cubeFragment, faceFragment, renaming } from './player.glslx';
 import { PLATFORM_SIZE } from './globals';
-import { playCubeSound } from './sound';
+import { playCubeMoveSound, playCubeFallSound } from './sound';
 
 // {{{ Init
 
@@ -72,6 +72,7 @@ const [step, override] = createSM({
   [UNRENDERED]: () => {
     if (watchSignal(S_LEVEL_STARTED)) {
       tweenedBaseHeight = createInterp(200, PLATFORM_SIZE / 2, 1.2, EASEINELASTIC);
+      playCubeFallSound();
       return START_ANIM;
     }
   },
@@ -92,7 +93,7 @@ const [step, override] = createSM({
       movementDirection = 0;
       tweenedAngle[2]();
       emitSignal(S_CUBE_MOVE_ENDED, Pos);
-      playCubeSound();
+      playCubeMoveSound();
       return IDLE;
     }
   },

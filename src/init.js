@@ -1,5 +1,4 @@
 import { setupKeyListener } from './engine/input';
-import { initAudio } from './sound';
 import { GAME_WIDTH, GAME_HEIGHT, CANVAS, CANVAS2D, WIDTH, HEIGHT, STYLE } from './globals';
 import { getById, deviceScaleRatio } from './util';
 
@@ -15,7 +14,6 @@ CANVAS[WIDTH] = CANVAS2D[WIDTH] = GAME_WIDTH;
 CANVAS[HEIGHT] = CANVAS2D[HEIGHT] = GAME_HEIGHT;
 onresize();
 
-initAudio();
 setupKeyListener();
 
 // vim: fdm=marker:et:sw=2:

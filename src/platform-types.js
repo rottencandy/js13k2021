@@ -6,6 +6,7 @@ import {
   emitSignal
 } from './engine/observer';
 import { Id } from './util';
+import { playLevelStartSound, playLevelEndSound } from './sound';
 
 // platform types
 const len = 7;
@@ -50,13 +51,17 @@ export const PLATFORM_DATA = {
   ],
   [END]: () => [
     () => [.0, .6, .3, 1.], 
-    () => emitSignal(S_LEVEL_SOLVED), 
+    () => {
+      emitSignal(S_LEVEL_SOLVED);
+      playLevelEndSound();
+    },
     () => 1
   ],
   [LEVEL_ENTRANCE]: () => [
     () => [.6, .5, .0, 1.],
     (x, y) => {
       emitSignal(S_LEVEL_SELECTED);
+      playLevelStartSound();
     },
     () => 1
   ],
