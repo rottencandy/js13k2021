@@ -1,0 +1,33 @@
+attribute vec4 aPos;
+
+precision mediump float;
+
+uniform mat4 uMat;
+uniform vec3 uGridPos;
+uniform vec4 uColor;
+
+varying vec3 vFragPos;
+
+export void vertex() {
+  gl_Position = uMat * vec4(aPos.xyz + uGridPos * 50.0, 1.0);
+  // range 0 -> 50 to -1 -> 1
+  vFragPos = (aPos.xyz / 50.0) * 2.0 - 1.0;
+}
+
+export void faceFragment() {
+  gl_FragColor = vec4(uColor);
+}
+
+export void selVertex() {
+  gl_Position = uMat * vec4(aPos.xyz + uGridPos * 50.0, 1.0);
+  // range 0 -> 50 to -1 -> 1
+  vFragPos = (aPos.xyz / 50.0) * 2.0 - 1.0;
+}
+
+export void editorSelectorFragment() {
+  // calculate edge highlight
+  vec3 absFrag = abs(vFragPos);
+  float fragEdge = smoothstep(0.7, 1.0, max(absFrag.x, absFrag.z));
+
+  gl_FragColor = vec4(fragEdge);
+}
