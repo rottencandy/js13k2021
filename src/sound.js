@@ -128,6 +128,55 @@ const cubeFallSoundData = {
   numChannels: 1  // Number of channels
 };
 
+const invalidMoveSoundData = {
+  songData: [
+    { // Instrument 0
+      i: [
+      3, // OSC1_WAVEFORM
+      192, // OSC1_VOL
+      104, // OSC1_SEMI
+      64, // OSC1_XENV
+      3, // OSC2_WAVEFORM
+      80, // OSC2_VOL
+      99, // OSC2_SEMI
+      0, // OSC2_DETUNE
+      0, // OSC2_XENV
+      0, // NOISE_VOL
+      21, // ENV_ATTACK
+      23, // ENV_SUSTAIN
+      66, // ENV_RELEASE
+      20, // ENV_EXP_DECAY
+      0, // ARP_CHORD
+      0, // ARP_SPEED
+      3, // LFO_WAVEFORM
+      0, // LFO_AMT
+      0, // LFO_FREQ
+      0, // LFO_FX_FREQ
+      1, // FX_FILTER
+      4, // FX_FREQ
+      35, // FX_RESONANCE
+      2, // FX_DIST
+      32, // FX_DRIVE
+      37, // FX_PAN_AMT
+      0, // FX_PAN_FREQ
+      0, // FX_DELAY_AMT
+      0 // FX_DELAY_TIME
+      ],
+      // Patterns
+      p: [1],
+      // Columns
+      c: [
+        {n: [142],
+         f: []}
+      ]
+    },
+  ],
+  rowLen: 5513,   // In sample lengths
+  patternLen: 2,  // Rows per pattern
+  endPattern: 0,  // End pattern
+  numChannels: 1  // Number of channels
+};
+
 const levelStartSoundData = {
   songData: [
     { // Instrument 0
@@ -232,6 +281,7 @@ const levelEndSoundData = {
 
 export const playCubeMoveSound = soundPlayer(cubeMoveSoundData);
 export const playCubeFallSound = soundPlayer(cubeFallSoundData);
+export const playInvalidMoveSound = soundPlayer(invalidMoveSoundData);
 export const playLevelEndSound = soundPlayer(levelEndSoundData);
 export const playLevelStartSound = soundPlayer(levelStartSoundData);
 

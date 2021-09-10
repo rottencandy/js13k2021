@@ -7,6 +7,7 @@ import { parseLevel } from './levels';
 import { render as renderPlayer, Pos as playerPos } from './player';
 import { render as renderPlatform, setLevel, canMoveTo } from './platform';
 import { render as renderBackdrop } from './backdrop';
+import { playInvalidMoveSound } from './sound';
 
 // Utils {{{
 
@@ -27,9 +28,13 @@ export const updateScene = (delta, paused) => {
 
   // Check input {{{
   if (!paused) {
-    let moveDir = getInputVector();
-    if (moveDir && canMoveTo(playerPos, moveDir)) {
-      emitSignal(S_CUBE_MOVE_STARTED, moveDir);
+    const moveDir = getInputVector();
+    if (moveDir) {
+      if (canMoveTo(playerPos, moveDir)) {
+        emitSignal(S_CUBE_MOVE_STARTED, moveDir);
+      } else {
+        playInvalidMoveSound();
+      }
     }
   }
   // }}}
