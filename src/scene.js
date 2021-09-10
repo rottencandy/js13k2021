@@ -46,7 +46,7 @@ export const updateScene = (delta, paused) => {
 
   renderBackdrop(delta, t, paused);
   renderPlayer(delta, worldMat, paused);
-  renderPlatform(delta, worldMat, paused);
+  renderPlatform(delta, worldMat, t, paused);
 
   t++;
 }

@@ -65,6 +65,9 @@ const uFaceColor = getFaceUniform(renaming.uColor);
 const uSideLightPos = getSideUniform(renaming.uLightPos);
 const uFaceLightPos = getFaceUniform(renaming.uLightPos);
 
+const uFaceType = getFaceUniform(renaming.uFaceType);
+const uTime = getFaceUniform(renaming.uTime);
+
 const draw = drawArrays();
 
 // }}}
@@ -154,10 +157,11 @@ const renderPlatformFaces = (rows, y) => rows.map((p, x) => {
   const color = p[0]();
   uFaceColor.u4f(...color);
   uFaceGridPos.u3f(x, 0, y, 1);
+  uFaceType.u1i(p[3])
   draw(6);
 });
 
-export const render = (delta, worldMat, paused) => {
+export const render = (delta, worldMat, t, paused) => {
   if (resetPlatform || watchSignal(S_LEVEL_RESET)) {
     override(INIT);
     resetPlatform = false;
@@ -167,18 +171,20 @@ export const render = (delta, worldMat, paused) => {
   const platformHeight = tweenedPlatformHeight[1]();
   if (platformHeight > 0) {
     const localMat = Scale(1, platformHeight, 1);
+    const transformMat = Multiply(CamMat(), worldMat, localMat);
 
     useSide();
-    uSideMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
+    uSideMatrix.m4fv(false, transformMat);
     uSideModel.m4fv(false, localMat);
     uSideLightPos.u3f(...LIGHT_POS);
 
     PlatformData.map(renderPlatformSides);
 
     useFace();
-    uFaceMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
+    uFaceMatrix.m4fv(false, transformMat);
     uFaceModel.m4fv(false, localMat);
     uFaceLightPos.u3f(...LIGHT_POS);
+    uTime.u1f(t);
 
     PlatformData.map(renderPlatformFaces);
   }

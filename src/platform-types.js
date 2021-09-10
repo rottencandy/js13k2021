@@ -7,7 +7,7 @@ import {
 } from './engine/observer';
 import { Id } from './util';
 import { playLevelStartSound, playLevelEndSound } from './sound';
-import { isLevelSolved } from './local-storage';
+import { isLevelSolved, completedLevelsCount } from './local-storage';
 
 // platform types
 const len = 7;
@@ -29,6 +29,7 @@ export const findCode = (val) => Object.keys(PLATFORM_CODE).find(k => PLATFORM_C
 /** @typedef {() => [R: number, G: number, B: number, A: number]} GetColor */
 /** @typedef {(x: number, y: number, faceTouched: boolean) => void} OnStep */
 /** @typedef {() => boolean} CanBeStepped */
+/** @typedef {0 | 1 | 2} FaceType */
 
 /**
  * @type {Object.<number, (x: number, y: number) => [GetColor, OnStep, Init, CanBeStepped]>}
@@ -38,17 +39,20 @@ export const PLATFORM_DATA = {
   [START]: () => [
     () => [.5, .7, .6, 1.],
     Id,
-    () => 1
+    () => 1,
+    0,
   ],
   [STATIC]: () => [
     () => [.0, .0, .5, 1.],
     Id,
-    () => 1
+    () => 1,
+    0,
   ],
   [GAP]: () => [
     () => [.0, .0, .0, .0], 
     Id, 
-    () => 0
+    () => 0,
+    0,
   ],
   [END]: () => [
     () => [.0, .7, .2, 1.], 
@@ -58,7 +62,8 @@ export const PLATFORM_DATA = {
         playLevelEndSound();
       }
     },
-    () => 1
+    () => 1,
+    2,
   ],
   [LEVEL_ENTRANCE]: (x, y) => {
     const levelCode = levelMap[[x, y]];
@@ -70,23 +75,33 @@ export const PLATFORM_DATA = {
       emitSignal(S_LEVEL_SELECTED, levelCode);
       playLevelStartSound();
     },
-    () => 1
-  ]},
-  [LEVEL_GATE]: () => [
-    () => [1., 1., 1., 1.],
+    () => 1,
+    1,
+  ];
+  },
+  [LEVEL_GATE]: (x, y) => {
+    const open = completedLevelsCount() < gateMap[[x, y]];
+    const alpha = open ? 0.3 : 1.;
+    return [
+    () => [1., 1., 1., alpha],
     Id,
-    () => 1
-  ],
+    () => open,
+    0,
+  ];
+  },
   [EDITOR]: () => [
     () => [.1, 1., .1, 1.],
     () => emitSignal(S_LEVEL_EDITOR),
-    () => 1
+    () => 1,
+    0,
   ],
 };
 
 const levelMap = {
   [[1, 0]]: 1,
   [[0, 3]]: 2,
+};
+const gateMap = {
 };
 
 // vim: fdm=marker:et:sw=2:
