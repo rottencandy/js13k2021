@@ -7,6 +7,7 @@ export let CANVAS2D = getById('c');
 export const
   GAME_WIDTH = 640,
   GAME_HEIGHT = 360,
+  ASPECT = GAME_HEIGHT / GAME_WIDTH,
   FOV = 1.047,
   ZNEAR = 1,
   ZFAR = 2000,

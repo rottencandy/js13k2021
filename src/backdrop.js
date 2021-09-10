@@ -1,5 +1,6 @@
 import { GL_FLOAT } from './engine/gl-constants';
 import { absPlane } from './shape';
+import { ASPECT } from './globals';
 import { createPipeline, drawArrays } from './global-state';
 import { vertex, colorFragment, renaming } from './backdrop.glslx';
 
@@ -17,6 +18,8 @@ const [use, getUniform] = createPipeline(
   absPlane
 );
 const uLightPos = getUniform(renaming.uLightPos);
+const uTime = getUniform(renaming.uTime);
+const uAspect = getUniform(renaming.uAspect);
 
 const draw = drawArrays();
 
@@ -29,9 +32,11 @@ const draw = drawArrays();
 
 // {{{ Render
 
-export const render = (_delta) => {
+export const render = (_delta, t) => {
 
   use();
+  uTime.u1f(t);
+  uAspect.u1f(ASPECT);
 
   draw(6);
 
