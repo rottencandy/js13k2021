@@ -1,5 +1,13 @@
 import { createSM, enumArray } from './engine/state';
-import { S_LEVEL_LOADED, S_CUBE_MOVE_STARTED, S_CUBE_MOVE_ENDED, S_LEVEL_STARTED, S_LEVEL_SOLVED, emitSignal, watchSignal } from './engine/observer';
+import {
+  S_LEVEL_LOADED,
+  S_CUBE_MOVE_STARTED,
+  S_CUBE_MOVE_ENDED,
+  S_LEVEL_STARTED,
+  S_LEVEL_SOLVED,
+  emitSignal,
+  watchSignal
+} from './engine/observer';
 import { createInterp, EASEINELASTIC, EASEINQUINT } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
@@ -16,12 +24,18 @@ export let Pos = Vec3(0, 0, 0);
 let mainAreaPos = [0, 0, 0];
 export const saveLastPos = () => mainAreaPos = [Pos[0], Pos[1], Pos[2]];
 let baseHeight;
-let tweenedBaseHeight;
+let faceColor = [1., .0, .0];
+let faceType = 0;
 
 // angle of rotation(if cube is currently rotating)
 const tweenedAngle = createInterp(0, PI / 2, 0.25);
 // movement direction vector(if cube is currently moving)
 let movementDirection = 0;
+// cube y pos for intro anim
+let tweenedBaseHeight;
+
+export const setFace = (color, type) => (faceColor = color, faceType = type);
+export const getFace = () => faceColor;
 
 // }}}
 
@@ -49,9 +63,13 @@ const [useFace, getFaceUniform] = createPipeline(
 const uMatrix = getCubeUniform(renaming.uMat);
 const uModel = getCubeUniform(renaming.uModel);
 const uLightPos = getCubeUniform(renaming.uLightPos);
+
 const uFaceMatrix = getFaceUniform(renaming.uMat);
 const uFaceModel = getFaceUniform(renaming.uModel);
 const uFaceLightPos = getFaceUniform(renaming.uLightPos);
+const uColor = getFaceUniform(renaming.uColor);
+const uFaceType = getFaceUniform(renaming.uFaceType);
+const uTime = getFaceUniform(renaming.uTime);
 
 const draw = drawArrays();
 
@@ -115,7 +133,7 @@ const observeSignals = () => {
   const startPos = watchSignal(S_LEVEL_LOADED);
   if (startPos) {
     const [pos, isLevel] = startPos;
-    resetTransforms();
+    resetCubeState();
     override(isLevel ? UNRENDERED : IDLE);
 
     if (isLevel) {
@@ -142,7 +160,7 @@ let stripPos = 0;
 // matrix that keeps track of all past rotations
 let rotationStack = Identity();
 
-const resetTransforms = () => {
+const resetCubeState = () => {
   rotationStack = Identity();
   inXStrip = true;
   stripPos = 0;
@@ -221,7 +239,7 @@ const getRotationMat = () => {
 // {{{ Render
 
 // align face with the cube
-export const render = (delta, worldMat, paused) => {
+export const render = (delta, worldMat, t, paused) => {
   observeSignals();
 
   const currentState = step(delta, paused);
@@ -244,6 +262,9 @@ export const render = (delta, worldMat, paused) => {
   uFaceMatrix.m4fv(false, modelViewMat);
   uFaceModel.m4fv(false, localMat);
   uFaceLightPos.u3f(...LIGHT_POS);
+  uColor.u3f(...faceColor);
+  uFaceType.u1i(faceType);
+  uTime.u1f(t);
   draw(6);
 }
 

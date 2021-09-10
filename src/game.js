@@ -12,7 +12,7 @@ import {
 import { clear } from './global-state';
 import { LEVELS } from './levels';
 import { updateScene, loadLevel } from './scene';
-import { saveLastPos } from './player';
+import { saveLastPos, setFace } from './player';
 import { updateEditor, resetEditor } from './editor';
 import { saveLevel } from './local-storage';
 
@@ -55,6 +55,11 @@ const observeSignals = () => {
     } else {
       activeScene = updateScene;
       loadLevel(LEVELS[activeLevel], activeLevel === 0);
+      if (activeLevel === 0) {
+        setFace([1., .0, .0], 0);
+      } else {
+        setFace([.1, .5, .4], 1);
+      }
     }
   }
 }
