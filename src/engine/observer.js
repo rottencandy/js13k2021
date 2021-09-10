@@ -11,6 +11,7 @@ export const [
   S_LEVEL_LOADED,
   S_LEVEL_STARTED,
 
+  S_LEVEL_RESET,
   S_LEVEL_SOLVED,
   S_LEVEL_ENDED,
   S_LEVEL_END_ANIM_PLAYED,
@@ -19,7 +20,7 @@ export const [
   S_EDIT_FINISHED,
 
   S_QUIT_TO_MAIN,
-] = enumArray(13);
+] = enumArray(14);
 
 let PREV_SIGNALS = {}, NEXT_SIGNALS = {};
 

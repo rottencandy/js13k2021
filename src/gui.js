@@ -7,6 +7,7 @@ import {
   S_LEVEL_SELECTED,
   S_LEVEL_END_ANIM_PLAYED,
   S_LEVEL_EDITOR,
+  S_LEVEL_RESET,
   S_EDIT_FINISHED,
   S_QUIT_TO_MAIN,
   emitSignal,
@@ -164,7 +165,7 @@ const titleGradient2_from = 50;
 const titleGradient2_to = 210;
 const titleTextColor = rgba(0, 0, 0, 1);
 const subtitleTextColor = rgba(20, 20, 20, 1);
-const CONTROLS = 'Controls: ←↑→↓ | WASD | ZQSD | Touch & drag';
+const CONTROLS = 'Controls: ←↑→↓ | WASD | ZQSD | touch & drag';
 
 const pauseScrnColor = rgba(180, 200, 200, 1),
   topBtnX = GAME_WIDTH / 2,
@@ -179,6 +180,7 @@ const indicatorSize = 60;
 const levelTransitionColor = rgba(200, 190, 200, 1);
 
 let inEditor = false;
+let inLevel = false;
 let tweenedIntroBG = createInterp(titleGradient2_from, titleGradient2_to, 10, EASEOUTQUAD);
 let tweenedTransition;
 let tweenedPauseCircle;
@@ -198,7 +200,7 @@ const [step] = createSM({
     text(GAME_WIDTH / 2, GAME_HEIGHT - 50, subtitleTextColor, SUB_FONT2, CONTROLS);
 
     if(Keys.space || Keys.clicked) {
-      tweenedIntroBG = createInterp(1, 0, 1, EASEOUTQUAD);
+      tweenedIntroBG = createInterp(1, 0, 2, EASEOUTQUAD);
       return INTRO_TRANSITION;
     }
   },
@@ -216,8 +218,13 @@ const [step] = createSM({
     circleBtn(topBtnX, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, 'II');
     inEditor && circleBtn(topBtnX - 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '⦺');
     inEditor && circleBtn(topBtnX + 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '🗸');
+    inLevel && circleBtn(topBtnX + 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '↺');
 
     const isDragging = handleDragDirection();
+
+    if (inLevel && !isDragging && isCircleClicked(topBtnX + 90, topBtnY, btnSize)) {
+      emitSignal(S_LEVEL_RESET);
+    }
 
     // paused
     if (!isDragging && (Keys.esc || isCircleClicked(topBtnX, topBtnY, btnSize))) {
@@ -246,6 +253,7 @@ const [step] = createSM({
     if (watchSignal(S_LEVEL_ENDED) || watchSignal(S_LEVEL_SELECTED) || watchSignal(S_LEVEL_EDITOR)) {
       emitSignal(S_GAME_PAUSED);
       tweenedTransition = createInterp(0, GAME_WIDTH, 1);
+      inLevel = watchSignal(S_LEVEL_SELECTED);
       inEditor = watchSignal(S_LEVEL_EDITOR);
       return LEVEL_TRANSITION;
     }

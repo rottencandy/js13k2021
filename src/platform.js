@@ -1,7 +1,16 @@
 import { createSM, enumArray } from './engine/state';
 import { GL_FLOAT } from './engine/gl-constants';
 import { createInterp } from './engine/lerp';
-import { S_LEVEL_LOADED, S_LEVEL_STARTED, S_LEVEL_ENDED, S_LEVEL_SOLVED, S_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
+import {
+  S_LEVEL_LOADED,
+  S_LEVEL_STARTED,
+  S_LEVEL_ENDED,
+  S_LEVEL_SOLVED,
+  S_LEVEL_RESET,
+  S_CUBE_MOVE_ENDED,
+  watchSignal,
+  emitSignal
+} from './engine/observer';
 import { START, PLATFORM_DATA } from './platform-types';
 import { Multiply, Scale, Vec3, V3Add } from './math';
 import { cube, plane } from './shape';
@@ -13,9 +22,10 @@ import { PLATFORM_SIZE, LIGHT_POS } from './globals';
 
 let currentState;
 let PlatformData = [];
-let resetPlatform = false, isLevel = false;
+let rawLevelData = [];
+let resetPlatform = false, enableIntroAnim = false;
 let tweenedPlatformHeight;
-export const setLevel = (l, isMain) => { PlatformData = l; resetPlatform = true, isLevel = !isMain; };
+export const setLevel = (l, isMain) => { rawLevelData = l; resetPlatform = true, enableIntroAnim = !isMain; };
 
 // }}}
 
@@ -84,7 +94,7 @@ const [step, override] = createSM({
   // set load level data and reset player pos
   [INIT]: () => {
   let startPos = [0, 0];
-    PlatformData = PlatformData.map((rows, z) => {
+    PlatformData = rawLevelData.map((rows, z) => {
       const cubeX = rows.indexOf(START);
       if (cubeX !== -1) {
         startPos = Vec3(cubeX, 0, z);
@@ -93,9 +103,9 @@ const [step, override] = createSM({
     });
 
     // skip platform raise animation
-    const initHeight = isLevel ? 0 : 0.5;
+    const initHeight = enableIntroAnim ? 0 : 0.5;
     tweenedPlatformHeight = createInterp(initHeight, 0.5, 1);
-    emitSignal(S_LEVEL_LOADED, [startPos, isLevel]);
+    emitSignal(S_LEVEL_LOADED, [startPos, enableIntroAnim]);
     return START_ANIM;
   },
 
@@ -148,7 +158,7 @@ const renderPlatformFaces = (rows, y) => rows.map((p, x) => {
 });
 
 export const render = (delta, worldMat, paused) => {
-  if (resetPlatform) {
+  if (resetPlatform || watchSignal(S_LEVEL_RESET)) {
     override(INIT);
     resetPlatform = false;
   }
