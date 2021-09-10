@@ -7,6 +7,7 @@ import {
 } from './engine/observer';
 import { Id } from './util';
 import { playLevelStartSound, playLevelEndSound } from './sound';
+import { isLevelSolved } from './local-storage';
 
 // platform types
 const len = 7;
@@ -30,7 +31,7 @@ export const findCode = (val) => Object.keys(PLATFORM_CODE).find(k => PLATFORM_C
 /** @typedef {() => boolean} CanBeStepped */
 
 /**
- * @type {Object.<number, () => [GetColor, OnStep, Init, CanBeStepped]>}
+ * @type {Object.<number, (x: number, y: number) => [GetColor, OnStep, Init, CanBeStepped]>}
  * Platform type data
  */
 export const PLATFORM_DATA = {
@@ -59,14 +60,18 @@ export const PLATFORM_DATA = {
     },
     () => 1
   ],
-  [LEVEL_ENTRANCE]: () => [
-    () => [.6, .5, .0, 1.],
-    (x, y) => {
-      emitSignal(S_LEVEL_SELECTED, levelMap[[x, y]]);
+  [LEVEL_ENTRANCE]: (x, y) => {
+    const levelCode = levelMap[[x, y]];
+    const solved = isLevelSolved(levelCode);
+    const color = solved ? [.6, .5, .0, 1.] : [.6, .5, .5, 1.];
+    return [
+    () => color,
+    () => {
+      emitSignal(S_LEVEL_SELECTED, levelCode);
       playLevelStartSound();
     },
     () => 1
-  ],
+  ]},
   [LEVEL_GATE]: () => [
     () => [1., 1., 1., 1.],
     Id,

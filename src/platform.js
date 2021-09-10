@@ -85,11 +85,11 @@ const [step, override] = createSM({
   [INIT]: () => {
   let startPos = [0, 0];
     PlatformData = PlatformData.map((rows, z) => {
-      const x = rows.indexOf(START);
-      if (x !== -1) {
-        startPos = Vec3(x, 0, z);
+      const cubeX = rows.indexOf(START);
+      if (cubeX !== -1) {
+        startPos = Vec3(cubeX, 0, z);
       }
-      return rows.map((v) => PLATFORM_DATA[v]());
+      return rows.map((v, x) => PLATFORM_DATA[v](x, z));
     });
 
     // skip platform raise animation
