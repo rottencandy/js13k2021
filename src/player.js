@@ -7,7 +7,7 @@ import { cube, plane } from './shape';
 import { PI, isOdd } from './util';
 import { createPipeline, CamMat, drawArrays } from './global-state';
 import { vertex, cubeFragment, faceFragment, renaming } from './player.glslx';
-import { PLATFORM_SIZE } from './globals';
+import { PLATFORM_SIZE, LIGHT_POS } from './globals';
 import { playCubeMoveSound, playCubeFallSound } from './sound';
 
 // {{{ Init
@@ -40,8 +40,8 @@ const [useFace, getFaceUniform] = createPipeline(
   vertex,
   faceFragment,
   {
-    [renaming.aPos]: [2, GL_FLOAT, 16],
-    [renaming.aNorm]: [2, GL_FLOAT, 16, 8],
+    [renaming.aPos]: [3, GL_FLOAT, 24],
+    [renaming.aNorm]: [3, GL_FLOAT, 24, 12],
   },
   plane(PLATFORM_SIZE)
 );
@@ -220,8 +220,6 @@ const getRotationMat = () => {
 // {{{ Render
 
 // align face with the cube
-const initialFaceTransform = Multiply(Translate(0, PLATFORM_SIZE, PLATFORM_SIZE), RotateX(-PI / 2));
-
 export const render = (delta, worldMat, paused) => {
   observeSignals();
 
@@ -232,19 +230,19 @@ export const render = (delta, worldMat, paused) => {
 
   const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, baseHeight, Pos[2] * PLATFORM_SIZE), getRotationMat());
   const modelViewMat = Multiply(CamMat(), worldMat, localMat);
-  //inverse transpose is required to fix uWorldMat when transformations are done
+  //inverse transpose is required to fix normals when transformations are done
   //const inverseMVMat = Transpose(Inverse(modelViewMat));
 
   useCube();
   uMatrix.m4fv(false, modelViewMat);
   uModel.m4fv(false, localMat);
-  uLightPos.u3f(0.5, 0.7, 1.0);
-  draw(6 * 6);
+  uLightPos.u3f(...LIGHT_POS);
+  draw(6 * 5);
 
   useFace();
-  uFaceMatrix.m4fv(false, Multiply(modelViewMat, initialFaceTransform));
+  uFaceMatrix.m4fv(false, modelViewMat);
   uFaceModel.m4fv(false, localMat);
-  uFaceLightPos.u3f(0.5, 0.7, 1.0);
+  uFaceLightPos.u3f(...LIGHT_POS);
   draw(6);
 }
 

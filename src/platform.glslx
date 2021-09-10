@@ -19,35 +19,34 @@ export void vertex() {
   vFragPos = (aPos.xyz / 50.0) * 2.0 - 1.0;
 }
 
-export void colorFragment() {
+vec3 diffuseLight(vec3 vnormal) {
   // ambient light intensity
   vec3 ambient = vec3(0.3);
 
+  // calculate directional lighting using normals
+  vec3 normal = vec3(normalize(vnormal));
+  vec3 lightPos = normalize(uLightPos);
+  float light = max(dot(normal, lightPos), 0.0);
+  return light + ambient;
+}
+
+export void sideFragment() {
   // calculate edge highlight
   // range -1 -> 1 to 0 -> 1 -> 0
   vec3 absFrag = 1.0 - abs(vFragPos);
-  float fragEdge = step(0.03, min(absFrag.x, absFrag.z) + absFrag.y);
+  float fragEdge = step(0.03, min(absFrag.x, absFrag.y));
   fragEdge = clamp(fragEdge, 0.4, 1.0);
 
-  // calculate directional lighting using normals
-  vec3 normal = vec3(normalize(vNormal));
-  vec3 lightPos = normalize(uLightPos);
-  float light = max(dot(normal, lightPos), 0.0);
-
-  vec4 result = vec4((light + ambient) * fragEdge * uColor.xyz, uColor.w);
+  vec4 result = vec4(diffuseLight(vNormal) * fragEdge * uColor.xyz, uColor.w);
   gl_FragColor = result;
 }
 
-export void selVertex() {
-  gl_Position = uMat * vec4(aPos.xyz + uGridPos * 50.0, 1.0);
-  // range 0 -> 50 to -1 -> 1
-  vFragPos = (aPos.xyz / 50.0) * 2.0 - 1.0;
-}
-
-export void editorSelectorFragment() {
+export void faceFragment() {
   // calculate edge highlight
-  vec3 absFrag = abs(vFragPos);
-  float fragEdge = smoothstep(0.7, 1.0, max(absFrag.x, absFrag.z));
+  // range -1 -> 1 to 0 -> 1 -> 0
+  vec3 absFrag = 1.0 - abs(vFragPos);
+  float fragEdge = step(0.03, min(absFrag.x, absFrag.z));
+  fragEdge = clamp(fragEdge, 0.4, 1.0);
 
-  gl_FragColor = vec4(fragEdge);
+  gl_FragColor = vec4(fragEdge * uColor.xyz, uColor.w);
 }

@@ -14,6 +14,7 @@ export const
   HEIGHT = 'height',
   STYLE = 'style',
   PLATFORM_SIZE = 50,
+  LIGHT_POS = [.6, .9, .5],
   /** Set Canvas element */
   setCanvas = (ele) => CANVAS = ele;
 

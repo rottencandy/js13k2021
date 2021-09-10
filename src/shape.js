@@ -8,18 +8,18 @@ import { F32 } from './util';
  * @return {Float32Array} dimensions
 */
 export const plane = (s) => F32([
-  0, 0,
-  0, 1,
-  s, s,
-  0, 1,
-  0, s,
-  0, 1,
-  0, 0,
-  0, 1,
-  s, 0,
-  0, 1,
-  s, s,
-  0, 1,
+  0, s, 0,
+  0, 1, 0,
+  s, s, s,
+  0, 1, 0,
+  s, s, 0,
+  0, 1, 0,
+  0, s, 0,
+  0, 1, 0,
+  0, s, s,
+  0, 1, 0,
+  s, s, s,
+  0, 1, 0,
 ]);
 
 // stroke:
@@ -36,18 +36,19 @@ export const plane = (s) => F32([
  */
 export const cube = (s) => F32([
   // top face
-  0, s, 0,
-  0, 1, 0,
-  s, s, s,
-  0, 1, 0,
-  s, s, 0,
-  0, 1, 0,
-  0, s, 0,
-  0, 1, 0,
-  0, s, s,
-  0, 1, 0,
-  s, s, s,
-  0, 1, 0,
+  // This face is drawn separately by all etities
+  //0, s, 0,
+  //0, 1, 0,
+  //s, s, s,
+  //0, 1, 0,
+  //s, s, 0,
+  //0, 1, 0,
+  //0, s, 0,
+  //0, 1, 0,
+  //0, s, s,
+  //0, 1, 0,
+  //s, s, s,
+  //0, 1, 0,
   // front face
   0, s, s,
   0, 0, 1,

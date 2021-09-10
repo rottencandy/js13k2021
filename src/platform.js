@@ -4,10 +4,10 @@ import { createInterp } from './engine/lerp';
 import { S_LEVEL_LOADED, S_LEVEL_STARTED, S_LEVEL_ENDED, S_LEVEL_SOLVED, S_CUBE_MOVE_ENDED, watchSignal, emitSignal } from './engine/observer';
 import { START, PLATFORM_DATA } from './platform-types';
 import { Multiply, Scale, Vec3, V3Add } from './math';
-import { cube } from './shape';
+import { cube, plane } from './shape';
 import { createPipeline, CamMat, drawArrays } from './global-state';
-import { vertex, colorFragment, renaming } from './platform.glslx';
-import { PLATFORM_SIZE } from './globals';
+import { vertex, sideFragment, faceFragment, renaming } from './platform.glslx';
+import { PLATFORM_SIZE, LIGHT_POS } from './globals';
 
 // {{{ Init
 
@@ -21,21 +21,39 @@ export const setLevel = (l, isMain) => { PlatformData = l; resetPlatform = true,
 
 // setup GL state {{{
 
-const [use, getUniform] = createPipeline(
+const [useSide, getSideUniform] = createPipeline(
   vertex,
-  colorFragment,
+  sideFragment,
   {
     [renaming.aPos]: [3, GL_FLOAT, 24],
     [renaming.aNorm]: [3, GL_FLOAT, 24, 12],
   },
   cube(PLATFORM_SIZE),
 );
+const [useFace, getFaceUniform] = createPipeline(
+  vertex,
+  faceFragment,
+  {
+    [renaming.aPos]: [3, GL_FLOAT, 24],
+    //[renaming.aNorm]: [3, GL_FLOAT, 24, 12],
+  },
+  plane(PLATFORM_SIZE),
+);
 
-const uMatrix = getUniform(renaming.uMat);
-const uModel = getUniform(renaming.uModel);
-const uGridPos = getUniform(renaming.uGridPos);
-const uColor = getUniform(renaming.uColor);
-const uLightPos = getUniform(renaming.uLightPos);
+const uSideMatrix = getSideUniform(renaming.uMat);
+const uFaceMatrix = getFaceUniform(renaming.uMat);
+
+const uSideModel = getSideUniform(renaming.uModel);
+const uFaceModel = getFaceUniform(renaming.uModel);
+
+const uSideGridPos = getSideUniform(renaming.uGridPos);
+const uFaceGridPos = getFaceUniform(renaming.uGridPos);
+
+const uSideColor = getSideUniform(renaming.uColor);
+const uFaceColor = getFaceUniform(renaming.uColor);
+
+const uSideLightPos = getSideUniform(renaming.uLightPos);
+const uFaceLightPos = getFaceUniform(renaming.uLightPos);
 
 const draw = drawArrays();
 
@@ -115,6 +133,20 @@ const [step, override] = createSM({
 
 // {{{ Render
 
+const renderPlatformSides = (rows, y) => rows.map((p, x) => {
+  const color = p[0]();
+  uSideColor.u4f(...color);
+  uSideGridPos.u3f(x, 0, y, 1);
+  draw(6 * 5);
+});
+
+const renderPlatformFaces = (rows, y) => rows.map((p, x) => {
+  const color = p[0]();
+  uFaceColor.u4f(...color);
+  uFaceGridPos.u3f(x, 0, y, 1);
+  draw(6);
+});
+
 export const render = (delta, worldMat, paused) => {
   if (resetPlatform) {
     override(INIT);
@@ -124,18 +156,21 @@ export const render = (delta, worldMat, paused) => {
 
   const platformHeight = tweenedPlatformHeight[1]();
   if (platformHeight > 0) {
-    use();
     const localMat = Scale(1, platformHeight, 1);
-    uMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
-    uModel.m4fv(false, localMat);
-    uLightPos.u3f(0.5, 0.7, 1.0);
 
-    PlatformData.map((rows, y) => rows.map((p, x) => {
-      const color = p[0]();
-      uColor.u4f(...color);
-      uGridPos.u3f(x, 0, y, 1);
-      draw(6 * 6);
-    }));
+    useSide();
+    uSideMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
+    uSideModel.m4fv(false, localMat);
+    uSideLightPos.u3f(...LIGHT_POS);
+
+    PlatformData.map(renderPlatformSides);
+
+    useFace();
+    uFaceMatrix.m4fv(false, Multiply(CamMat(), worldMat, localMat));
+    uFaceModel.m4fv(false, localMat);
+    uFaceLightPos.u3f(...LIGHT_POS);
+
+    PlatformData.map(renderPlatformFaces);
   }
 
 }

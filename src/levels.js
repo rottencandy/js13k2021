@@ -4,8 +4,9 @@ import { PLATFORM_CODE, findCode, GAP } from './platform-types';
  * Format: <cols>:(...[<num_platforms>]<platform_code>)
 */
 export const LEVELS = {
-  // level selection scene
+  // main selection scene
   0: '4:ebecbabgebec',
+
   1: '4:4ba2bd',
 };
 
