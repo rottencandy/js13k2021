@@ -5,9 +5,10 @@ import { PLATFORM_CODE, findCode, GAP } from './platform-types';
 */
 export const LEVELS = {
   // main selection scene
-  0: '4:ebecbabgebec',
+  0: '6:ae2bec5bc5bge2bebc',
 
   1: '4:4ba2bd',
+  2: '3:abc2bd',
 };
 
 // Parser {{{

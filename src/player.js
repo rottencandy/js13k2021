@@ -4,7 +4,7 @@ import { createInterp, EASEINELASTIC, EASEINQUINT } from './engine/lerp';
 import { GL_FLOAT } from './engine/gl-constants';
 import { Identity, Multiply, Translate, RotateX, RotateZ, Vec3, V3Add } from './math';
 import { cube, plane } from './shape';
-import { PI, isOdd } from './util';
+import { ABS, PI, isOdd } from './util';
 import { createPipeline, CamMat, drawArrays } from './global-state';
 import { vertex, cubeFragment, faceFragment, renaming } from './player.glslx';
 import { PLATFORM_SIZE, LIGHT_POS } from './globals';
@@ -19,7 +19,7 @@ let baseHeight;
 let tweenedBaseHeight;
 
 // angle of rotation(if cube is currently rotating)
-const tweenedAngle = createInterp(0, PI / 2, 0.4);
+const tweenedAngle = createInterp(0, PI / 2, 0.25);
 // movement direction vector(if cube is currently moving)
 let movementDirection = 0;
 
@@ -92,7 +92,7 @@ const [step, override] = createSM({
       addRotation(Vec3(movementDirection[2], 0, -movementDirection[0]));
       movementDirection = 0;
       tweenedAngle[2]();
-      emitSignal(S_CUBE_MOVE_ENDED, Pos);
+      emitSignal(S_CUBE_MOVE_ENDED, [Pos, isFaceDown()]);
       playCubeMoveSound();
       return IDLE;
     }
@@ -178,7 +178,8 @@ const addRotation = (dir) => {
     }
   }
 };
-// const isFaceDown = () => ABS(stripPos) === 2
+
+const isFaceDown = () => ABS(stripPos) === 2
 
 const getRotationMat = () => {
   if (!movementDirection) {

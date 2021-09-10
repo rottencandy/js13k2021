@@ -115,11 +115,11 @@ const [step, override] = createSM({
   },
   [UPDATE]: (_delta) => {
     // check if cube has moved
-    const p = watchSignal(S_CUBE_MOVE_ENDED);
-    if (p) {
-      const [x, , z] = p;
+    const val = watchSignal(S_CUBE_MOVE_ENDED);
+    if (val) {
+      const [x, , z] = val[0];
       // run onstep handler, providing platform coordinates
-      PlatformData[z][x][1](x, z);
+      PlatformData[z][x][1](x, z, val[1]);
     }
     // end if level is completed
     if (watchSignal(S_LEVEL_SOLVED)) {

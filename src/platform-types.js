@@ -26,7 +26,7 @@ export const PLATFORM_CODE = {
 export const findCode = (val) => Object.keys(PLATFORM_CODE).find(k => PLATFORM_CODE[k] === val);
 
 /** @typedef {() => [R: number, G: number, B: number, A: number]} GetColor */
-/** @typedef {(faceTouched: boolean) => void} OnStep */
+/** @typedef {(x: number, y: number, faceTouched: boolean) => void} OnStep */
 /** @typedef {() => boolean} CanBeStepped */
 
 /**
@@ -40,7 +40,7 @@ export const PLATFORM_DATA = {
     () => 1
   ],
   [STATIC]: () => [
-    () => [.0, .3, .5, 1.],
+    () => [.0, .0, .5, 1.],
     Id,
     () => 1
   ],
@@ -50,17 +50,19 @@ export const PLATFORM_DATA = {
     () => 0
   ],
   [END]: () => [
-    () => [.0, .6, .3, 1.], 
-    () => {
-      emitSignal(S_LEVEL_SOLVED);
-      playLevelEndSound();
+    () => [.0, .7, .2, 1.], 
+    (_x, _y, isFaceDown) => {
+      if (isFaceDown) {
+        emitSignal(S_LEVEL_SOLVED);
+        playLevelEndSound();
+      }
     },
     () => 1
   ],
   [LEVEL_ENTRANCE]: () => [
     () => [.6, .5, .0, 1.],
     (x, y) => {
-      emitSignal(S_LEVEL_SELECTED);
+      emitSignal(S_LEVEL_SELECTED, levelMap[[x, y]]);
       playLevelStartSound();
     },
     () => 1
@@ -71,10 +73,15 @@ export const PLATFORM_DATA = {
     () => 1
   ],
   [EDITOR]: () => [
-    () => [.1, 1., 1., 1.],
+    () => [.1, 1., .1, 1.],
     () => emitSignal(S_LEVEL_EDITOR),
     () => 1
   ],
+};
+
+const levelMap = {
+  [[1, 0]]: 1,
+  [[0, 3]]: 2,
 };
 
 // vim: fdm=marker:et:sw=2:
