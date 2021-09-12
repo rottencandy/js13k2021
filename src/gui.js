@@ -13,7 +13,7 @@ import {
   emitSignal,
   watchSignal
 } from './engine/observer';
-import { createInterp, EASEOUTQUAD } from './engine/lerp';
+import { createInterp, EASEOUTQUAD, EASEINQUINT } from './engine/lerp';
 import { CANVAS2D, GAME_WIDTH, GAME_HEIGHT } from './globals.js';
 import { getById, ABS, PI, SQRT, MAX } from './util';
 
@@ -157,15 +157,15 @@ const hideInput = () => {
 const BASE_FONT = ' Trebuchet, sans-serif';
 const TITLE_FONT = '100 48px' + BASE_FONT;
 const SUB_FONT = '100 26px' + BASE_FONT;
-const SUB_FONT2 = '100 16px' + BASE_FONT;
+const SUB_FONT2 = '100 22px' + BASE_FONT;
 const BOLD_FONT = '26px' + BASE_FONT;
 
 const titleGradient1 = rgba(30, 20, 20, 1);
 const titleGradient2_from = 50;
 const titleGradient2_to = 210;
 const titleTextColor = rgba(0, 0, 0, 1);
-const subtitleTextColor = rgba(20, 20, 20, 1);
 const CONTROLS = 'Controls: ←↑→↓ | WASD | ZQSD | touch & drag';
+const tweenedTutorialText = createInterp(1, 0, 5, EASEINQUINT);
 
 const pauseScrnColor = rgba(180, 200, 200, 1),
   topBtnX = GAME_WIDTH / 2,
@@ -197,7 +197,6 @@ const [step] = createSM({
     fullGradient(titleGradient1, rgba(col, col, col, 1));
     text(GAME_WIDTH / 2, GAME_HEIGHT / 3, titleTextColor, TITLE_FONT, 'UNTITLED SPACE GAME');
     text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, titleTextColor, SUB_FONT, 'START');
-    text(GAME_WIDTH / 2, GAME_HEIGHT - 50, subtitleTextColor, SUB_FONT2, CONTROLS);
 
     if(Keys.space || Keys.clicked) {
       tweenedIntroBG = createInterp(1, 0, 2, EASEOUTQUAD);
@@ -214,11 +213,16 @@ const [step] = createSM({
       return IN_GAME;
     }
   },
-  [IN_GAME]: () => {
+  [IN_GAME]: (dt) => {
     circleBtn(topBtnX, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, 'II');
     inEditor && circleBtn(topBtnX - 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '⦺');
     inEditor && circleBtn(topBtnX + 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '🗸');
     inLevel && circleBtn(topBtnX + 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '↺');
+
+    // tutorial text
+    if (!tweenedTutorialText[0](dt)) {
+      text(GAME_WIDTH / 2, GAME_HEIGHT / 2, rgba(0, 0, 0, tweenedTutorialText[1]()), SUB_FONT2, CONTROLS);
+    }
 
     const isDragging = handleDragDirection();
 
