@@ -66,15 +66,15 @@ export void faceFragment() {
     // circle sdf
   } else if(uFaceType == 1) {
     float circleSDF = length(abs(vFragPos.xz));
-    float multiCircle = fract(circleSDF * 2. - uTime * 0.01);
+    float multiCircle = fract(circleSDF * 2. - uTime * 0.005);
     vec3 color2 = altColor - circleSDF / 4.;
     vec3 result = mix(uColor.xyz, color2, multiCircle);
-    gl_FragColor = vec4(result * fragEdge, uColor.w);
+    gl_FragColor = vec4(result, uColor.w);
 
     // square sdf
   } else {
     float box = boxSDF(vFragPos.xz, vec2(.5, .5));
-    float multiBox = fract(box * 3. - uTime * 0.01);
+    float multiBox = fract(box * 3. - uTime * 0.005);
     vec3 color2 = altColor - box / 3.;
     vec3 result = mix(uColor.xyz, color2, multiBox);
     gl_FragColor = vec4(result * fragEdge, uColor.w);

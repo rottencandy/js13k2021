@@ -54,17 +54,20 @@ export const PLATFORM_DATA = {
     () => 0,
     0,
   ],
-  [END]: () => [
-    () => [.0, .7, .2, 1.], 
+  [END]: () => {
+    const color = [.0, .7, .2, 1.];
+    return [
+    () => color, 
     (_x, _y, isFaceDown) => {
       if (isFaceDown) {
-        emitSignal(S_LEVEL_SOLVED);
+        emitSignal(S_LEVEL_SOLVED, color);
         playLevelEndSound();
       }
     },
     () => 1,
     2,
-  ],
+  ];
+  },
   [LEVEL_ENTRANCE]: (x, y) => {
     const levelCode = levelMap[[x, y]];
     const solved = isLevelSolved(levelCode);

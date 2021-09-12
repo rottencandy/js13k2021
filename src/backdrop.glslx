@@ -1,23 +1,40 @@
-attribute vec2 aPos;
+attribute vec4 aPos;
 
 precision mediump float;
 
+uniform mat4 uMat;
 uniform vec3 uLightPos;
+uniform vec3 uColor;
 uniform float uTime;
 uniform float uAspect;
 
 varying vec2 vFragPos;
 varying vec2 vScale;
 
+float hash21(vec2 p) {
+  return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+//float Circle(vec2 uv, float flare) {
+//  float c = .05 / length(uv);
+//  float rays = max(1. - abs(uv.x * uv.y * 10000.), 0.);
+//  return c + rays;
+//}
+
 export void vertex() {
   vScale = vec2(1., uAspect);
-  gl_Position = vec4(aPos, 1., 1.);
-  vFragPos = aPos;
+  gl_Position = uMat * aPos;
+  vFragPos = ((aPos.xz / 50.) * vScale);
 }
 
 export void colorFragment() {
-  float circleSDF = length(abs(vFragPos * vScale));
-  gl_FragColor = vec4(circleSDF);
+  vec2 uv = vFragPos;
+  //float shadow = distance(uv, vec2(.55, .35)) / .1;
+
+  vec3 col = uColor + uv.x * .4;
+
+  //if (gv.x > .49 || gv.y > .49) col.r = .5;
+  gl_FragColor = vec4(col, 1.);
 }
 
 // vim: fdm=marker:et:sw=2:
