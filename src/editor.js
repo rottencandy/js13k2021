@@ -4,8 +4,8 @@ import { createInterp } from './engine/lerp';
 import { Keys, dirKeysPressed } from './engine/input';
 import { S_EDIT_FINISHED, watchSignal } from './engine/observer';
 import { getInputVector } from './input';
-import { START, GAP, PLATFORM_DATA, nextPlatform } from './platform-types';
-import { Multiply, Translate, Scale, V3Add } from './math';
+import { STATIC, PLATFORM_DATA, nextPlatform } from './platform-types';
+import { Multiply, Scale, V3Add } from './math';
 import { plane } from './shape';
 import { createPipeline, CamMat, drawArrays, repositionCamera } from './global-state';
 import { vertex, faceFragment, selVertex, editorSelectorFragment, renaming } from './editor.glslx';
@@ -17,7 +17,7 @@ import { getById } from './util';
 
 // 2d array<[PLATFORM_DATA, code]>
 // code is used to store backreference of the platform type
-let PlatformData = [[[PLATFORM_DATA[START](), START]]];
+let PlatformData = [[[PLATFORM_DATA[STATIC](), STATIC]]];
 let SelectorPos = [0, 0, 0];
 
 let tweenedSelectorX, tweenedSelectorY;
@@ -62,7 +62,7 @@ const draw = drawArrays();
 // Util {{{
 
 export const resetEditor = () => {
-  PlatformData = [[[PLATFORM_DATA[START](), START]]];
+  PlatformData = [[[PLATFORM_DATA[STATIC](), STATIC]]];
   repositionCamera(2, 2);
   SelectorPos = [0, 0, 0];
 };
@@ -70,17 +70,17 @@ export const resetEditor = () => {
 // If selector is out of bounds, enlarge the platform array
 const recalculatePlatformArrayPos = () => {
   if (SelectorPos[0] >= PlatformData[0].length) {
-    PlatformData.map(rows => rows.push([PLATFORM_DATA[GAP](), GAP]));
+    PlatformData.map(rows => rows.push([PLATFORM_DATA[STATIC](), STATIC]));
   }
   if (SelectorPos[0] < 0) {
-    PlatformData.map(rows => rows.unshift([PLATFORM_DATA[GAP](), GAP]));
+    PlatformData.map(rows => rows.unshift([PLATFORM_DATA[STATIC](), STATIC]));
     SelectorPos[0] = 0;
   }
   if (SelectorPos[2] >= PlatformData.length) {
-    PlatformData.push(PlatformData[0].map(() => [PLATFORM_DATA[GAP](), GAP]));
+    PlatformData.push(PlatformData[0].map(() => [PLATFORM_DATA[STATIC](), STATIC]));
   }
   if (SelectorPos[2] < 0) {
-    PlatformData.unshift(PlatformData[0].map(() => [PLATFORM_DATA[GAP](), GAP]));
+    PlatformData.unshift(PlatformData[0].map(() => [PLATFORM_DATA[STATIC](), STATIC]));
     SelectorPos[2] = 0;
   }
   repositionCamera(PlatformData.length, PlatformData[0].length);

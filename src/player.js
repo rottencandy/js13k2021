@@ -77,7 +77,7 @@ const draw = drawArrays();
 
 // {{{ Update
 
-const [UNRENDERED, START_ANIM, IDLE, MOVING, END_ANIM] = enumArray(5);
+const [OUTSIDE_SCREEN, START_ANIM, IDLE, MOVING, END_ANIM] = enumArray(5);
 
 const [step, override] = createSM({
   [IDLE]: () => {
@@ -87,7 +87,7 @@ const [step, override] = createSM({
       return MOVING;
     }
   },
-  [UNRENDERED]: () => {
+  [OUTSIDE_SCREEN]: () => {
     if (watchSignal(S_LEVEL_STARTED)) {
       tweenedBaseHeight = createInterp(200, PLATFORM_SIZE / 2, 1.2, EASEINELASTIC);
       playCubeFallSound();
@@ -120,7 +120,7 @@ const [step, override] = createSM({
     baseHeight = tweenedBaseHeight[1]();
 
     if (done) {
-      return UNRENDERED;
+      return OUTSIDE_SCREEN;
     }
   }
 });
@@ -132,12 +132,12 @@ const [step, override] = createSM({
 const observeSignals = () => {
   const startPos = watchSignal(S_LEVEL_LOADED);
   if (startPos) {
-    const [pos, isLevel] = startPos;
+    const [pos, isLevel, saveOldPos] = startPos;
     resetCubeState();
-    override(isLevel ? UNRENDERED : IDLE);
+    override(isLevel ? OUTSIDE_SCREEN : IDLE);
+    saveOldPos && saveLastPos();
 
     if (isLevel) {
-      saveLastPos();
       Pos = pos;
     } else {
       Pos = mainAreaPos;
@@ -243,7 +243,7 @@ export const render = (delta, worldMat, t, paused) => {
   observeSignals();
 
   const currentState = step(delta, paused);
-  if (currentState === UNRENDERED) {
+  if (currentState === OUTSIDE_SCREEN) {
     return;
   }
 

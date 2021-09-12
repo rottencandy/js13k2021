@@ -312,6 +312,7 @@ const [step] = createSM({
       emitSignal(S_QUIT_TO_MAIN);
       hideInput();
       inEditor = false;
+      inLevel = false;
       return UNPAUSE_TRANSITION;
     }
   },

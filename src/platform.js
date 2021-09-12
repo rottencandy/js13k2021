@@ -23,9 +23,11 @@ import { PLATFORM_SIZE, LIGHT_POS } from './globals';
 let currentState;
 let PlatformData = [];
 let rawLevelData = [];
-let resetPlatform = false, enableIntroAnim = false;
+// is true when a level is first loaded
+let reloadPlatforms = false,
+  enableIntroAnim = false;
 let tweenedPlatformHeight;
-export const setLevel = (l, isMain) => { rawLevelData = l; resetPlatform = true, enableIntroAnim = !isMain; };
+export const setLevel = (l, isMain) => { rawLevelData = l; reloadPlatforms = true, enableIntroAnim = !isMain; };
 
 // }}}
 
@@ -92,7 +94,7 @@ export const canMoveTo = (curPos, moveDir) => {
 
 // {{{ Update
 
-const [INIT, START_ANIM, END_ANIM, UPDATE] = enumArray(4);
+const [INIT, RESET, START_ANIM, END_ANIM, UPDATE] = enumArray(5);
 const [step, override] = createSM({
   // set load level data and reset player pos
   [INIT]: () => {
@@ -108,7 +110,21 @@ const [step, override] = createSM({
     // skip platform raise animation
     const initHeight = enableIntroAnim ? 0 : 0.5;
     tweenedPlatformHeight = createInterp(initHeight, 0.5, 1);
-    emitSignal(S_LEVEL_LOADED, [startPos, enableIntroAnim]);
+    emitSignal(S_LEVEL_LOADED, [startPos, enableIntroAnim, enableIntroAnim]);
+    return START_ANIM;
+  },
+  [RESET]: () => {
+  let startPos = [0, 0];
+    PlatformData = rawLevelData.map((rows, z) => {
+      const cubeX = rows.indexOf(START);
+      if (cubeX !== -1) {
+        startPos = Vec3(cubeX, 0, z);
+      }
+      return rows.map((v, x) => PLATFORM_DATA[v](x, z));
+    });
+
+    tweenedPlatformHeight = createInterp(.0, .5, 1);
+    emitSignal(S_LEVEL_LOADED, [startPos, 1, 0]);
     return START_ANIM;
   },
 
@@ -162,9 +178,12 @@ const renderPlatformFaces = (rows, y) => rows.map((p, x) => {
 });
 
 export const render = (delta, worldMat, t, paused) => {
-  if (resetPlatform || watchSignal(S_LEVEL_RESET)) {
+  if (reloadPlatforms) {
     override(INIT);
-    resetPlatform = false;
+    reloadPlatforms = false;
+  }
+  if (watchSignal(S_LEVEL_RESET)) {
+    override(RESET);
   }
   currentState = step(delta, paused);
 

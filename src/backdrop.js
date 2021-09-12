@@ -55,14 +55,14 @@ const observeSignals = () => {
 
 // {{{ Render
 
-const mat = Multiply(Scale(25, 1, 15), Translate(-20, -51, -20));
+const mat = Multiply(Scale(40, 1, 25), Translate(-20, -51, -20));
 
 export const render = (dt, t) => {
   observeSignals();
 
   const doner = twR[0](dt);
-  const doneg = twR[0](dt);
-  const doneb = twR[0](dt);
+  const doneg = twG[0](dt);
+  const doneb = twB[0](dt);
   if (!(doner && doneg && doneb)) {
     color = [twR[1](), twG[1](), twB[1]()];
   }

@@ -77,7 +77,7 @@ export void faceFragment() {
     float multiBox = fract(box * 3. - uTime * 0.005);
     vec3 color2 = altColor - box / 3.;
     vec3 result = mix(uColor.xyz, color2, multiBox);
-    gl_FragColor = vec4(result * fragEdge, uColor.w);
+    gl_FragColor = vec4(result, uColor.w);
   }
 }
 
