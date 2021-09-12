@@ -46,6 +46,7 @@ const observeSignals = () => {
   if(watchSignal(S_QUIT_TO_MAIN)) {
     activeScene = updateScene;
     loadLevel(LEVELS[0], 1);
+    setFace([1., .0, .0], 0);
   }
   if(watchSignal(S_LEVEL_END_ANIM_PLAYED)) {
     if (activeLevel === -1) {
