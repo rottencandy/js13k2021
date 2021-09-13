@@ -17,6 +17,14 @@ export const
   PLATFORM_SIZE = 50,
   LIGHT_POS = [.6, .9, .5],
   /** Set Canvas element */
-  setCanvas = (ele) => CANVAS = ele;
+  setCanvas = (ele) => CANVAS = ele,
+  FaceColorMap = {
+    // Main face color
+    0: [.2, .7, .4, 1],
+    // solved platform color
+    1: [.4, .2, .1, 1],
+
+    2: [.3, .6, .8, 1],
+  };
 
 // vim: fdm=marker:et:sw=2:

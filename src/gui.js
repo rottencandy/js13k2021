@@ -160,24 +160,24 @@ const SUB_FONT = '100 26px' + BASE_FONT;
 const SUB_FONT2 = '100 22px' + BASE_FONT;
 const BOLD_FONT = '26px' + BASE_FONT;
 
-const titleGradient1 = rgba(30, 20, 20, 1);
-const titleGradient2_from = 50;
-const titleGradient2_to = 210;
+const titleGradient1 = rgba(40, 50, 60, 1);
+const titleGradient2_from = 60;
+const titleGradient2_to = 220;
 const titleTextColor = rgba(0, 0, 0, 1);
 const CONTROLS = 'Controls: ←↑→↓ | WASD | ZQSD | touch & drag';
 const tweenedTutorialText = createInterp(1, 0, 5, EASEINQUINT);
 
-const pauseScrnColor = rgba(180, 200, 200, 1),
+const pauseScrnColor = rgba(30, 40, 40, 1),
   topBtnX = GAME_WIDTH / 2,
   topBtnY = 50,
   btnSize = 25,
   midBtnX = GAME_WIDTH / 2,
   midBtnY = GAME_HEIGHT / 2,
-  btnTextColor = rgba(50, 50, 50, 1);
+  btnTextColor = rgba(160, 180, 180, 1);
 
-const indicatorColor = rgba(190, 200, 200, 0.7);
+const indicatorColor = rgba(255, 255, 255, 0.7);
 const indicatorSize = 60;
-const levelTransitionColor = rgba(200, 190, 200, 1);
+const levelTransitionColor = rgba(70, 90, 90, 1);
 
 let inEditor = false;
 let inLevel = false;
@@ -215,7 +215,7 @@ const [step] = createSM({
   },
   [IN_GAME]: (dt) => {
     circleBtn(topBtnX, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, 'II');
-    inEditor && circleBtn(topBtnX - 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '⦺');
+    //inEditor && circleBtn(topBtnX - 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '⦺');
     inEditor && circleBtn(topBtnX + 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '🗸');
     inLevel && circleBtn(topBtnX + 90, topBtnY, btnSize, pauseScrnColor, btnTextColor, BOLD_FONT, '↺');
 
@@ -245,13 +245,13 @@ const [step] = createSM({
         return PAUSE_TRANSITION;
       }
       // cycle platform
-      if (!isDragging && isCircleClicked(topBtnX - 90, topBtnY, btnSize)) {
-        // NOTE: setting state directly like this causes flickering after delay
-        // but it's fine as there is a good amount of delay
-        Keys.space = 1;
-      } else {
-        Keys.space = 0;
-      }
+      //if (!isDragging && isCircleClicked(topBtnX - 90, topBtnY, btnSize)) {
+      //  // NOTE: setting state directly like this causes flickering after delay
+      //  // but it's fine as there is a good amount of delay
+      //  Keys.space = 1;
+      //} else {
+      //  Keys.space = 0;
+      //}
     }
 
     if (watchSignal(S_LEVEL_ENDED) || watchSignal(S_LEVEL_SELECTED) || watchSignal(S_LEVEL_EDITOR)) {

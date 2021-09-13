@@ -10,13 +10,13 @@ import { vertex, colorFragment, renaming } from './backdrop.glslx';
 
 // {{{ Init
 
-let color = i2rgb(.101010);
+let color = i2rgb(.505040);
 // tweened rgb values
 // This was done in the last minute
 // and there are most certainly better ways to do this
-let twR = createInterp(0, .1, 1),
-twG = createInterp(0, .1, 1),
-twB = createInterp(0, .1, 1);
+let twR = createInterp(0, .50, 1),
+twG = createInterp(0, .50, 1),
+twB = createInterp(0, .40, 1);
 
 // }}}
 
@@ -41,7 +41,7 @@ const draw = drawArrays();
 
 const observeSignals = () => {
   if (watchSignal(S_LEVEL_END_ANIM_PLAYED)) {
-    color = i2rgb(.101010);
+    color = i2rgb(.505040);
   }
   if (watchSignal(S_LEVEL_SOLVED)) {
     const [r, g, b] = watchSignal(S_LEVEL_SOLVED);

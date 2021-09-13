@@ -21,6 +21,7 @@ let paused = 1, activeLevel = 0, activeScene = updateScene;
 // load hub level as non-main level for the first time,
 // so that anims are triggered
 loadLevel(LEVELS[activeLevel]);
+setFace(0);
 
 // Signals {{{
 
@@ -46,7 +47,6 @@ const observeSignals = () => {
   if(watchSignal(S_QUIT_TO_MAIN)) {
     activeScene = updateScene;
     loadLevel(LEVELS[0], 1);
-    setFace([1., .0, .0], 0);
   }
   if(watchSignal(S_LEVEL_END_ANIM_PLAYED)) {
     if (activeLevel === -1) {
@@ -56,11 +56,6 @@ const observeSignals = () => {
     } else {
       activeScene = updateScene;
       loadLevel(LEVELS[activeLevel], activeLevel === 0);
-      if (activeLevel === 0) {
-        setFace([1., .0, .0], 0);
-      } else {
-        setFace([.1, .5, .4], 1);
-      }
     }
   }
 }

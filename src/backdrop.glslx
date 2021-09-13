@@ -15,12 +15,6 @@ float hash21(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-//float Circle(vec2 uv, float flare) {
-//  float c = .05 / length(uv);
-//  float rays = max(1. - abs(uv.x * uv.y * 10000.), 0.);
-//  return c + rays;
-//}
-
 export void vertex() {
   vScale = vec2(1., uAspect);
   gl_Position = uMat * aPos;
@@ -28,10 +22,11 @@ export void vertex() {
 }
 
 export void colorFragment() {
-  vec2 uv = vFragPos;
+  vec2 uv = vFragPos, gv = fract(uv * 12.);
   //float shadow = distance(uv, vec2(.55, .35)) / .1;
+  float circle = step(distance(gv, vec2(.5)), .6);
 
-  vec3 col = uColor + uv.x * .4;
+  vec3 col = uColor * circle + uv.x * .4;
 
   //if (gv.x > .49 || gv.y > .49) col.r = .5;
   gl_FragColor = vec4(col, 1.);

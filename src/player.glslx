@@ -13,7 +13,7 @@ uniform int uFaceType;
 varying vec3 vNormal;
 varying vec3 vFragPos;
 
-const vec3 OBJ_COLOR = vec3(1.0, 0.0, 0.0);
+const vec3 OBJ_COLOR = vec3(.70, .62, .82);
 // ambient light intensity
 const vec3 AMBIENT = vec3(0.3);
 
@@ -57,7 +57,7 @@ export void faceFragment() {
   } else {
     float box = boxSDF(vFragPos.xz, vec2(.3, .3));
     float multiBox = fract(box * 2. + uTime * 0.01);
-    vec3 color2 = OBJ_COLOR - box / 4.;
+    vec3 color2 = vec3(1.) - box / 4.;
     vec3 result = mix(uColor.xyz, color2, multiBox);
     gl_FragColor = vec4(result, 1.);
   }
