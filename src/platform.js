@@ -25,9 +25,9 @@ let PlatformData = [];
 let rawLevelData = [];
 // is true when a level is first loaded
 let reloadPlatforms = false,
-  enableIntroAnim = false;
+  enableIntroAnim = false, cubeFaceCode;
 let tweenedPlatformHeight;
-export const setLevel = (l, isMain) => { rawLevelData = l; reloadPlatforms = true, enableIntroAnim = !isMain; };
+export const setLevel = (l, isMain, cubeFace) => { rawLevelData = l; reloadPlatforms = true, enableIntroAnim = !isMain; cubeFaceCode = cubeFace; };
 
 // }}}
 
@@ -124,7 +124,7 @@ const [step, override] = createSM({
     });
 
     tweenedPlatformHeight = createInterp(.0, .5, 1);
-    emitSignal(S_LEVEL_LOADED, [startPos, 1, 0]);
+    emitSignal(S_LEVEL_LOADED, [startPos, 1, 0, cubeFaceCode]);
     return START_ANIM;
   },
 

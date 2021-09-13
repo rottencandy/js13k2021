@@ -142,10 +142,14 @@ const [step, override] = createSM({
 const observeSignals = () => {
   const startPos = watchSignal(S_LEVEL_LOADED);
   if (startPos) {
-    const [pos, isLevel, saveOldPos] = startPos;
+    const [pos, isLevel, saveOldPos, faceCode] = startPos;
     resetCubeState();
     override(isLevel ? OUTSIDE_SCREEN : IDLE);
     saveOldPos && saveLastPos();
+    if (faceCode) {
+      faceColor = FaceColorMap[faceCode];
+      faceColorCode = faceCode;
+    }
 
     if (isLevel) {
       Pos = pos;
