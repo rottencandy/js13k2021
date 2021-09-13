@@ -9,7 +9,7 @@ export const LEVELS = {
 
   1: '7:4c4b2c2bd9ba12b3c4b:0',
   2: '5:b2cbc4bcb2cbca3bcb2cbd:0',
-  3: '6:a2c4bc2bc5bcd',
+  3: '6:a2c4bc2bc5bcd:0',
   4: '5:cbcbd6bcbc2ba3bbcbcb:0',
   5: '5:2b2c2ba3bc2bcdcbc2b:0',
   6: '5:3bdcbhb3cba2b2cbh3c2bc:0',
