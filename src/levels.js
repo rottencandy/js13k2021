@@ -5,7 +5,7 @@ import { PLATFORM_CODE, findCode, GAP } from './platform-types';
 */
 export const LEVELS = {
   // main selection scene
-  0: '11:bebec2ebcbea3bc3bf2bg3bf2becebebebce2bcebcf4cf3cf2bcebcbec2bebc2bc2bce3b2c3bce2be3bf2bcebebebecebf3b',
+  0: '11:bebecbebcbea3bc3bf6bf2bec2bebebce2bcebc5cf3cf6cbec2b5cc2bce3b2c3bce7c2bc2be4bcebf3b',
 
   1: '7:4c4b2c2bd9ba12b3c4b',
   2: '5:b2cbc4bcb2cbca3bcb2cbd',
@@ -18,7 +18,9 @@ export const LEVELS = {
   9: '4:2cdb3cia3b3cb2cjb',
   10: '4:cid2cb3chjb3chahjhb3c',
   11: '6:cjb3ca3bicbcbcbd',
-  12: '1:a',
+  12: '6:c2bjb2cbchb2c2b3cba3bdib4c',
+  13: '7:5b2cjb2cbcbabib2cbhbcjcbd3cbi2b',
+  14: '5:bckbc5bcabd3cb2c:2',
 };
 
 // Parser {{{

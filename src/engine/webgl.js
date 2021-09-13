@@ -120,12 +120,12 @@ const createShaderProgram = (gl) => (vShader, fShader) => {
   gl.linkProgram(prg);
 
   // TODO: remove before final release
-  if (!gl.getProgramParameter(prg, GL_LINK_STATUS)) {
-    console.error('Link failed: ', gl.getProgramInfoLog(prg));
-    console.error('vs info-log: ', gl.getShaderInfoLog(vShader));
-    console.error('fs info-log: ', gl.getShaderInfoLog(fShader));
-    return null;
-  }
+  //if (!gl.getProgramParameter(prg, GL_LINK_STATUS)) {
+  //  console.error('Link failed: ', gl.getProgramInfoLog(prg));
+  //  console.error('vs info-log: ', gl.getShaderInfoLog(vShader));
+  //  console.error('fs info-log: ', gl.getShaderInfoLog(fShader));
+  //  return null;
+  //}
 
   return [
     useProgram(gl)(prg),

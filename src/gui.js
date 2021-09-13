@@ -195,7 +195,7 @@ const [step] = createSM({
     tweenedIntroBG[0](delta);
     const col = tweenedIntroBG[1]();
     fullGradient(titleGradient1, rgba(col, col, col, 1));
-    text(GAME_WIDTH / 2, GAME_HEIGHT / 3, titleTextColor, TITLE_FONT, 'UNTITLED SPACE GAME');
+    text(GAME_WIDTH / 2, GAME_HEIGHT / 3, titleTextColor, TITLE_FONT, 'SPACE REFUEL SERVICE');
     text(GAME_WIDTH / 2, 2 * GAME_HEIGHT / 3, titleTextColor, SUB_FONT, 'START');
 
     if(Keys.space || Keys.clicked) {

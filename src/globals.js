@@ -5,8 +5,8 @@ export let CANVAS = getById('b');
 /** @type {HTMLCanvasElement} */
 export let CANVAS2D = getById('c');
 export const
-  GAME_WIDTH = 640,
-  GAME_HEIGHT = 360,
+  GAME_WIDTH = 1280,
+  GAME_HEIGHT = 720,
   ASPECT = GAME_HEIGHT / GAME_WIDTH,
   FOV = 1.047,
   ZNEAR = 1,
@@ -25,6 +25,7 @@ export const
     1: [.4, .2, .1, 1],
 
     2: [.3, .6, .8, 1],
+    3: [.8, .6, .4, 1],
   };
 
 // vim: fdm=marker:et:sw=2:
