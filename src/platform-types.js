@@ -8,10 +8,12 @@ import {
 import { Id } from './util';
 import { playLevelStartSound, playLevelEndSound, playInvalidMoveSound } from './sound';
 import { isLevelSolved, completedLevelsCount } from './local-storage';
+import { FaceColorMap } from './globals';
+import { getFace, setFace } from './player';
 
 // platform types
-const len = 8;
-export const [START, STATIC, GAP, END, SINGLE_STEP, LEVEL_ENTRANCE, LEVEL_GATE, EDITOR] = enumArray(len);
+const len = 11;
+export const [START, STATIC, GAP, END, SINGLE_STEP, LEVEL_ENTRANCE, GATE, KEY, SWAP, LEVEL_GATE, EDITOR] = enumArray(len);
 export const nextPlatform = (i) => ++i >= len-1 ? 0 : i;
 
 export const PLATFORM_CODE = {
@@ -23,9 +25,14 @@ export const PLATFORM_CODE = {
   f: LEVEL_GATE,
   g: EDITOR,
   h: SINGLE_STEP,
+  i: GATE,
+  j: KEY,
+  k: SWAP,
 };
 
 export const findCode = (val) => Object.keys(PLATFORM_CODE).find(k => PLATFORM_CODE[k] === val);
+
+let gatesLocked = 1;
 
 /** @typedef {() => [R: number, G: number, B: number, A: number]} GetColor */
 /** @typedef {(x: number, y: number, faceTouched: boolean) => void} OnStep */
@@ -38,13 +45,14 @@ export const findCode = (val) => Object.keys(PLATFORM_CODE).find(k => PLATFORM_C
  */
 export const PLATFORM_DATA = {
   [START]: () => [
-    () => [.5, .7, .6, 1.],
+    // TODO: make this the same as static
+    () => [.1, .3, .5, 1.],
     Id,
     () => 1,
     0,
   ],
   [STATIC]: () => [
-    () => [.0, .0, .5, 1.],
+    () => [.4, .6, .5, 1.],
     Id,
     () => 1,
     0,
@@ -55,26 +63,10 @@ export const PLATFORM_DATA = {
     () => 0,
     0,
   ],
-  [END]: () => {
-    const color = [.0, .7, .2, 1.];
-    return [
-    () => color, 
-    (_x, _y, isFaceDown) => {
-      if (isFaceDown) {
-        emitSignal(S_LEVEL_SOLVED, color);
-        playLevelEndSound();
-      } else {
-        playInvalidMoveSound();
-      }
-    },
-    () => 1,
-    2,
-  ];
-  },
   [LEVEL_ENTRANCE]: (x, y) => {
     const levelCode = levelMap[[x, y]];
     const solved = isLevelSolved(levelCode);
-    const color = solved ? [.6, .5, .0, 1.] : [.6, .5, .5, 1.];
+    const color = solved ? FaceColorMap[0] : FaceColorMap[1];
     return [
     () => color,
     () => {
@@ -85,11 +77,27 @@ export const PLATFORM_DATA = {
     1,
   ];
   },
+  [END]: () => {
+    const color = FaceColorMap[0];
+    return [
+    () => color, 
+    (_x, _y, isFaceDown) => {
+      if (isFaceDown && getFace() === 0) {
+        emitSignal(S_LEVEL_SOLVED, color);
+        playLevelEndSound();
+      } else {
+        playInvalidMoveSound();
+      }
+    },
+    () => 1,
+    2,
+  ];
+  },
   [LEVEL_GATE]: (x, y) => {
     const open = completedLevelsCount() > gateMap[[x, y]];
-    const alpha = open ? 1 : .1;
+    const alpha = open ? 1 : .3;
     return [
-    () => [1, 1, 1, alpha],
+    () => [.1, .3, .3, alpha],
     Id,
     () => open,
     0,
@@ -98,19 +106,51 @@ export const PLATFORM_DATA = {
   [SINGLE_STEP]: () => {
     let stepped = 0, alpha = 1;
     return [
-      () => [1, 0, 0, alpha],
+      () => [.7, .5, .3, alpha],
       () => (stepped = 1, alpha = .3),
       () => !stepped,
       0,
     ];
   },
+  [GATE]: () => {
+    gatesLocked = 1;
+    alpha = .3;
+    return [
+      () => [.3, .6, .7, alpha],
+      Id,
+      () => gatesLocked,
+    ]
+  },
+  [KEY]: () => [
+    () => [.2, .5, .6, 1],
+    () => (gatesLocked = 0),
+    () => 1,
+    1,
+  ],
+  [SWAP]: () => {
+    let activeCol = 2, col = FaceColorMap[activeCol];
+
+    return [
+      () => col,
+      () => {
+        const temp = getFace();
+        setFace(1, activeCol);
+        activeCol = temp;
+        col = FaceColorMap[activeCol];
+      },
+      () => 1,
+      1,
+    ];
+  },
   [EDITOR]: () => [
-    () => [.1, 1., .1, 1.],
+    () => [1, 1, 1, 1],
     () => emitSignal(S_LEVEL_EDITOR),
     () => 1,
     0,
   ],
 };
+
+// Maps {{{
 
 const levelMap = {
   [[1, 0]]: 1,
@@ -154,5 +194,7 @@ const gateMap = {
   [[4, 8]]: 17,
   [[1, 4]]: 17,
 };
+
+// }}}
 
 // vim: fdm=marker:et:sw=2:

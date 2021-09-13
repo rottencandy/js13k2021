@@ -15,7 +15,7 @@ import { cube, plane } from './shape';
 import { ABS, PI, isOdd } from './util';
 import { createPipeline, CamMat, drawArrays } from './global-state';
 import { vertex, cubeFragment, faceFragment, renaming } from './player.glslx';
-import { PLATFORM_SIZE, LIGHT_POS } from './globals';
+import { PLATFORM_SIZE, LIGHT_POS, FaceColorMap } from './globals';
 import { playCubeMoveSound, playCubeFallSound } from './sound';
 
 // {{{ Init
@@ -24,8 +24,10 @@ export let Pos = Vec3(0, 0, 0);
 let mainAreaPos = [0, 0, 0];
 export const saveLastPos = () => mainAreaPos = [Pos[0], Pos[1], Pos[2]];
 let baseHeight;
-let faceColor = [1., .0, .0];
+const baseColor = [.70, .62, .82];
+let faceColor = baseColor;
 let faceType = 0;
+let faceColorCode;
 
 // angle of rotation(if cube is currently rotating)
 const tweenedAngle = createInterp(0, PI / 2, 0.25);
@@ -34,8 +36,16 @@ let movementDirection = 0;
 // cube y pos for intro anim
 let tweenedBaseHeight;
 
-export const setFace = (color, type) => (faceColor = color, faceType = type);
-export const getFace = () => faceColor;
+export const setFace = (type, color) => {
+  if (type === 0) {
+    faceColor = baseColor;
+  } else {
+    faceColor = FaceColorMap[color];
+    faceColorCode = color;
+  }
+  faceType = type;
+};
+export const getFace = () => faceColorCode;
 
 // }}}
 
