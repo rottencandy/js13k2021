@@ -5,16 +5,16 @@ import { PLATFORM_CODE, findCode, GAP } from './platform-types';
 */
 export const LEVELS = {
   // main selection scene
-  0: '11:bebec2ebcbea3bc3bf2bg3bf2becebebebce2bcebcf4cf3cf2bcebcbec2bebc2bc2bce3b2c3bce2be3bf2bcebebebecebf3b',
+  0: '11:bebec2ebcbea3bc3bf2bg3bf2becebebebce2bcebcf4cf3cf2bcebcbec2bebc2bc2bce3b2c3bce2be3bf2bcebebebecebf3b:0',
 
-  1: '7:4c4b2c2bd9ba12b3c4b',
-  2: '5:b2cbc4bcb2cbca3bcb2cbd',
+  1: '7:4c4b2c2bd9ba12b3c4b:0',
+  2: '5:b2cbc4bcb2cbca3bcb2cbd:0',
   3: '6:a2c4bc2bc5bcd',
-  4: '5:cbcbd6bcbc2ba3bbcbcb',
-  5: '5:2b2c2ba3bc2bcdcbc2b',
-  6: '5:3bdcbhb3cba2b2cbh3c2bc',
-  7: '4:2cbd2chca2bh2c2b2chb',
-  8: '6:c3bhb2cb2cbda4b2cbhcb',
+  4: '5:cbcbd6bcbc2ba3bbcbcb:0',
+  5: '5:2b2c2ba3bc2bcdcbc2b:0',
+  6: '5:3bdcbhb3cba2b2cbh3c2bc:0',
+  7: '4:2cbd2chca2bh2c2b2chb:0',
+  8: '6:c3bhb2cb2cbda4b2cbhcb:0',
   9: '1:a',
   10: '1:a',
 };
@@ -22,8 +22,9 @@ export const LEVELS = {
 // Parser {{{
 
 export const parseLevel = (data) => {
-  const [rowstr, platforms] = data.split(':');
+  const [rowstr, platforms, cubeFaceCode] = data.split(':');
   const rows = parseFloat(rowstr);
+  const faceCode = parseFloat(cubeFaceCode);
 
   // stores 1d array of all the decoded platforms
   const flatLevel = [];
@@ -60,7 +61,7 @@ export const parseLevel = (data) => {
     }
   });
 
-  return finalLevel;
+  return [finalLevel, faceCode];
 };
 
 // }}}

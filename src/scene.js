@@ -4,7 +4,7 @@ import { getInputVector } from './input';
 import { SIN, COS } from './util';
 import { Translate } from './math';
 import { parseLevel } from './levels';
-import { render as renderPlayer, Pos as playerPos } from './player';
+import { render as renderPlayer, Pos as playerPos, setFace } from './player';
 import { render as renderPlatform, setLevel, canMoveTo } from './platform';
 import { render as renderBackdrop } from './backdrop';
 import { playInvalidMoveSound } from './sound';
@@ -12,10 +12,16 @@ import { playInvalidMoveSound } from './sound';
 // Utils {{{
 
 export const loadLevel = (data, isMain = false) => {
-  const levelData = parseLevel(data);
-  setLevel(levelData, isMain);
+  const [levelData, faceCode] = parseLevel(data);
+  setLevel(levelData, isMain, faceCode);
 
   repositionCamera(levelData.length, levelData[0].length);
+
+  if (isMain) {
+    setFace(0);
+  } else {
+    setFace(1, faceCode);
+  }
 };
 
 // }}}
