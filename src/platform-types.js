@@ -11,9 +11,24 @@ import { isLevelSolved, completedLevelsCount } from './local-storage';
 import { FaceColorMap } from './globals';
 import { getFace, setFace } from './player';
 
-// platform types
+// platform types {{{
+
 const len = 11;
-export const [START, STATIC, GAP, END, SINGLE_STEP, LEVEL_ENTRANCE, GATE, KEY, SWAP, LEVEL_GATE, EDITOR] = enumArray(len);
+
+export const [
+  START,
+  STATIC,
+  GAP,
+  END,
+  SINGLE_STEP,
+  LEVEL_ENTRANCE,
+  GATE,
+  KEY,
+  SWAP,
+  LEVEL_GATE,
+  EDITOR,
+] = enumArray(len);
+
 export const nextPlatform = (i) => ++i >= len-1 ? 0 : i;
 
 export const PLATFORM_CODE = {
@@ -31,6 +46,10 @@ export const PLATFORM_CODE = {
 };
 
 export const findCode = (val) => Object.keys(PLATFORM_CODE).find(k => PLATFORM_CODE[k] === val);
+
+// }}}
+
+// Platform logic {{{
 
 let gatesLocked = 1;
 
@@ -114,29 +133,30 @@ export const PLATFORM_DATA = {
   },
   [GATE]: () => {
     gatesLocked = 1;
-    alpha = .3;
     return [
-      () => [.3, .6, .7, alpha],
+      () => [.3, .6, .7, gatesLocked ? .3 : 1],
       Id,
-      () => gatesLocked,
+      () => !gatesLocked,
+      0,
     ]
   },
   [KEY]: () => [
-    () => [.2, .5, .6, 1],
-    () => (gatesLocked = 0),
+    () => [.2, .2, .2, 1],
+    (_x, _y, isFaceDown) => isFaceDown ? (gatesLocked = !gatesLocked) : playInvalidMoveSound(),
     () => 1,
     1,
   ],
   [SWAP]: () => {
     let activeCol = 2, col = FaceColorMap[activeCol];
-
     return [
       () => col,
       () => {
-        const temp = getFace();
-        setFace(1, activeCol);
-        activeCol = temp;
-        col = FaceColorMap[activeCol];
+        if (getFace() ===0) {
+          const temp = getFace();
+          setFace(1, activeCol);
+          activeCol = temp;
+          col = FaceColorMap[activeCol];
+        }
       },
       () => 1,
       1,
@@ -149,6 +169,8 @@ export const PLATFORM_DATA = {
     0,
   ],
 };
+
+// }}}
 
 // Maps {{{
 
