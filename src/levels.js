@@ -5,7 +5,7 @@ import { PLATFORM_CODE, findCode, GAP } from './platform-types';
 */
 export const LEVELS = {
   // main selection scene
-  0: '11:bebecbebcbea3bc3bf6bf2bec2bebebce2bcebc5cf3cf6cbec2b5cc2bce3b2c3bce7c2bc2be4bcebf3b',
+  0: '11:bebecbebcbea3bc3bf6bf2bec2bebebce2bcebc5cf3cf6cbec2b5cc2bce3b2c3bce2b5c2bc2be4bcebf3b',
 
   1: '7:4c4b2c2bd9ba12b3c4b',
   2: '5:b2cbc4bcb2cbca3bcb2cbd',
