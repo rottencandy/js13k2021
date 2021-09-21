@@ -98,7 +98,7 @@ Inp.onclick = () => {
   document.execCommand('copy');
 };
 const setAndShowInput = (data) => {
-  Inp.readonly = true;
+  Inp.readonly = 1;
   Inp.value = data;
   Inp.style.display = 'block';
 };

@@ -2,12 +2,12 @@ import { Keys, dirKeysPressed } from './engine/input';
 import { Vec3 } from './math';
 
 const [UP, DOWN, LEFT, RIGHT] = [Vec3(0, 0, -1), Vec3(0, 0, 1), Vec3(-1, 0, 0), Vec3(1, 0, 0)];
-let isAlreadyPressed = false;
+let isAlreadyPressed = 0;
 
 export const getInputVector = () => {
   if (isAlreadyPressed) {
     if (!dirKeysPressed()) {
-      isAlreadyPressed = false;
+      isAlreadyPressed = 0;
     }
     return;
   }
@@ -25,7 +25,7 @@ export const getInputVector = () => {
     if(Keys.right) {
       moveDir = RIGHT;
     }
-    isAlreadyPressed = true;
+    isAlreadyPressed = 1;
     return moveDir;
   }
 };

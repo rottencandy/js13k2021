@@ -2,16 +2,15 @@ import { S_CUBE_MOVE_STARTED, emitSignal, watchSignal } from './engine/observer'
 import { CamMove, repositionCamera } from './global-state';
 import { getInputVector } from './input';
 import { SIN, COS } from './util';
-import { Translate } from './math';
 import { parseLevel } from './levels';
 import { render as renderPlayer, Pos as playerPos, setFace } from './player';
 import { render as renderPlatform, setLevel, canMoveTo } from './platform';
-import { render as renderBackdrop } from './backdrop';
+//import { render as renderBackdrop } from './backdrop';
 import { playInvalidMoveSound } from './sound';
 
 // Utils {{{
 
-export const loadLevel = (data, isMain = false) => {
+export const loadLevel = (data, isMain = 0) => {
   const [levelData, faceCode] = parseLevel(data);
   setLevel(levelData, isMain, faceCode);
 
@@ -27,8 +26,6 @@ export const loadLevel = (data, isMain = false) => {
 // }}}
 
 // Loop {{{
-
-let worldMat = Translate(10, 0, 10), t = 0;
 
 export const updateScene = (delta, paused) => {
 
@@ -50,9 +47,9 @@ export const updateScene = (delta, paused) => {
   CamMove(SIN(speed) / amt, COS(speed * 2) / amt, 0);
   // }}}
 
-  renderBackdrop(delta, t, paused);
-  renderPlayer(delta, worldMat, t, paused);
-  renderPlatform(delta, worldMat, t, paused);
+  //renderBackdrop(delta, t, paused);
+  renderPlayer(delta, t, paused);
+  renderPlatform(delta, t, paused);
 
   t++;
 }

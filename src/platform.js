@@ -24,10 +24,10 @@ let currentState;
 let PlatformData = [];
 let rawLevelData = [];
 // is true when a level is first loaded
-let reloadPlatforms = false,
-  enableIntroAnim = false, cubeFaceCode;
+let reloadPlatforms = 0,
+  enableIntroAnim = 0, cubeFaceCode;
 let tweenedPlatformHeight;
-export const setLevel = (l, isMain, cubeFace) => { rawLevelData = l; reloadPlatforms = true, enableIntroAnim = !isMain; cubeFaceCode = cubeFace; };
+export const setLevel = (l, isMain, cubeFace) => { rawLevelData = l; reloadPlatforms = 1, enableIntroAnim = !isMain; cubeFaceCode = cubeFace; };
 
 // }}}
 
@@ -79,12 +79,12 @@ const draw = drawArrays();
 export const canMoveTo = (curPos, moveDir) => {
   // make player unresponsive if scene is animating
   if(currentState === START_ANIM) {
-    return false;
+    return 0;
   }
   const [x, , z] = V3Add(curPos, moveDir);
   // usual out of grid bounds check
   if (x < 0 || z < 0 || x >= PlatformData[0].length || z >= PlatformData.length) {
-    return false;
+    return 0;
   }
   // check if tile can be stepped on
   return PlatformData[z][x][2]();
@@ -177,10 +177,10 @@ const renderPlatformFaces = (rows, y) => rows.map((p, x) => {
   draw(6);
 });
 
-export const render = (delta, worldMat, t, paused) => {
+export const render = (delta, t, paused) => {
   if (reloadPlatforms) {
     override(INIT);
-    reloadPlatforms = false;
+    reloadPlatforms = 0;
   }
   if (watchSignal(S_LEVEL_RESET)) {
     override(RESET);
@@ -190,7 +190,7 @@ export const render = (delta, worldMat, t, paused) => {
   const platformHeight = tweenedPlatformHeight[1]();
   if (platformHeight > 0) {
     const localMat = Scale(1, platformHeight, 1);
-    const transformMat = Multiply(CamMat(), worldMat, localMat);
+    const transformMat = Multiply(CamMat(), localMat);
 
     useSide();
     uSideMatrix.m4fv(false, transformMat);

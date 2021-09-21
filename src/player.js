@@ -168,7 +168,7 @@ const observeSignals = () => {
 
 // Cube rotations {{{
 
-let inXStrip = true;
+let inXStrip = !0;
 // 0 -> 3 (4 vals)
 let stripPos = 0;
 // matrix that keeps track of all past rotations
@@ -176,7 +176,7 @@ let rotationStack = Identity();
 
 const resetCubeState = () => {
   rotationStack = Identity();
-  inXStrip = true;
+  inXStrip = !0;
   stripPos = 0;
   baseHeight = PLATFORM_SIZE / 2;
 };
@@ -253,7 +253,7 @@ const getRotationMat = () => {
 // {{{ Render
 
 // align face with the cube
-export const render = (delta, worldMat, t, paused) => {
+export const render = (delta, t, paused) => {
   observeSignals();
 
   const currentState = step(delta, paused);
@@ -262,7 +262,7 @@ export const render = (delta, worldMat, t, paused) => {
   }
 
   const localMat = Multiply(Translate(Pos[0] * PLATFORM_SIZE, baseHeight, Pos[2] * PLATFORM_SIZE), getRotationMat());
-  const modelViewMat = Multiply(CamMat(), worldMat, localMat);
+  const modelViewMat = Multiply(CamMat(), localMat);
   //inverse transpose is required to fix normals when transformations are done
   //const inverseMVMat = Transpose(Inverse(modelViewMat));
 

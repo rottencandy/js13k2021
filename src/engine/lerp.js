@@ -32,13 +32,13 @@ export const createInterp = (from, to, duration, func = LINEAR) => {
     // check if interpolation is done
     if (t >= duration) {
       value = to;
-      return true;
+      return !0;
 
       // convert t into range 0 -> 1 and get interpolated value
     } else {
       t += delta;
       value = from + func(t / duration) * difference;
-      return false;
+      return !1;
     }
   };
 

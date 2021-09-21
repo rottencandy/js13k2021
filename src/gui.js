@@ -129,7 +129,7 @@ const handleDragDirection = () => {
         touchDir = relY < 0 ? 'Up' : 'Down';
         drawDragIndicatorUD(relY > 0);
       }
-      return true;
+      return 1;
     }
 
   } else {
@@ -179,8 +179,8 @@ const indicatorColor = rgba(255, 255, 255, 0.7);
 const indicatorSize = 60;
 const levelTransitionColor = rgba(70, 90, 90, 1);
 
-let inEditor = false;
-let inLevel = false;
+let inEditor = 0;
+let inLevel = 0;
 let tweenedIntroBG = createInterp(titleGradient2_from, titleGradient2_to, 10, EASEOUTQUAD);
 let tweenedTransition;
 let tweenedPauseCircle;
@@ -311,8 +311,8 @@ const [step] = createSM({
       tweenedPauseCircle = createInterp(GAME_WIDTH, 0, 0.7);
       emitSignal(S_QUIT_TO_MAIN);
       hideInput();
-      inEditor = false;
-      inLevel = false;
+      inEditor = 0;
+      inLevel = 0;
       return UNPAUSE_TRANSITION;
     }
   },
