@@ -207,8 +207,7 @@ export const render = (delta, t, paused) => {
 
     PlatformData.map(renderPlatformFaces);
   }
-
-}
+};
 
 // }}}
 
