@@ -14,9 +14,9 @@
     "uglify-debug": "uglifyjs --compress --mangle --mangle-props regex=/^.[^$]/,debug --name-cache uglify-cache.json -o app/main.js -- app/main.js",
     "bundle": "./bundle.sh"
   },
-  "dependencies": {
+  "devDependencies": {
     "@rottencandy/esbuild-plugin-glslx": "^0.0.3",
-    "esbuild": "^0.12.19",
-    "uglify-js": "^3.14.1"
+    "esbuild": "^0.13.4",
+    "uglify-js": "^3.14.2"
   }
 }

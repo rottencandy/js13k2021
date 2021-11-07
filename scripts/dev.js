@@ -2,6 +2,7 @@ const glslxPlugin = require('@rottencandy/esbuild-plugin-glslx');
 require('esbuild').build({
   entryPoints: ['src/main.js', 'src/app.css'],
   bundle: true,
+  sourcemap: 'inline',
   charset: 'utf8',
   target: 'es6',
   format: 'iife',
